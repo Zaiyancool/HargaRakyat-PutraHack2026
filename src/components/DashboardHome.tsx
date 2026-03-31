@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { TrendingUp, TrendingDown, Minus, BarChart3, ShoppingCart, Database, Activity } from "lucide-react";
 import { useItemLookup, usePricesAgg, usePricesAggJan, usePriceForecast } from "@/hooks/usePriceCatcher";
 import { SkeletonCard } from "@/components/SkeletonCard";
+import { BasketTracker } from "@/components/BasketTracker";
 
 export function DashboardHome() {
   const { data: items, isLoading: li } = useItemLookup();
