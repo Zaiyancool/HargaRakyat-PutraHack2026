@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
-import { Map as MapIcon, Loader2 } from "lucide-react";
+import { Map as MapIcon, Loader2, Navigation, MapPin } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useItemLookup, usePremises, useCheapestStores } from "@/hooks/usePriceCatcher";
@@ -159,11 +159,29 @@ export function PriceMap() {
                 {markers.map((m) => (
                   <Marker key={m.p} position={m.coords} icon={m.icon}>
                     <Popup>
-                      <div className="text-xs space-y-1">
+                      <div className="text-xs space-y-1.5">
                         <p className="font-bold text-sm">{m.premise.n}</p>
                         <p>{m.premise.a}</p>
-                        <p className="font-semibold" style={{ color: "#059669" }}>RM {m.avg.toFixed(2)}</p>
+                        <p className="font-semibold font-mono" style={{ color: "#059669" }}>RM {m.avg.toFixed(2)}</p>
                         <p className="text-gray-500">{m.premise.t} · {m.premise.d}</p>
+                        <div className="flex gap-2 pt-1">
+                          <a
+                            href={`https://www.google.com/maps/dir/?api=1&destination=${m.coords[0]},${m.coords[1]}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                          >
+                            <Navigation className="w-3 h-3" /> Google Maps
+                          </a>
+                          <a
+                            href={`https://maps.apple.com/?daddr=${m.coords[0]},${m.coords[1]}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium bg-gray-700 text-white hover:bg-gray-600 transition-colors"
+                          >
+                            <MapPin className="w-3 h-3" /> Apple Maps
+                          </a>
+                        </div>
                       </div>
                     </Popup>
                   </Marker>
