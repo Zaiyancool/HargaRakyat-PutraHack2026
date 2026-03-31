@@ -4,9 +4,11 @@ import {
   fetchPricesAgg,
   fetchPricesAggJan,
   fetchPricesByState,
+  fetchPriceHistory,
   type ItemLookup,
   type PriceAgg,
   type PriceByState,
+  type PriceHistory,
 } from "@/lib/pricecatcher";
 
 export function useItemLookup() {

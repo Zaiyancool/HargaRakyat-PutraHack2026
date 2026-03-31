@@ -46,6 +46,7 @@ export const fetchPremises = () => fetchJSON<PremiseLookup[]>("/data/premises.js
 export const fetchPricesAgg = () => fetchJSON<PriceAgg[]>("/data/prices_agg.json");
 export const fetchPricesAggJan = () => fetchJSON<PriceAgg[]>("/data/prices_agg_jan.json");
 export const fetchPricesByState = () => fetchJSON<PriceByState>("/data/prices_by_state.json");
+export const fetchPriceHistory = () => fetchJSON<PriceHistory>("/data/prices_history.json");
 
 export const STATES = [
   "Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan",
