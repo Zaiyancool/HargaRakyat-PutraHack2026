@@ -44,15 +44,14 @@ export function PriceForecast() {
   const chartData = useMemo(() => {
     if (!itemForecast) return [];
 
-    // Take last 8 weeks of history + 14 days forecast
-    const hist = itemForecast.history.slice(-8).map((p) => ({
+    // Show ALL history (full 6 months) + 14 days forecast
+    const hist = itemForecast.history.map((p) => ({
       date: p.date,
       label: formatDate(p.date),
       actual: p.price,
       forecast: null as number | null,
     }));
 
-    // Bridge: last history point also starts forecast
     const lastHist = hist[hist.length - 1];
 
     const fc = itemForecast.forecast.map((p) => ({
@@ -62,7 +61,7 @@ export function PriceForecast() {
       forecast: p.price,
     }));
 
-    // Add bridge point
+    // Bridge: connect history to forecast
     if (lastHist) {
       fc.unshift({
         date: lastHist.date,
@@ -210,7 +209,7 @@ export function PriceForecast() {
             <div className="glass-card rounded-xl p-6">
               <h3 className="font-semibold mb-1">{selectedItemData?.n}</h3>
               <p className="text-sm text-muted-foreground mb-6">
-                {selectedItemData?.k} · {selectedItemData?.u} · Historical + 14-day forecast
+                {selectedItemData?.k} · {selectedItemData?.u} · Oct 2025 – Mar 2026 + 14-day forecast
               </p>
               <div className="h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
