@@ -1,14 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import {
   fetchItems,
+  fetchPremises,
   fetchPricesAgg,
   fetchPricesAggJan,
   fetchPricesByState,
   fetchPriceHistory,
+  fetchCheapestStores,
   type ItemLookup,
+  type PremiseLookup,
   type PriceAgg,
   type PriceByState,
   type PriceHistory,
+  type CheapestStores,
 } from "@/lib/pricecatcher";
 
 export function useItemLookup() {
@@ -47,6 +51,22 @@ export function usePriceHistory() {
   return useQuery<PriceHistory>({
     queryKey: ["prices-history"],
     queryFn: fetchPriceHistory,
+    staleTime: Infinity,
+  });
+}
+
+export function usePremises() {
+  return useQuery<PremiseLookup[]>({
+    queryKey: ["premises"],
+    queryFn: fetchPremises,
+    staleTime: Infinity,
+  });
+}
+
+export function useCheapestStores() {
+  return useQuery<CheapestStores>({
+    queryKey: ["cheapest-stores"],
+    queryFn: fetchCheapestStores,
     staleTime: Infinity,
   });
 }
