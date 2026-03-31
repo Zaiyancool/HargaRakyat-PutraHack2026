@@ -68,7 +68,7 @@ export function PriceChart() {
   }, [chartData]);
 
   return (
-    <section className="container py-12">
+    <div>
       <div className="space-y-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -224,6 +224,6 @@ export function PriceChart() {
           </>
         )}
       </div>
-    </section>
+    </div>
   );
 }

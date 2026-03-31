@@ -49,7 +49,7 @@ export function PriceExplorer() {
   }, [pricesAgg, pricesByState, items, selectedState, selectedGroup, search, itemMap]);
 
   return (
-    <section className="container py-12">
+    <div>
       <div className="space-y-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -137,6 +137,6 @@ export function PriceExplorer() {
           </>
         )}
       </div>
-    </section>
+    </div>
   );
 }

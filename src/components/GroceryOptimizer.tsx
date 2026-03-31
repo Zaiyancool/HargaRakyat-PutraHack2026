@@ -148,7 +148,7 @@ export function GroceryOptimizer() {
   const displayResults = optimizedResults.length > 0 ? optimizedResults : partialResults;
 
   return (
-    <section className="container py-12">
+    <div>
       <div className="space-y-6">
         <div>
           <div className="flex items-center gap-2 mb-1">
@@ -281,6 +281,6 @@ export function GroceryOptimizer() {
           </div>
         )}
       </div>
-    </section>
+    </div>
   );
 }
