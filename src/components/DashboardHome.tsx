@@ -67,6 +67,9 @@ export function DashboardHome() {
         <KPICard icon={Activity} label="Data Period" value="Feb 2026" accent />
       </div>
 
+      {/* Basket Tracker */}
+      <BasketTracker />
+
       {/* Bento Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Top Movers - 2 cols */}
