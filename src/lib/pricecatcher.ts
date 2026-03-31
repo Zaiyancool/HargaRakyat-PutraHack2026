@@ -36,6 +36,21 @@ export type PriceByState = Record<string, Record<string, StateStats>>;
 // historical: { [item_code]: { [YYYY-MM]: StateStats } }
 export type PriceHistory = Record<string, Record<string, StateStats>>;
 
+export interface ForecastPoint {
+  date: string;
+  price: number;
+}
+
+export interface ItemForecast {
+  history: ForecastPoint[];
+  forecast: ForecastPoint[];
+  trend: "up" | "down" | "stable";
+  slope: number;
+  last_price: number;
+}
+
+export type PriceForecastData = Record<string, ItemForecast>;
+
 export interface CheapestStore {
   p: number; // premise_code
   avg: number;
