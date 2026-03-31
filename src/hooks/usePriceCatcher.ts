@@ -42,3 +42,11 @@ export function usePricesByState() {
     staleTime: Infinity,
   });
 }
+
+export function usePriceHistory() {
+  return useQuery<PriceHistory>({
+    queryKey: ["prices-history"],
+    queryFn: fetchPriceHistory,
+    staleTime: Infinity,
+  });
+}
