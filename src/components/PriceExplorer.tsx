@@ -3,94 +3,63 @@ import { Search, Filter, Loader2, ArrowUpDown, ChevronDown } from "lucide-react"
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useItemLookup, usePremiseLookup, usePriceData } from "@/hooks/usePriceCatcher";
+import { useItemLookup, usePricesAgg, usePricesByState } from "@/hooks/usePriceCatcher";
 import { STATES, ITEM_GROUPS } from "@/lib/pricecatcher";
-
-function getCurrentYearMonth() {
-  const now = new Date();
-  // Use previous month since current month might not be available yet
-  now.setMonth(now.getMonth() - 1);
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-}
 
 export function PriceExplorer() {
   const [search, setSearch] = useState("");
   const [selectedState, setSelectedState] = useState<string>("all");
   const [selectedGroup, setSelectedGroup] = useState<string>("all");
-  const [yearMonth] = useState(getCurrentYearMonth);
   const [showCount, setShowCount] = useState(50);
 
   const { data: items, isLoading: loadingItems } = useItemLookup();
-  const { data: premises, isLoading: loadingPremises } = usePremiseLookup();
-  const { data: prices, isLoading: loadingPrices } = usePriceData(yearMonth);
+  const { data: pricesAgg, isLoading: loadingPrices } = usePricesAgg();
+  const { data: pricesByState, isLoading: loadingByState } = usePricesByState();
 
-  const isLoading = loadingItems || loadingPremises || loadingPrices;
+  const isLoading = loadingItems || loadingPrices || loadingByState;
 
-  // Build lookup maps
   const itemMap = useMemo(() => {
-    const map = new Map<number, (typeof items)[0]>();
-    items?.forEach((i) => map.set(i.item_code, i));
+    const map = new Map<number, (typeof items extends (infer T)[] | undefined ? T : never)>();
+    items?.forEach((i) => map.set(i.c, i));
     return map;
   }, [items]);
 
-  const premiseMap = useMemo(() => {
-    const map = new Map<number, (typeof premises)[0]>();
-    premises?.forEach((p) => map.set(p.premise_code, p));
-    return map;
-  }, [premises]);
-
-  // Aggregate: avg price per item, optionally filtered by state
   const aggregated = useMemo(() => {
-    if (!prices || !items) return [];
+    if (!pricesAgg || !items) return [];
 
-    // Filter premises by state
-    const validPremises = new Set<number>();
-    if (selectedState !== "all" && premises) {
-      premises.forEach((p) => {
-        if (p.state === selectedState) validPremises.add(p.premise_code);
-      });
-    }
+    return pricesAgg
+      .map((p) => {
+        const item = itemMap.get(p.c);
+        if (!item) return null;
+        if (selectedGroup !== "all" && item.g !== selectedGroup) return null;
 
-    const acc: Record<number, { sum: number; count: number; min: number; max: number }> = {};
+        // If a state is selected, use state-specific stats
+        let stats = { avg: p.avg, min: p.min, max: p.max, n: p.n };
+        if (selectedState !== "all" && pricesByState) {
+          const stateData = pricesByState[String(p.c)]?.[selectedState];
+          if (!stateData) return null; // item not sold in this state
+          stats = stateData;
+        }
 
-    for (const p of prices) {
-      if (selectedState !== "all" && !validPremises.has(p.premise_code)) continue;
-
-      const item = itemMap.get(p.item_code);
-      if (!item) continue;
-      if (selectedGroup !== "all" && item.item_group !== selectedGroup) continue;
-
-      if (!acc[p.item_code]) {
-        acc[p.item_code] = { sum: 0, count: 0, min: Infinity, max: -Infinity };
-      }
-      acc[p.item_code].sum += p.price;
-      acc[p.item_code].count++;
-      acc[p.item_code].min = Math.min(acc[p.item_code].min, p.price);
-      acc[p.item_code].max = Math.max(acc[p.item_code].max, p.price);
-    }
-
-    return Object.entries(acc)
-      .map(([code, stats]) => {
-        const item = itemMap.get(Number(code));
         return {
-          item_code: Number(code),
-          item: item?.item ?? "Unknown",
-          unit: item?.unit ?? "",
-          category: item?.item_category ?? "",
-          group: item?.item_group ?? "",
-          avg: stats.sum / stats.count,
-          min: stats.min,
-          max: stats.max,
-          count: stats.count,
+          item_code: p.c,
+          item: item.n,
+          unit: item.u,
+          category: item.k,
+          group: item.g,
+          ...stats,
         };
       })
-      .filter((r) => {
+      .filter((r): r is NonNullable<typeof r> => {
+        if (!r) return false;
         if (!search) return true;
-        return r.item.toLowerCase().includes(search.toLowerCase()) ||
-          r.category.toLowerCase().includes(search.toLowerCase());
+        return (
+          r.item.toLowerCase().includes(search.toLowerCase()) ||
+          r.category.toLowerCase().includes(search.toLowerCase())
+        );
       })
       .sort((a, b) => a.item.localeCompare(b.item));
-  }, [prices, items, premises, selectedState, selectedGroup, search, itemMap]);
+  }, [pricesAgg, pricesByState, items, selectedState, selectedGroup, search, itemMap]);
 
   return (
     <section className="container py-12">
@@ -135,7 +104,7 @@ export function PriceExplorer() {
         </div>
 
         <div className="text-sm text-muted-foreground">
-          Data period: <span className="text-foreground font-medium">{yearMonth}</span>
+          Data period: <span className="text-foreground font-medium">Feb 2026</span>
           {!isLoading && (
             <span className="ml-4">{aggregated.length} items found</span>
           )}
@@ -144,8 +113,7 @@ export function PriceExplorer() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            <p className="text-muted-foreground text-sm">Loading price data from data.gov.my...</p>
-            <p className="text-muted-foreground text-xs">This may take a moment (large dataset)</p>
+            <p className="text-muted-foreground text-sm">Loading price data...</p>
           </div>
         ) : (
           <>
@@ -166,29 +134,25 @@ export function PriceExplorer() {
                     </tr>
                   </thead>
                   <tbody>
-                    {aggregated.slice(0, showCount).map((row) => {
-                      const spread = row.max - row.min;
-                      const spreadPct = row.avg > 0 ? (spread / row.avg) * 100 : 0;
-                      return (
-                        <tr key={row.item_code} className="border-b border-border/30 hover:bg-secondary/50 transition-colors">
-                          <td className="py-3 px-4 font-medium text-sm">{row.item}</td>
-                          <td className="py-3 px-4 text-sm text-muted-foreground">{row.category}</td>
-                          <td className="py-3 px-4 text-sm text-muted-foreground">{row.unit}</td>
-                          <td className="py-3 px-4 text-sm text-right font-mono font-semibold text-primary">
-                            RM {row.avg.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-right font-mono text-chart-up">
-                            RM {row.min.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-right font-mono text-chart-down">
-                            RM {row.max.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-right text-muted-foreground">
-                            {row.count.toLocaleString()}
-                          </td>
-                        </tr>
-                      );
-                    })}
+                    {aggregated.slice(0, showCount).map((row) => (
+                      <tr key={row.item_code} className="border-b border-border/30 hover:bg-secondary/50 transition-colors">
+                        <td className="py-3 px-4 font-medium text-sm">{row.item}</td>
+                        <td className="py-3 px-4 text-sm text-muted-foreground">{row.category}</td>
+                        <td className="py-3 px-4 text-sm text-muted-foreground">{row.unit}</td>
+                        <td className="py-3 px-4 text-sm text-right font-mono font-semibold text-primary">
+                          RM {row.avg.toFixed(2)}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-right font-mono text-chart-up">
+                          RM {row.min.toFixed(2)}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-right font-mono text-chart-down">
+                          RM {row.max.toFixed(2)}
+                        </td>
+                        <td className="py-3 px-4 text-sm text-right text-muted-foreground">
+                          {row.n.toLocaleString()}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>

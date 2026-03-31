@@ -1,61 +1,47 @@
-import Papa from "papaparse";
-
-export interface PriceRecord {
-  date: string;
-  premise_code: number;
-  item_code: number;
-  price: number;
-}
-
 export interface ItemLookup {
-  item_code: number;
-  item: string;
-  unit: string;
-  item_group: string;
-  item_category: string;
+  c: number; // item_code
+  n: string; // name
+  u: string; // unit
+  g: string; // item_group
+  k: string; // item_category
 }
 
 export interface PremiseLookup {
-  premise_code: number;
-  premise: string;
-  address: string;
-  premise_type: string;
-  state: string;
-  district: string;
+  c: number; // premise_code
+  n: string; // name
+  a: string; // address
+  t: string; // premise_type
+  s: string; // state
+  d: string; // district
 }
 
-const STORAGE_BASE = "https://storage.data.gov.my/pricecatcher";
-
-async function fetchCSV<T>(url: string): Promise<T[]> {
-  const res = await fetch(url);
-  const text = await res.text();
-  return new Promise((resolve, reject) => {
-    Papa.parse<T>(text, {
-      header: true,
-      dynamicTyping: true,
-      skipEmptyLines: true,
-      complete: (results) => resolve(results.data),
-      error: (err: Error) => reject(err),
-    });
-  });
+export interface PriceAgg {
+  c: number; // item_code
+  avg: number;
+  min: number;
+  max: number;
+  n: number; // record count
 }
 
-export async function fetchItemLookup(): Promise<ItemLookup[]> {
-  const data = await fetchCSV<ItemLookup>(`${STORAGE_BASE}/lookup_item.csv`);
-  return data.filter((d) => d.item_code > 0 && d.item);
+export interface StateStats {
+  avg: number;
+  min: number;
+  max: number;
+  n: number;
 }
 
-export async function fetchPremiseLookup(): Promise<PremiseLookup[]> {
-  const data = await fetchCSV<PremiseLookup>(`${STORAGE_BASE}/lookup_premise.csv`);
-  return data.filter((d) => d.premise_code > 0 && d.premise);
+// state-level: { [item_code]: { [state]: StateStats } }
+export type PriceByState = Record<string, Record<string, StateStats>>;
+
+async function fetchJSON<T>(path: string): Promise<T> {
+  const res = await fetch(path);
+  return res.json();
 }
 
-export async function fetchPriceData(yearMonth: string): Promise<PriceRecord[]> {
-  const data = await fetchCSV<PriceRecord>(
-    `${STORAGE_BASE}/pricecatcher_${yearMonth}.csv`
-  );
-  return data.filter((d) => d.item_code > 0);
-}
+export const fetchItems = () => fetchJSON<ItemLookup[]>("/data/items.json");
+export const fetchPremises = () => fetchJSON<PremiseLookup[]>("/data/premises.json");
+export const fetchPricesAgg = () => fetchJSON<PriceAgg[]>("/data/prices_agg.json");
+export const fetchPricesByState = () => fetchJSON<PriceByState>("/data/prices_by_state.json");
 
 export const STATES = [
   "Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan",
