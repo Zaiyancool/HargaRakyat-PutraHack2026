@@ -120,7 +120,7 @@ export function PriceForecast() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-stagger">
               <div className="glass-card rounded-xl p-4">
                 <p className="text-xs text-muted-foreground">Current Price</p>
                 <p className="text-2xl font-bold font-mono mt-1">RM {itemForecast.last_price.toFixed(2)}</p>
