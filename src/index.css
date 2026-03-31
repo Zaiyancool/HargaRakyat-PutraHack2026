@@ -127,12 +127,17 @@
 }
 
 @keyframes scroll-left {
-  0% { transform: translateX(0); }
+  0% { transform: translateX(0%); }
   100% { transform: translateX(-50%); }
 }
 
 .ticker-scroll {
   display: inline-flex;
-  animation: scroll-left 40s linear infinite;
+  animation: scroll-left 45s linear infinite;
   white-space: nowrap;
+  will-change: transform;
+}
+
+.ticker-scroll:hover {
+  animation-play-state: paused;
 }
