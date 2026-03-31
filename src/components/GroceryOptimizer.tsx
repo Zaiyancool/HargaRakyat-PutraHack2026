@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
-import { ShoppingCart, Plus, X, Loader2, MapPin, Navigation, Store, Sparkles, Check } from "lucide-react";
+import { ShoppingCart, Plus, X, MapPin, Navigation, Store, Sparkles, Check, Loader2 } from "lucide-react";
+import { SkeletonCard } from "@/components/SkeletonCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
