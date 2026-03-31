@@ -90,10 +90,7 @@ export function PriceExplorer() {
         </div>
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            <p className="text-muted-foreground text-sm">Loading price data...</p>
-          </div>
+          <SkeletonTable rows={8} />
         ) : (
           <>
             <div className="glass-card rounded-xl overflow-hidden">
