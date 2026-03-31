@@ -166,7 +166,7 @@ export function PriceMap() {
                         <p className="text-gray-500">{m.premise.t} · {m.premise.d}</p>
                         <div className="flex gap-2 pt-1">
                           <a
-                            href={`https://www.google.com/maps/dir/?api=1&destination=${m.coords[0]},${m.coords[1]}`}
+                            href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${m.premise.n}, ${m.premise.a}, ${m.premise.d}, ${m.premise.s}`)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium bg-blue-600 text-white hover:bg-blue-700 transition-colors"
@@ -174,7 +174,7 @@ export function PriceMap() {
                             <Navigation className="w-3 h-3" /> Google Maps
                           </a>
                           <a
-                            href={`https://maps.apple.com/?daddr=${m.coords[0]},${m.coords[1]}`}
+                            href={`https://maps.apple.com/?q=${encodeURIComponent(`${m.premise.n}, ${m.premise.a}, ${m.premise.d}, ${m.premise.s}`)}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium bg-gray-700 text-white hover:bg-gray-600 transition-colors"
