@@ -6,7 +6,7 @@ import {
 import { useItemLookup, usePriceHistory } from "@/hooks/usePriceCatcher";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, Loader2, TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { Search, Loader2, TrendingUp, TrendingDown, Minus, Activity } from "lucide-react";
 import { ITEM_GROUPS } from "@/lib/pricecatcher";
 
 const MONTHS = [
@@ -48,18 +48,13 @@ export function PriceChart() {
 
   const chartData = useMemo(() => {
     if (!history || !selectedItem) return [];
-
     const itemHistory = history[selectedItem];
     if (!itemHistory) return [];
-
     return MONTHS
       .filter((m) => itemHistory[m])
       .map((m) => ({
-        month: MONTH_LABELS[m],
-        avg: itemHistory[m].avg,
-        min: itemHistory[m].min,
-        max: itemHistory[m].max,
-        records: itemHistory[m].n,
+        month: MONTH_LABELS[m], avg: itemHistory[m].avg,
+        min: itemHistory[m].min, max: itemHistory[m].max, records: itemHistory[m].n,
       }));
   }, [history, selectedItem]);
 
@@ -75,48 +70,33 @@ export function PriceChart() {
     <section className="container py-12">
       <div className="space-y-6">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">
-            Price Timeline
-          </h2>
+          <div className="flex items-center gap-2 mb-1">
+            <Activity className="w-6 h-6 text-primary" />
+            <h2 className="text-2xl font-bold tracking-tight">Price Timeline</h2>
+          </div>
           <p className="text-muted-foreground mt-1">
             Track price trends for individual items over the past 8 months
           </p>
         </div>
 
-        {/* Product Selector */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search items to filter list..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10 bg-secondary border-border"
-            />
+            <Input placeholder="Search items to filter list..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-secondary border-border" />
           </div>
           <Select value={selectedGroup} onValueChange={(v) => { setSelectedGroup(v); setSelectedItem(""); }}>
-            <SelectTrigger className="w-[220px] bg-secondary border-border">
-              <SelectValue placeholder="Category" />
-            </SelectTrigger>
+            <SelectTrigger className="w-[220px] bg-secondary border-border"><SelectValue placeholder="Category" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
-              {ITEM_GROUPS.map((g) => (
-                <SelectItem key={g} value={g}>{g}</SelectItem>
-              ))}
+              {ITEM_GROUPS.map((g) => (<SelectItem key={g} value={g}>{g}</SelectItem>))}
             </SelectContent>
           </Select>
         </div>
 
         <Select value={selectedItem} onValueChange={setSelectedItem}>
-          <SelectTrigger className="w-full bg-secondary border-border">
-            <SelectValue placeholder="Select an item to view price history..." />
-          </SelectTrigger>
+          <SelectTrigger className="w-full bg-secondary border-border"><SelectValue placeholder="Select an item to view price history..." /></SelectTrigger>
           <SelectContent className="max-h-[300px]">
-            {filteredItems.map((i) => (
-              <SelectItem key={i.c} value={String(i.c)}>
-                {i.n} ({i.u})
-              </SelectItem>
-            ))}
+            {filteredItems.map((i) => (<SelectItem key={i.c} value={String(i.c)}>{i.n} ({i.u})</SelectItem>))}
           </SelectContent>
         </Select>
 
@@ -136,21 +116,20 @@ export function PriceChart() {
           </div>
         ) : (
           <>
-            {/* Stats Cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="glass-card rounded-xl p-4">
                 <p className="text-xs text-muted-foreground">Current Avg</p>
-                <p className="text-2xl font-bold mt-1">RM {chartData[chartData.length - 1].avg.toFixed(2)}</p>
+                <p className="text-2xl font-bold font-mono mt-1">RM {chartData[chartData.length - 1].avg.toFixed(2)}</p>
               </div>
               <div className="glass-card rounded-xl p-4">
                 <p className="text-xs text-muted-foreground">All-Time Min</p>
-                <p className="text-2xl font-bold mt-1 text-chart-up">
+                <p className="text-2xl font-bold font-mono mt-1 text-chart-up">
                   RM {Math.min(...chartData.map((d) => d.min)).toFixed(2)}
                 </p>
               </div>
               <div className="glass-card rounded-xl p-4">
                 <p className="text-xs text-muted-foreground">All-Time Max</p>
-                <p className="text-2xl font-bold mt-1 text-chart-down">
+                <p className="text-2xl font-bold font-mono mt-1 text-chart-down">
                   RM {Math.max(...chartData.map((d) => d.max)).toFixed(2)}
                 </p>
               </div>
@@ -162,7 +141,7 @@ export function PriceChart() {
                      priceChange.change < -1 ? <TrendingDown className="w-3 h-3 text-chart-up" /> :
                      <Minus className="w-3 h-3" />}
                   </p>
-                  <p className={`text-2xl font-bold mt-1 ${
+                  <p className={`text-2xl font-bold font-mono mt-1 ${
                     priceChange.change > 0 ? "text-chart-down" : "text-chart-up"
                   }`}>
                     {priceChange.change > 0 ? "+" : ""}{priceChange.change}%
@@ -171,7 +150,6 @@ export function PriceChart() {
               )}
             </div>
 
-            {/* Chart */}
             <div className="glass-card rounded-xl p-6">
               <h3 className="font-semibold mb-1">{selectedItemData?.n}</h3>
               <p className="text-sm text-muted-foreground mb-6">
@@ -187,64 +165,27 @@ export function PriceChart() {
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
-                    <XAxis
-                      dataKey="month"
-                      tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
-                    />
-                    <YAxis
-                      tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }}
-                      tickFormatter={(v) => `RM${v}`}
-                      domain={["auto", "auto"]}
-                    />
+                    <XAxis dataKey="month" tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} />
+                    <YAxis tick={{ fontSize: 12, fill: "hsl(var(--muted-foreground))" }} tickFormatter={(v) => `RM${v}`} domain={["auto", "auto"]} />
                     <Tooltip
-                      contentStyle={{
-                        backgroundColor: "hsl(var(--background))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: "8px",
-                        fontSize: "13px",
-                      }}
+                      contentStyle={{ backgroundColor: "hsl(var(--card))", border: "1px solid hsl(var(--border))", borderRadius: "8px", fontSize: "13px" }}
                       formatter={(value: number, name: string) => {
                         const labels: Record<string, string> = { avg: "Average", min: "Minimum", max: "Maximum" };
                         return [`RM ${value.toFixed(2)}`, labels[name] || name];
                       }}
                     />
-                    <Legend
-                      formatter={(value) => {
-                        const labels: Record<string, string> = { avg: "Average", min: "Minimum", max: "Maximum" };
-                        return labels[value] || value;
-                      }}
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="avg"
-                      stroke="hsl(var(--primary))"
-                      strokeWidth={2.5}
-                      fill="url(#avgGradient)"
-                      dot={{ r: 4, fill: "hsl(var(--primary))" }}
-                      activeDot={{ r: 6 }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="min"
-                      stroke="hsl(var(--chart-up))"
-                      strokeWidth={1.5}
-                      strokeDasharray="4 4"
-                      dot={{ r: 3 }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="max"
-                      stroke="hsl(var(--chart-down))"
-                      strokeWidth={1.5}
-                      strokeDasharray="4 4"
-                      dot={{ r: 3 }}
-                    />
+                    <Legend formatter={(value) => {
+                      const labels: Record<string, string> = { avg: "Average", min: "Minimum", max: "Maximum" };
+                      return labels[value] || value;
+                    }} />
+                    <Area type="monotone" dataKey="avg" stroke="hsl(var(--primary))" strokeWidth={2.5} fill="url(#avgGradient)" dot={{ r: 4, fill: "hsl(var(--primary))" }} activeDot={{ r: 6 }} />
+                    <Line type="monotone" dataKey="min" stroke="hsl(var(--chart-up))" strokeWidth={1.5} strokeDasharray="4 4" dot={{ r: 3 }} />
+                    <Line type="monotone" dataKey="max" stroke="hsl(var(--chart-down))" strokeWidth={1.5} strokeDasharray="4 4" dot={{ r: 3 }} />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
             </div>
 
-            {/* Monthly Breakdown Table */}
             <div className="glass-card rounded-xl overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
@@ -265,18 +206,10 @@ export function PriceChart() {
                       return (
                         <tr key={row.month} className="border-b border-border/30 hover:bg-secondary/50 transition-colors">
                           <td className="py-3 px-4 font-medium text-sm">{row.month}</td>
-                          <td className="py-3 px-4 text-sm text-right font-mono font-semibold text-primary">
-                            RM {row.avg.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-right font-mono text-chart-up">
-                            RM {row.min.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-right font-mono text-chart-down">
-                            RM {row.max.toFixed(2)}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-right text-muted-foreground">
-                            {row.records.toLocaleString()}
-                          </td>
+                          <td className="py-3 px-4 text-sm text-right font-mono font-semibold text-primary">RM {row.avg.toFixed(2)}</td>
+                          <td className="py-3 px-4 text-sm text-right font-mono text-chart-up">RM {row.min.toFixed(2)}</td>
+                          <td className="py-3 px-4 text-sm text-right font-mono text-chart-down">RM {row.max.toFixed(2)}</td>
+                          <td className="py-3 px-4 text-sm text-right font-mono text-muted-foreground">{row.records.toLocaleString()}</td>
                           <td className={`py-3 px-4 text-sm text-right font-mono font-semibold ${
                             change === null ? "text-muted-foreground" :
                             change > 0 ? "text-chart-down" : change < 0 ? "text-chart-up" : "text-muted-foreground"

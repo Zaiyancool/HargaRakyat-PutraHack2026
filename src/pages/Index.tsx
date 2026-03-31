@@ -6,7 +6,6 @@ import { PriceMap } from "@/components/PriceMap";
 import { PriceExplorer } from "@/components/PriceExplorer";
 import { StoreFinder } from "@/components/StoreFinder";
 import { Footer } from "@/components/Footer";
-import { NavLink } from "@/components/NavLink";
 
 const sections = [
   { id: "forecast", label: "AI Forecast" },
@@ -20,11 +19,10 @@ const sections = [
 const Index = () => {
   return (
     <div className="min-h-screen">
-      {/* Sticky Nav */}
       <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="container flex items-center justify-between py-3">
           <span className="font-heading font-bold text-lg">
-            Harga<span className="text-gradient">Rakyat</span>
+            Harga<span className="text-primary">Rakyat</span>
           </span>
           <div className="hidden md:flex items-center gap-1">
             {sections.map((s) => (
