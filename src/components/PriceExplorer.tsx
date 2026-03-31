@@ -10,7 +10,7 @@ export function PriceExplorer() {
   const [search, setSearch] = useState("");
   const [selectedState, setSelectedState] = useState<string>("all");
   const [selectedGroup, setSelectedGroup] = useState<string>("all");
-  const [showCount, setShowCount] = useState(50);
+  const [showCount, setShowCount] = useState(100);
 
   const { data: items, isLoading: loadingItems } = useItemLookup();
   const { data: pricesAgg, isLoading: loadingPrices } = usePricesAgg();
