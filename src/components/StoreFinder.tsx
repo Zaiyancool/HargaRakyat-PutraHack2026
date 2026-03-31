@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
-import { Search, MapPin, Store, Loader2, BadgeDollarSign, Navigation, Check } from "lucide-react";
+import { Search, MapPin, Store, BadgeDollarSign, Navigation, Check, Loader2 } from "lucide-react";
+import { SkeletonCard } from "@/components/SkeletonCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
