@@ -54,3 +54,19 @@ export function usePriceHistory() {
     staleTime: Infinity,
   });
 }
+
+export function usePremises() {
+  return useQuery<PremiseLookup[]>({
+    queryKey: ["premises"],
+    queryFn: fetchPremises,
+    staleTime: Infinity,
+  });
+}
+
+export function useCheapestStores() {
+  return useQuery<CheapestStores>({
+    queryKey: ["cheapest-stores"],
+    queryFn: fetchCheapestStores,
+    staleTime: Infinity,
+  });
+}
