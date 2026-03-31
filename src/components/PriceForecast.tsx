@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Search, TrendingUp, TrendingDown, Minus, Brain } from "lucide-react";
 import { SkeletonChart } from "@/components/SkeletonCard";
 import { ITEM_GROUPS } from "@/lib/pricecatcher";
+import { BestTimeToBuy } from "@/components/BestTimeToBuy";
 
 export function PriceForecast() {
   const [selectedItem, setSelectedItem] = useState<string>("");
@@ -190,6 +191,10 @@ export function PriceForecast() {
                 Forecast uses polynomial regression on 6 months of data from data.gov.my PriceCatcher
               </p>
             </div>
+
+            {itemForecast && selectedItemData && (
+              <BestTimeToBuy forecast={itemForecast} itemName={selectedItemData.n} />
+            )}
           </>
         )}
       </div>

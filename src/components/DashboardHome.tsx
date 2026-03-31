@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { TrendingUp, TrendingDown, Minus, BarChart3, ShoppingCart, Database, Activity } from "lucide-react";
 import { useItemLookup, usePricesAgg, usePricesAggJan, usePriceForecast } from "@/hooks/usePriceCatcher";
 import { SkeletonCard } from "@/components/SkeletonCard";
+import { BasketTracker } from "@/components/BasketTracker";
 
 export function DashboardHome() {
   const { data: items, isLoading: li } = useItemLookup();
@@ -65,6 +66,9 @@ export function DashboardHome() {
         <KPICard icon={BarChart3} label="Total Records" value={kpis?.totalRecords.toLocaleString() || "—"} />
         <KPICard icon={Activity} label="Data Period" value="Feb 2026" accent />
       </div>
+
+      {/* Basket Tracker */}
+      <BasketTracker />
 
       {/* Bento Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
