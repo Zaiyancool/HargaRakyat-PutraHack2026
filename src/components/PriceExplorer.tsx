@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { Search, Filter, Loader2, ArrowUpDown, ChevronDown, BarChart3 } from "lucide-react";
+import { Search, Filter, ArrowUpDown, ChevronDown, BarChart3 } from "lucide-react";
+import { SkeletonTable } from "@/components/SkeletonCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

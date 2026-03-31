@@ -27,7 +27,7 @@ export function HeroSection() {
             Live Food Security Intelligence
           </div>
 
-          <h1 className="text-4xl md:text-6xl font-bold font-heading tracking-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold font-heading tracking-tight">
             Harga<span className="text-primary">Rakyat</span>
           </h1>
 

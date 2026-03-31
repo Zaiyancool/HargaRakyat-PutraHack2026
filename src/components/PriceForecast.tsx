@@ -166,7 +166,7 @@ export function PriceForecast() {
               <p className="text-sm text-muted-foreground mb-6">
                 {selectedItemData?.k} · {selectedItemData?.u} · Oct 2025 – Mar 2026 + 14-day forecast
               </p>
-              <div className="h-[400px]">
+              <div className="h-[300px] md:h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />

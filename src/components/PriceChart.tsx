@@ -153,7 +153,7 @@ export function PriceChart() {
               <p className="text-sm text-muted-foreground mb-6">
                 {selectedItemData?.k} · {selectedItemData?.u} · Jul 2025 – Feb 2026
               </p>
-              <div className="h-[400px]">
+              <div className="h-[300px] md:h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                     <defs>

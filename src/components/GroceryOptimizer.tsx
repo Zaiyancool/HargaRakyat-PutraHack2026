@@ -214,8 +214,8 @@ export function GroceryOptimizer() {
         )}
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <div className="grid gap-3">
+            {[1, 2, 3].map((i) => <SkeletonCard key={i} lines={2} />)}
           </div>
         ) : basket.length === 0 ? (
           <div className="glass-card rounded-xl p-12 text-center">
