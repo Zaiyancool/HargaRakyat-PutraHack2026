@@ -25,6 +25,14 @@ export function usePricesAgg() {
   });
 }
 
+export function usePricesAggJan() {
+  return useQuery<PriceAgg[]>({
+    queryKey: ["prices-agg-jan"],
+    queryFn: fetchPricesAggJan,
+    staleTime: Infinity,
+  });
+}
+
 export function usePricesByState() {
   return useQuery<PriceByState>({
     queryKey: ["prices-by-state"],

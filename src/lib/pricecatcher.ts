@@ -41,6 +41,7 @@ async function fetchJSON<T>(path: string): Promise<T> {
 export const fetchItems = () => fetchJSON<ItemLookup[]>("/data/items.json");
 export const fetchPremises = () => fetchJSON<PremiseLookup[]>("/data/premises.json");
 export const fetchPricesAgg = () => fetchJSON<PriceAgg[]>("/data/prices_agg.json");
+export const fetchPricesAggJan = () => fetchJSON<PriceAgg[]>("/data/prices_agg_jan.json");
 export const fetchPricesByState = () => fetchJSON<PriceByState>("/data/prices_by_state.json");
 
 export const STATES = [
