@@ -7,12 +7,14 @@ import {
   fetchPricesByState,
   fetchPriceHistory,
   fetchCheapestStores,
+  fetchPriceForecast,
   type ItemLookup,
   type PremiseLookup,
   type PriceAgg,
   type PriceByState,
   type PriceHistory,
   type CheapestStores,
+  type PriceForecastData,
 } from "@/lib/pricecatcher";
 
 export function useItemLookup() {
@@ -67,6 +69,14 @@ export function useCheapestStores() {
   return useQuery<CheapestStores>({
     queryKey: ["cheapest-stores"],
     queryFn: fetchCheapestStores,
+    staleTime: Infinity,
+  });
+}
+
+export function usePriceForecast() {
+  return useQuery<PriceForecastData>({
+    queryKey: ["price-forecast"],
+    queryFn: fetchPriceForecast,
     staleTime: Infinity,
   });
 }

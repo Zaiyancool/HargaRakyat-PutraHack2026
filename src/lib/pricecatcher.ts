@@ -36,6 +36,21 @@ export type PriceByState = Record<string, Record<string, StateStats>>;
 // historical: { [item_code]: { [YYYY-MM]: StateStats } }
 export type PriceHistory = Record<string, Record<string, StateStats>>;
 
+export interface ForecastPoint {
+  date: string;
+  price: number;
+}
+
+export interface ItemForecast {
+  history: ForecastPoint[];
+  forecast: ForecastPoint[];
+  trend: "up" | "down" | "stable";
+  slope: number;
+  last_price: number;
+}
+
+export type PriceForecastData = Record<string, ItemForecast>;
+
 export interface CheapestStore {
   p: number; // premise_code
   avg: number;
@@ -57,6 +72,7 @@ export const fetchPricesAggJan = () => fetchJSON<PriceAgg[]>("/data/prices_agg_j
 export const fetchPricesByState = () => fetchJSON<PriceByState>("/data/prices_by_state.json");
 export const fetchPriceHistory = () => fetchJSON<PriceHistory>("/data/prices_history.json");
 export const fetchCheapestStores = () => fetchJSON<CheapestStores>("/data/cheapest_stores.json");
+export const fetchPriceForecast = () => fetchJSON<PriceForecastData>("/data/price_forecast.json");
 
 export const STATES = [
   "Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan",
