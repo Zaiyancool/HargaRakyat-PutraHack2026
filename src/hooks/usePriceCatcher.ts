@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   fetchItems,
   fetchPricesAgg,
+  fetchPricesAggJan,
   fetchPricesByState,
   type ItemLookup,
   type PriceAgg,
