@@ -7,12 +7,14 @@ import {
   fetchPricesByState,
   fetchPriceHistory,
   fetchCheapestStores,
+  fetchPriceForecast,
   type ItemLookup,
   type PremiseLookup,
   type PriceAgg,
   type PriceByState,
   type PriceHistory,
   type CheapestStores,
+  type PriceForecastData,
 } from "@/lib/pricecatcher";
 
 export function useItemLookup() {
