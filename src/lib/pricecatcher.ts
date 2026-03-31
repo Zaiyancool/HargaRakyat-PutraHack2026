@@ -33,6 +33,9 @@ export interface StateStats {
 // state-level: { [item_code]: { [state]: StateStats } }
 export type PriceByState = Record<string, Record<string, StateStats>>;
 
+// historical: { [item_code]: { [YYYY-MM]: StateStats } }
+export type PriceHistory = Record<string, Record<string, StateStats>>;
+
 async function fetchJSON<T>(path: string): Promise<T> {
   const res = await fetch(path);
   return res.json();
