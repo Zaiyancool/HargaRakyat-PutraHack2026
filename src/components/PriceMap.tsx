@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
-import { Map as MapIcon, Loader2 } from "lucide-react";
+import { Map as MapIcon, Loader2, Navigation, MapPin } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { useItemLookup, usePremises, useCheapestStores } from "@/hooks/usePriceCatcher";
