@@ -8,12 +8,12 @@ import { StoreFinder } from "@/components/StoreFinder";
 import { Footer } from "@/components/Footer";
 
 const sections = [
+  { id: "explorer", label: "Explorer" },
   { id: "forecast", label: "AI Forecast" },
   { id: "optimizer", label: "Smart Basket" },
   { id: "map", label: "Price Map" },
   { id: "timeline", label: "Timeline" },
   { id: "stores", label: "Stores" },
-  { id: "explorer", label: "Explorer" },
 ];
 
 const Index = () => {
