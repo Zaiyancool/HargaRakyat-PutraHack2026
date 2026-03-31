@@ -20,15 +20,16 @@ export function PriceForecast() {
   const isLoading = loadingItems || loadingForecast;
 
   const filteredItems = useMemo(() => {
-    if (!items) return [];
+    if (!items || !forecast) return [];
     return items
       .filter((i) => {
+        if (!forecast[String(i.c)]) return false;
         if (selectedGroup !== "all" && i.g !== selectedGroup) return false;
         if (search && !i.n.toLowerCase().includes(search.toLowerCase())) return false;
         return true;
       })
       .sort((a, b) => a.n.localeCompare(b.n));
-  }, [items, search, selectedGroup]);
+  }, [items, forecast, search, selectedGroup]);
 
   const selectedItemData = useMemo(() => {
     if (!items) return null;
