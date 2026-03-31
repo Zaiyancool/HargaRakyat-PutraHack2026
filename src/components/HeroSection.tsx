@@ -45,7 +45,7 @@ export function HeroSection() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-12 max-w-2xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-12 max-w-2xl mx-auto animate-stagger">
           {stats.map((s) => (
             <div key={s.label} className="glass-card rounded-xl p-4 text-center glow-primary">
               <s.icon className="w-5 h-5 mx-auto mb-2 text-primary" />
