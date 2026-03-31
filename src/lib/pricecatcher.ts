@@ -72,6 +72,7 @@ export const fetchPricesAggJan = () => fetchJSON<PriceAgg[]>("/data/prices_agg_j
 export const fetchPricesByState = () => fetchJSON<PriceByState>("/data/prices_by_state.json");
 export const fetchPriceHistory = () => fetchJSON<PriceHistory>("/data/prices_history.json");
 export const fetchCheapestStores = () => fetchJSON<CheapestStores>("/data/cheapest_stores.json");
+export const fetchPriceForecast = () => fetchJSON<PriceForecastData>("/data/price_forecast.json");
 
 export const STATES = [
   "Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan",

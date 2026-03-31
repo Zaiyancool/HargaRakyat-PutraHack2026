@@ -72,3 +72,11 @@ export function useCheapestStores() {
     staleTime: Infinity,
   });
 }
+
+export function usePriceForecast() {
+  return useQuery<PriceForecastData>({
+    queryKey: ["price-forecast"],
+    queryFn: fetchPriceForecast,
+    staleTime: Infinity,
+  });
+}
