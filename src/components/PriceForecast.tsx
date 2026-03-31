@@ -6,7 +6,8 @@ import {
 import { useItemLookup, usePriceForecast } from "@/hooks/usePriceCatcher";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, Loader2, TrendingUp, TrendingDown, Minus, Brain } from "lucide-react";
+import { Search, TrendingUp, TrendingDown, Minus, Brain } from "lucide-react";
+import { SkeletonChart } from "@/components/SkeletonCard";
 import { ITEM_GROUPS } from "@/lib/pricecatcher";
 
 export function PriceForecast() {
