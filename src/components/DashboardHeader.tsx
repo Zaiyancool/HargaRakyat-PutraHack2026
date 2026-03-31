@@ -18,7 +18,9 @@ interface DashboardHeaderProps {
 export function DashboardHeader({ activeSection }: DashboardHeaderProps) {
   return (
     <header className="sticky top-0 z-40 h-14 bg-background/80 backdrop-blur-xl border-b border-border/50 flex items-center px-4 gap-4">
-      <SidebarTrigger className="text-muted-foreground hover:text-foreground" />
+      <SidebarTrigger className="text-muted-foreground hover:text-foreground">
+        <Menu className="w-5 h-5" />
+      </SidebarTrigger>
       <div className="flex items-center gap-3 flex-1">
         <span className="font-heading font-bold text-lg">
           Harga<span className="text-primary">Rakyat</span>
