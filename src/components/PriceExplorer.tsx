@@ -137,6 +137,6 @@ export function PriceExplorer() {
           </>
         )}
       </div>
-    </section>
+    </div>
   );
 }

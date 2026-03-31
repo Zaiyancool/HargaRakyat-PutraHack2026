@@ -224,6 +224,6 @@ export function PriceChart() {
           </>
         )}
       </div>
-    </section>
+    </div>
   );
 }

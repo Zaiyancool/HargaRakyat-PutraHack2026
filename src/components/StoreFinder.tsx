@@ -218,6 +218,6 @@ export function StoreFinder() {
           </>
         )}
       </div>
-    </section>
+    </div>
   );
 }

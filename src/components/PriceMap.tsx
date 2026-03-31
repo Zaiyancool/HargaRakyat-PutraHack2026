@@ -196,6 +196,6 @@ export function PriceMap() {
           </div>
         )}
       </div>
-    </section>
+    </div>
   );
 }

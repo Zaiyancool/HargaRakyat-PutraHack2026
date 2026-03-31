@@ -281,6 +281,6 @@ export function GroceryOptimizer() {
           </div>
         )}
       </div>
-    </section>
+    </div>
   );
 }

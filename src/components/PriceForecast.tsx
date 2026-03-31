@@ -193,7 +193,7 @@ export function PriceForecast() {
           </>
         )}
       </div>
-    </section>
+    </div>
   );
 }
 
