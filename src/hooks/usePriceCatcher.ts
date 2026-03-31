@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   fetchItems,
   fetchPricesAgg,
+  fetchPricesAggJan,
   fetchPricesByState,
   type ItemLookup,
   type PriceAgg,
@@ -20,6 +21,14 @@ export function usePricesAgg() {
   return useQuery<PriceAgg[]>({
     queryKey: ["prices-agg"],
     queryFn: fetchPricesAgg,
+    staleTime: Infinity,
+  });
+}
+
+export function usePricesAggJan() {
+  return useQuery<PriceAgg[]>({
+    queryKey: ["prices-agg-jan"],
+    queryFn: fetchPricesAggJan,
     staleTime: Infinity,
   });
 }
