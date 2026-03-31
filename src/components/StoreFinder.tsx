@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
-import { Search, MapPin, Store, Loader2, BadgeDollarSign, Navigation, Check } from "lucide-react";
+import { Search, MapPin, Store, BadgeDollarSign, Navigation, Check, Loader2 } from "lucide-react";
+import { SkeletonCard } from "@/components/SkeletonCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -146,9 +147,8 @@ export function StoreFinder() {
         </div>
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            <p className="text-muted-foreground text-sm">Loading store data...</p>
+          <div className="grid gap-3">
+            {[1, 2, 3].map((i) => <SkeletonCard key={i} lines={2} />)}
           </div>
         ) : !selectedItem ? (
           <div className="glass-card rounded-xl p-12 text-center">

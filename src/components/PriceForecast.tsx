@@ -6,7 +6,8 @@ import {
 import { useItemLookup, usePriceForecast } from "@/hooks/usePriceCatcher";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, Loader2, TrendingUp, TrendingDown, Minus, Brain } from "lucide-react";
+import { Search, TrendingUp, TrendingDown, Minus, Brain } from "lucide-react";
+import { SkeletonChart } from "@/components/SkeletonCard";
 import { ITEM_GROUPS } from "@/lib/pricecatcher";
 
 export function PriceForecast() {
@@ -107,10 +108,7 @@ export function PriceForecast() {
         </Select>
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            <p className="text-muted-foreground text-sm">Loading forecast data...</p>
-          </div>
+          <SkeletonChart />
         ) : !selectedItem ? (
           <div className="glass-card rounded-xl p-12 text-center">
             <Brain className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
@@ -122,7 +120,7 @@ export function PriceForecast() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-stagger">
               <div className="glass-card rounded-xl p-4">
                 <p className="text-xs text-muted-foreground">Current Price</p>
                 <p className="text-2xl font-bold font-mono mt-1">RM {itemForecast.last_price.toFixed(2)}</p>
@@ -168,7 +166,7 @@ export function PriceForecast() {
               <p className="text-sm text-muted-foreground mb-6">
                 {selectedItemData?.k} · {selectedItemData?.u} · Oct 2025 – Mar 2026 + 14-day forecast
               </p>
-              <div className="h-[400px]">
+              <div className="h-[300px] md:h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                     <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />

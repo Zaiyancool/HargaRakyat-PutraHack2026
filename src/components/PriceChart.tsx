@@ -6,7 +6,8 @@ import {
 import { useItemLookup, usePriceHistory } from "@/hooks/usePriceCatcher";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, Loader2, TrendingUp, TrendingDown, Minus, Activity } from "lucide-react";
+import { Search, TrendingUp, TrendingDown, Minus, Activity } from "lucide-react";
+import { SkeletonChart } from "@/components/SkeletonCard";
 import { ITEM_GROUPS } from "@/lib/pricecatcher";
 
 const MONTHS = [
@@ -101,10 +102,7 @@ export function PriceChart() {
         </Select>
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            <p className="text-muted-foreground text-sm">Loading price data...</p>
-          </div>
+          <SkeletonChart />
         ) : !selectedItem ? (
           <div className="glass-card rounded-xl p-12 text-center">
             <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
@@ -116,7 +114,7 @@ export function PriceChart() {
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-stagger">
               <div className="glass-card rounded-xl p-4">
                 <p className="text-xs text-muted-foreground">Current Avg</p>
                 <p className="text-2xl font-bold font-mono mt-1">RM {chartData[chartData.length - 1].avg.toFixed(2)}</p>
@@ -155,7 +153,7 @@ export function PriceChart() {
               <p className="text-sm text-muted-foreground mb-6">
                 {selectedItemData?.k} · {selectedItemData?.u} · Jul 2025 – Feb 2026
               </p>
-              <div className="h-[400px]">
+              <div className="h-[300px] md:h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
                     <defs>

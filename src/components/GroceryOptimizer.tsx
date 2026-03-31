@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
-import { ShoppingCart, Plus, X, Loader2, MapPin, Navigation, Store, Sparkles, Check } from "lucide-react";
+import { ShoppingCart, Plus, X, MapPin, Navigation, Store, Sparkles, Check, Loader2 } from "lucide-react";
+import { SkeletonCard } from "@/components/SkeletonCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -213,8 +214,8 @@ export function GroceryOptimizer() {
         )}
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <div className="grid gap-3">
+            {[1, 2, 3].map((i) => <SkeletonCard key={i} lines={2} />)}
           </div>
         ) : basket.length === 0 ? (
           <div className="glass-card rounded-xl p-12 text-center">

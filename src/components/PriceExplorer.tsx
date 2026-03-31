@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { Search, Filter, Loader2, ArrowUpDown, ChevronDown, BarChart3 } from "lucide-react";
+import { Search, Filter, ArrowUpDown, ChevronDown, BarChart3 } from "lucide-react";
+import { SkeletonTable } from "@/components/SkeletonCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -90,10 +91,7 @@ export function PriceExplorer() {
         </div>
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            <p className="text-muted-foreground text-sm">Loading price data...</p>
-          </div>
+          <SkeletonTable rows={8} />
         ) : (
           <>
             <div className="glass-card rounded-xl overflow-hidden">
