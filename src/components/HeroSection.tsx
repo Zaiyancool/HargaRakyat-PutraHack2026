@@ -1,4 +1,4 @@
-import { TrendingUp, Database, MapPin, ShieldCheck, Brain, ShoppingCart } from "lucide-react";
+import { TrendingUp, Database, MapPin, ShieldCheck, Brain, ShoppingCart, Activity } from "lucide-react";
 
 const stats = [
   { icon: Brain, label: "AI Forecasting", value: "14-Day" },
@@ -17,20 +17,18 @@ const features = [
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden py-16 md:py-24">
-      {/* Glow effects */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-3xl animate-pulse-glow pointer-events-none" />
-      <div className="absolute top-1/3 right-0 w-[300px] h-[300px] rounded-full bg-accent/5 blur-3xl pointer-events-none" />
 
       <div className="container relative z-10">
         <div className="max-w-3xl mx-auto text-center space-y-6 animate-slide-up">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm font-medium">
-            <ShieldCheck className="w-4 h-4" />
-            Food Security Intelligence Platform
+            <span className="pulse-dot" />
+            <Activity className="w-4 h-4" />
+            Live Food Security Intelligence
           </div>
 
           <h1 className="text-4xl md:text-6xl font-bold font-heading tracking-tight">
-            Harga
-            <span className="text-gradient">Rakyat</span>
+            Harga<span className="text-primary">Rakyat</span>
           </h1>
 
           <p className="text-lg text-muted-foreground max-w-xl mx-auto">

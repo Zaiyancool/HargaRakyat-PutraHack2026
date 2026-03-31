@@ -1,26 +1,28 @@
 export interface ItemLookup {
-  c: number; // item_code
-  n: string; // name
-  u: string; // unit
-  g: string; // item_group
-  k: string; // item_category
+  c: number;
+  n: string;
+  u: string;
+  g: string;
+  k: string;
 }
 
 export interface PremiseLookup {
-  c: number; // premise_code
-  n: string; // name
-  a: string; // address
-  t: string; // premise_type
-  s: string; // state
-  d: string; // district
+  c: number;
+  n: string;
+  a: string;
+  t: string;
+  s: string;
+  d: string;
+  lat: number;
+  lng: number;
 }
 
 export interface PriceAgg {
-  c: number; // item_code
+  c: number;
   avg: number;
   min: number;
   max: number;
-  n: number; // record count
+  n: number;
 }
 
 export interface StateStats {
@@ -30,10 +32,7 @@ export interface StateStats {
   n: number;
 }
 
-// state-level: { [item_code]: { [state]: StateStats } }
 export type PriceByState = Record<string, Record<string, StateStats>>;
-
-// historical: { [item_code]: { [YYYY-MM]: StateStats } }
 export type PriceHistory = Record<string, Record<string, StateStats>>;
 
 export interface ForecastPoint {
@@ -52,12 +51,11 @@ export interface ItemForecast {
 export type PriceForecastData = Record<string, ItemForecast>;
 
 export interface CheapestStore {
-  p: number; // premise_code
+  p: number;
   avg: number;
-  n: number; // records
+  n: number;
 }
 
-// { [item_code]: CheapestStore[] }
 export type CheapestStores = Record<string, CheapestStore[]>;
 
 async function fetchJSON<T>(path: string): Promise<T> {

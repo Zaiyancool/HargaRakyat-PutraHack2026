@@ -1,11 +1,11 @@
 import { useState, useMemo, useCallback } from "react";
-import { ShoppingCart, Plus, X, Loader2, MapPin, Navigation, Store, Sparkles } from "lucide-react";
+import { ShoppingCart, Plus, X, Loader2, MapPin, Navigation, Store, Sparkles, Check } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useItemLookup, usePremises, useCheapestStores } from "@/hooks/usePriceCatcher";
 import { STATES } from "@/lib/pricecatcher";
-import { STATE_COORDS, getDistance } from "@/lib/geo";
+import { getDistance } from "@/lib/geo";
 
 interface BasketItem {
   code: string;
@@ -63,11 +63,8 @@ export function GroceryOptimizer() {
     );
   }, []);
 
-  // Find the best store combinations for the basket
   const optimizedResults = useMemo(() => {
     if (!cheapest || !premises || basket.length === 0) return [];
-
-    // For each premise, calculate total basket cost
     const premiseCosts = new Map<number, { total: number; items: number; prices: Record<string, number> }>();
 
     for (const basketItem of basket) {
@@ -76,7 +73,6 @@ export function GroceryOptimizer() {
         const premise = premiseMap.get(store.p);
         if (!premise) continue;
         if (selectedState !== "all" && premise.s !== selectedState) continue;
-
         const existing = premiseCosts.get(store.p) || { total: 0, items: 0, prices: {} };
         existing.total += store.avg * basketItem.qty;
         existing.items += 1;
@@ -85,34 +81,23 @@ export function GroceryOptimizer() {
       }
     }
 
-    // Convert to array and sort
     let results = Array.from(premiseCosts.entries())
-      .filter(([, data]) => data.items === basket.length) // Must have ALL items
+      .filter(([, data]) => data.items === basket.length)
       .map(([premiseCode, data]) => {
         const premise = premiseMap.get(premiseCode)!;
-        const stateCoords = STATE_COORDS[premise.s];
         let distance: number | null = null;
-        if (userLocation && stateCoords) {
-          distance = getDistance(userLocation[0], userLocation[1], stateCoords[0], stateCoords[1]);
+        if (userLocation && premise.lat && premise.lng) {
+          distance = getDistance(userLocation[0], userLocation[1], premise.lat, premise.lng);
         }
         return {
-          premiseCode,
-          name: premise.n,
-          address: premise.a,
-          type: premise.t,
-          state: premise.s,
-          district: premise.d,
-          total: data.total,
-          items: data.items,
-          prices: data.prices,
-          distance,
+          premiseCode, name: premise.n, address: premise.a, type: premise.t,
+          state: premise.s, district: premise.d, total: data.total,
+          items: data.items, prices: data.prices, distance,
         };
       });
 
-    // Sort by distance if available, otherwise by price
     if (userLocation) {
       results.sort((a, b) => {
-        // Prefer stores with all items, then by a weighted score of price + distance
         if (a.distance !== null && b.distance !== null) {
           const scoreA = a.total + a.distance * 0.5;
           const scoreB = b.total + b.distance * 0.5;
@@ -127,10 +112,8 @@ export function GroceryOptimizer() {
     return results.slice(0, 15);
   }, [cheapest, premises, basket, selectedState, userLocation, premiseMap]);
 
-  // Stores that have SOME items (partial match)
   const partialResults = useMemo(() => {
     if (!cheapest || !premises || basket.length === 0 || optimizedResults.length > 0) return [];
-
     const premiseCosts = new Map<number, { total: number; items: number; prices: Record<string, number> }>();
 
     for (const basketItem of basket) {
@@ -139,7 +122,6 @@ export function GroceryOptimizer() {
         const premise = premiseMap.get(store.p);
         if (!premise) continue;
         if (selectedState !== "all" && premise.s !== selectedState) continue;
-
         const existing = premiseCosts.get(store.p) || { total: 0, items: 0, prices: {} };
         existing.total += store.avg * basketItem.qty;
         existing.items += 1;
@@ -153,16 +135,9 @@ export function GroceryOptimizer() {
       .map(([premiseCode, data]) => {
         const premise = premiseMap.get(premiseCode)!;
         return {
-          premiseCode,
-          name: premise.n,
-          address: premise.a,
-          state: premise.s,
-          district: premise.d,
-          type: premise.t,
-          total: data.total,
-          items: data.items,
-          prices: data.prices,
-          distance: null as number | null,
+          premiseCode, name: premise.n, address: premise.a, state: premise.s,
+          district: premise.d, type: premise.t, total: data.total,
+          items: data.items, prices: data.prices, distance: null as number | null,
         };
       })
       .sort((a, b) => b.items - a.items || a.total - b.total)
@@ -184,16 +159,11 @@ export function GroceryOptimizer() {
           </p>
         </div>
 
-        {/* Location + State */}
         <div className="flex flex-col md:flex-row gap-4">
-          <Button
-            variant="outline"
-            onClick={getLocation}
-            disabled={locating}
-            className="gap-2"
-          >
-            {locating ? <Loader2 className="w-4 h-4 animate-spin" /> : <Navigation className="w-4 h-4" />}
-            {userLocation ? "Location Set ✓" : "Use My Location"}
+          <Button variant="outline" onClick={getLocation} disabled={locating} className="gap-2">
+            {locating ? <Loader2 className="w-4 h-4 animate-spin" /> :
+              userLocation ? <Check className="w-4 h-4 text-primary" /> : <Navigation className="w-4 h-4" />}
+            {userLocation ? "Location Set" : "Use My Location"}
           </Button>
           <Select value={selectedState} onValueChange={setSelectedState}>
             <SelectTrigger className="w-[200px] bg-secondary border-border">
@@ -207,23 +177,13 @@ export function GroceryOptimizer() {
           </Select>
         </div>
 
-        {/* Search & Add */}
         <div className="relative">
           <ShoppingCart className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Search items to add to your basket..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10 bg-secondary border-border"
-          />
+          <Input placeholder="Search items to add to your basket..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 bg-secondary border-border" />
           {searchResults.length > 0 && (
             <div className="absolute z-20 w-full mt-1 rounded-lg border border-border bg-popover shadow-xl max-h-[250px] overflow-auto">
               {searchResults.map((item) => (
-                <button
-                  key={item.c}
-                  onClick={() => addToBasket(item)}
-                  className="w-full text-left px-4 py-2.5 hover:bg-secondary flex items-center justify-between text-sm"
-                >
+                <button key={item.c} onClick={() => addToBasket(item)} className="w-full text-left px-4 py-2.5 hover:bg-secondary flex items-center justify-between text-sm">
                   <span>{item.n} <span className="text-muted-foreground">({item.u})</span></span>
                   <Plus className="w-4 h-4 text-primary" />
                 </button>
@@ -232,7 +192,6 @@ export function GroceryOptimizer() {
           )}
         </div>
 
-        {/* Basket */}
         {basket.length > 0 && (
           <div className="glass-card rounded-xl p-4">
             <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
@@ -253,7 +212,6 @@ export function GroceryOptimizer() {
           </div>
         )}
 
-        {/* Results */}
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-4">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -295,19 +253,16 @@ export function GroceryOptimizer() {
                       <p className="font-medium text-sm truncate">{store.name}</p>
                       <p className="text-xs text-muted-foreground truncate">{store.address}</p>
                       <div className="flex gap-2 mt-1 flex-wrap">
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">
-                          {store.type}
-                        </span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-muted-foreground">{store.type}</span>
                         <span className="text-xs px-2 py-0.5 rounded-full bg-secondary text-muted-foreground flex items-center gap-1">
-                          <MapPin className="w-3 h-3" />
-                          {store.district}, {store.state}
+                          <MapPin className="w-3 h-3" />{store.district}, {store.state}
                         </span>
                         <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary">
                           {store.items}/{basket.length} items
                         </span>
                         {store.distance !== null && (
-                          <span className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent">
-                            ~{Math.round(store.distance)} km away
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-accent/10 text-accent flex items-center gap-1">
+                            <Navigation className="w-3 h-3" />~{store.distance < 1 ? `${Math.round(store.distance * 1000)}m` : `${store.distance.toFixed(1)}km`}
                           </span>
                         )}
                       </div>
