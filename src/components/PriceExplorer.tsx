@@ -44,7 +44,7 @@ export function PriceExplorer() {
         if (!search) return true;
         return r.item.toLowerCase().includes(search.toLowerCase()) || r.category.toLowerCase().includes(search.toLowerCase());
       })
-      .sort((a, b) => a.item.localeCompare(b.item));
+      .sort((a, b) => b.n - a.n);
   }, [pricesAgg, pricesByState, items, selectedState, selectedGroup, search, itemMap]);
 
   return (
