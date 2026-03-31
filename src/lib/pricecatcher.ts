@@ -33,6 +33,9 @@ export interface StateStats {
 // state-level: { [item_code]: { [state]: StateStats } }
 export type PriceByState = Record<string, Record<string, StateStats>>;
 
+// historical: { [item_code]: { [YYYY-MM]: StateStats } }
+export type PriceHistory = Record<string, Record<string, StateStats>>;
+
 async function fetchJSON<T>(path: string): Promise<T> {
   const res = await fetch(path);
   return res.json();
@@ -43,6 +46,7 @@ export const fetchPremises = () => fetchJSON<PremiseLookup[]>("/data/premises.js
 export const fetchPricesAgg = () => fetchJSON<PriceAgg[]>("/data/prices_agg.json");
 export const fetchPricesAggJan = () => fetchJSON<PriceAgg[]>("/data/prices_agg_jan.json");
 export const fetchPricesByState = () => fetchJSON<PriceByState>("/data/prices_by_state.json");
+export const fetchPriceHistory = () => fetchJSON<PriceHistory>("/data/prices_history.json");
 
 export const STATES = [
   "Johor", "Kedah", "Kelantan", "Melaka", "Negeri Sembilan",

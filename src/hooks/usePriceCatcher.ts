@@ -4,9 +4,11 @@ import {
   fetchPricesAgg,
   fetchPricesAggJan,
   fetchPricesByState,
+  fetchPriceHistory,
   type ItemLookup,
   type PriceAgg,
   type PriceByState,
+  type PriceHistory,
 } from "@/lib/pricecatcher";
 
 export function useItemLookup() {
@@ -37,6 +39,14 @@ export function usePricesByState() {
   return useQuery<PriceByState>({
     queryKey: ["prices-by-state"],
     queryFn: fetchPricesByState,
+    staleTime: Infinity,
+  });
+}
+
+export function usePriceHistory() {
+  return useQuery<PriceHistory>({
+    queryKey: ["prices-history"],
+    queryFn: fetchPriceHistory,
     staleTime: Infinity,
   });
 }
