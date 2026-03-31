@@ -1,91 +1,104 @@
 
 
-# HargaRakyat Design System Overhaul + Data Enhancement
+# HargaRakyat: AI Chat Advisor + Animations + Mobile Optimization
 
 ## Overview
-Transform HargaRakyat from a "typical vibe code webapp" into a premium Financial Intelligence aesthetic (Bloomberg Terminal-like but accessible). Update data sources with complete premise/item CSVs. Make Store Finder location-based using user geolocation + Haversine distance.
+Three features: (1) AI Chat Advisor sidebar using Lovable AI (free, uses pre-configured `LOVABLE_API_KEY`), (2) Framer Motion animations and skeleton loaders, (3) mobile-first responsive optimization with hamburger nav.
 
-## 1. Data Enhancement (Pre-processing Script)
+## 1. AI Chat Advisor Sidebar
 
-Run a Python script to:
-- Download `lookup_premise.csv` (~4,385 premises) and `lookup_item.csv` (~757 items) from data.gov.my
-- Generate updated `public/data/premises.json` and `public/data/items.json` with complete data
-- Since premises lack lat/lng coordinates, use a **district-to-coordinates mapping table** (manually curated for ~100+ Malaysian districts) so each premise gets approximate coordinates based on its district, not just state centroid
-- Update `cheapest_stores.json` to include all premises
+### Backend: Edge Function
+Create `supabase/functions/chat/index.ts` that:
+- Accepts `{ messages, context }` from the client
+- Calls Lovable AI Gateway (`https://ai.gateway.lovable.dev/v1/chat/completions`) with `google/gemini-3-flash-preview`
+- System prompt: "You are HargaRakyat AI advisor. You have access to Malaysian grocery price data. Help users decide when to buy items, suggest savings strategies, and explain price trends. Be concise and actionable. Respond in English or Malay based on user's language."
+- Streams SSE response back to client
+- Handles 429/402 errors gracefully
 
-## 2. Design System Overhaul
+### Frontend: Chat Sidebar Component
+Create `src/components/AIChatAdvisor.tsx`:
+- Floating chat button (bottom-right corner) with Bot icon
+- Opens a slide-in panel/drawer on click
+- Chat interface with message history, markdown rendering (install `react-markdown`)
+- Pre-built quick prompts: "When should I buy chicken?", "What items are getting cheaper?", "Best stores near me?"
+- Streams AI responses token-by-token
+- Context-aware: passes current forecast data summary to the AI so it can reference real trends
 
-### Color Palette (NO gradients)
-- **Primary**: Emerald Green `#059669` (trust, agriculture)
-- **Accent**: Amber Gold `#F59E0B` (alerts, AI insights)
-- **Background**: Deep Slate `#0F172A` with subtle radial gradient (center `#1E293B`, edges `#0F172A`)
-- **Card**: Glassmorphism 2.0 — `rgba(30, 41, 59, 0.6)`, `backdrop-blur(16px)`, `1px border #334155`
-- **Chart Up**: Emerald, **Chart Down**: Red, **Chart Neutral**: Amber
+### Dependencies
+- Add `react-markdown` for rendering AI responses
 
-### Typography
-- **UI elements**: Inter (already in use)
-- **Price numbers & data points**: JetBrains Mono (add Google Font import)
-- **Headings**: Space Grotesk (already in use)
+### Files
+| File | Action |
+|------|--------|
+| `supabase/functions/chat/index.ts` | Create edge function |
+| `src/components/AIChatAdvisor.tsx` | Create chat sidebar |
+| `src/pages/Index.tsx` | Add AIChatAdvisor component |
 
-### Files to update:
-- **`src/index.css`**: Update CSS variables for new palette, add radial gradient background, add JetBrains Mono import, remove `text-gradient` utility (no gradients)
-- **`tailwind.config.ts`**: Add `font-mono: ['JetBrains Mono', 'monospace']` to fontFamily
+## 2. Micro-Interactions & Animations
 
-### Icons
-- Replace all plain emoji usage with Lucide icons (already using lucide-react)
-- Add pulsing dot animation for "Live" status indicators
-- Ensure NO plain text emojis anywhere in the codebase (remove the checkmark emoji in GroceryOptimizer "Location Set ✓")
+### Approach: CSS animations (no Framer Motion needed)
+Use Tailwind + `tailwindcss-animate` (already installed) to avoid adding another dependency. This is lighter and avoids potential React version conflicts.
 
-## 3. Store Finder: Location-Based Nearest Store
+### Changes
+- **Skeleton loaders**: Create `src/components/SkeletonCard.tsx` — reusable skeleton for loading states in PriceExplorer, PriceForecast, StoreFinder, etc. Replace `<Loader2>` spinners with skeleton placeholders
+- **Card entrance animations**: Add staggered `animate-fade-in` with CSS `animation-delay` to cards in all sections
+- **Hover effects on glass-cards**: Add `hover:translate-y-[-2px] hover:shadow-lg hover:shadow-primary/10 transition-all duration-300` to `.glass-card` in `index.css`
+- **Data point hover glow**: Add glow effect on stat cards on hover
+- **Smooth scroll**: Add `scroll-behavior: smooth` to html
 
-### Update `src/lib/geo.ts`:
-- Add a `DISTRICT_COORDS` mapping (~100 districts with approximate lat/lng)
-- Update premise data to include district-level coordinates
+### Files
+| File | Action |
+|------|--------|
+| `src/index.css` | Add hover effects to glass-card, smooth scroll, stagger animation utilities |
+| `tailwind.config.ts` | Add fade-in-up, stagger keyframes |
+| `src/components/SkeletonCard.tsx` | Create reusable skeleton loader |
+| All section components | Replace Loader2 with skeletons, add entrance animations |
 
-### Update `src/components/StoreFinder.tsx`:
-- Add "Use My Location" button with `navigator.geolocation`
-- Calculate real distance from user to each store using Haversine formula on district coords
-- Sort results by distance (nearest first) when location is available
-- Show distance badge on each store card ("~5.2 km away")
+## 3. Mobile-First Optimization
 
-### Update `src/components/GroceryOptimizer.tsx`:
-- Already has location support — update to use district-level coords instead of state centroids
-- Remove the "✓" emoji, use a Lucide Check icon instead
+### Navigation
+- Add hamburger menu (Sheet/Drawer) for mobile nav in `Index.tsx`
+- Show section links in a slide-out drawer on small screens
+- Add the AI Chat button to mobile nav too
 
-## 4. Component Visual Updates
+### Touch-friendly
+- Increase tap targets on mobile (min 44px)
+- Make filter selects full-width on mobile (already mostly done)
+- Ensure tables scroll horizontally with visible scroll indicators
+- Make store cards stack properly on small screens
 
-### All components get the new design treatment:
-- **Cards**: Update `glass-card` class to use new glassmorphism spec (`rgba(30,41,59,0.6)`, `backdrop-blur-[16px]`, `border-[#334155]`)
-- **Price numbers**: Add `font-mono` class (JetBrains Mono) to ALL price displays across PriceExplorer, PriceForecast, PriceChart, StoreFinder, GroceryOptimizer
-- **Section headers**: More authoritative styling — larger, bolder, with subtle animated Lucide icons
-- **Nav**: Update brand text to solid emerald (no gradient)
-- **Background**: Add radial gradient to body/root
+### Responsive tweaks
+- Hero section: smaller text on mobile, single-column stats
+- Price Explorer table: horizontal scroll with sticky first column
+- Charts: reduce height on mobile (300px vs 400px)
+- Nav sections: scrollable horizontal on tablet
 
-### Specific component files to update:
-- `src/components/HeroSection.tsx` — remove `text-gradient`, use solid emerald, add pulsing "Live Data" indicator
-- `src/components/PriceForecast.tsx` — font-mono on prices, new card styles
-- `src/components/PriceChart.tsx` — font-mono on prices, new card styles
-- `src/components/PriceExplorer.tsx` — font-mono on table prices
-- `src/components/StoreFinder.tsx` — add geolocation, distance sorting, font-mono
-- `src/components/GroceryOptimizer.tsx` — remove emoji, font-mono prices
-- `src/components/PriceMap.tsx` — new card style, font-mono
-- `src/components/Footer.tsx` — updated branding
-- `src/pages/Index.tsx` — nav updated branding, radial bg
+### Files
+| File | Action |
+|------|--------|
+| `src/pages/Index.tsx` | Add mobile hamburger nav with Sheet component |
+| `src/components/PriceExplorer.tsx` | Sticky first column on mobile |
+| `src/components/PriceChart.tsx` | Responsive chart height |
+| `src/components/PriceForecast.tsx` | Responsive chart height |
+| `src/components/HeroSection.tsx` | Mobile text sizing |
 
-## 5. Files Summary
+## Cost Note
+The AI Chat uses **Lovable AI** which is already included with your project (LOVABLE_API_KEY is pre-configured). No external API keys needed. You get free included usage per month. If you exceed that, you can top up credits in Settings > Workspace > Usage.
+
+## Files Summary (12 files)
 
 | File | Action |
 |------|--------|
-| `src/index.css` | Update palette, add JetBrains Mono, radial bg, remove gradient util |
-| `tailwind.config.ts` | Add font-mono JetBrains Mono |
-| `src/lib/geo.ts` | Add district-level coordinates map |
-| `src/components/HeroSection.tsx` | New visual identity, no gradients, live indicator |
-| `src/components/StoreFinder.tsx` | Add geolocation + distance sorting |
-| `src/components/GroceryOptimizer.tsx` | Remove emoji, use district coords |
-| `src/components/PriceForecast.tsx` | font-mono prices, new cards |
-| `src/components/PriceChart.tsx` | font-mono prices, new cards |
-| `src/components/PriceExplorer.tsx` | font-mono prices |
-| `src/components/PriceMap.tsx` | New card style |
-| `src/components/Footer.tsx` | Updated branding |
-| `src/pages/Index.tsx` | Updated nav, radial bg |
+| `supabase/functions/chat/index.ts` | Create — AI chat edge function |
+| `src/components/AIChatAdvisor.tsx` | Create — Chat sidebar UI |
+| `src/components/SkeletonCard.tsx` | Create — Reusable skeleton loader |
+| `src/index.css` | Update — Glass-card hover, smooth scroll, stagger utils |
+| `tailwind.config.ts` | Update — New animation keyframes |
+| `src/pages/Index.tsx` | Update — Mobile nav + chat button |
+| `src/components/HeroSection.tsx` | Update — Entrance animations, mobile sizing |
+| `src/components/PriceExplorer.tsx` | Update — Skeletons, animations, mobile table |
+| `src/components/PriceForecast.tsx` | Update — Skeletons, animations, responsive chart |
+| `src/components/PriceChart.tsx` | Update — Skeletons, animations, responsive chart |
+| `src/components/StoreFinder.tsx` | Update — Skeletons, animations |
+| `src/components/GroceryOptimizer.tsx` | Update — Skeletons, animations |
 
