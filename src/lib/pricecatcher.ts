@@ -36,6 +36,15 @@ export type PriceByState = Record<string, Record<string, StateStats>>;
 // historical: { [item_code]: { [YYYY-MM]: StateStats } }
 export type PriceHistory = Record<string, Record<string, StateStats>>;
 
+export interface CheapestStore {
+  p: number; // premise_code
+  avg: number;
+  n: number; // records
+}
+
+// { [item_code]: CheapestStore[] }
+export type CheapestStores = Record<string, CheapestStore[]>;
+
 async function fetchJSON<T>(path: string): Promise<T> {
   const res = await fetch(path);
   return res.json();
