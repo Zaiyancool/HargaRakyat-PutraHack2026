@@ -39,12 +39,12 @@ const Index = () => {
       </nav>
 
       <HeroSection />
+      <div id="explorer"><PriceExplorer /></div>
       <div id="forecast"><PriceForecast /></div>
       <div id="optimizer"><GroceryOptimizer /></div>
       <div id="map"><PriceMap /></div>
       <div id="timeline"><PriceChart /></div>
       <div id="stores"><StoreFinder /></div>
-      <div id="explorer"><PriceExplorer /></div>
       <Footer />
     </div>
   );
