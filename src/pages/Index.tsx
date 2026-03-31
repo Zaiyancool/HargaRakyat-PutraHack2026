@@ -8,12 +8,12 @@ import { StoreFinder } from "@/components/StoreFinder";
 import { Footer } from "@/components/Footer";
 
 const sections = [
+  { id: "explorer", label: "Explorer" },
   { id: "forecast", label: "AI Forecast" },
   { id: "optimizer", label: "Smart Basket" },
   { id: "map", label: "Price Map" },
   { id: "timeline", label: "Timeline" },
   { id: "stores", label: "Stores" },
-  { id: "explorer", label: "Explorer" },
 ];
 
 const Index = () => {
@@ -39,12 +39,12 @@ const Index = () => {
       </nav>
 
       <HeroSection />
+      <div id="explorer"><PriceExplorer /></div>
       <div id="forecast"><PriceForecast /></div>
       <div id="optimizer"><GroceryOptimizer /></div>
       <div id="map"><PriceMap /></div>
       <div id="timeline"><PriceChart /></div>
       <div id="stores"><StoreFinder /></div>
-      <div id="explorer"><PriceExplorer /></div>
       <Footer />
     </div>
   );
