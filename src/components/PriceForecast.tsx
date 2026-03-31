@@ -108,10 +108,7 @@ export function PriceForecast() {
         </Select>
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20 gap-4">
-            <Loader2 className="w-8 h-8 animate-spin text-primary" />
-            <p className="text-muted-foreground text-sm">Loading forecast data...</p>
-          </div>
+          <SkeletonChart />
         ) : !selectedItem ? (
           <div className="glass-card rounded-xl p-12 text-center">
             <Brain className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
