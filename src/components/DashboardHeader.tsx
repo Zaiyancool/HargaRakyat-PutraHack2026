@@ -1,3 +1,4 @@
+import { Menu } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const sectionLabels: Record<string, string> = {
