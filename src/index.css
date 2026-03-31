@@ -60,6 +60,10 @@
     @apply border-border;
   }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
@@ -78,6 +82,12 @@
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid hsl(215 25% 27%);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .glass-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px -8px hsl(var(--primary) / 0.15);
   }
 
   .glow-primary {
@@ -88,9 +98,30 @@
     @apply w-2 h-2 rounded-full bg-primary;
     animation: pulse-dot 2s ease-in-out infinite;
   }
+
+  .animate-stagger > * {
+    animation: fade-in-up 0.5s ease-out both;
+  }
+
+  .animate-stagger > *:nth-child(1) { animation-delay: 0ms; }
+  .animate-stagger > *:nth-child(2) { animation-delay: 80ms; }
+  .animate-stagger > *:nth-child(3) { animation-delay: 160ms; }
+  .animate-stagger > *:nth-child(4) { animation-delay: 240ms; }
+  .animate-stagger > *:nth-child(5) { animation-delay: 320ms; }
+  .animate-stagger > *:nth-child(6) { animation-delay: 400ms; }
 }
 
 @keyframes pulse-dot {
   0%, 100% { opacity: 0.4; transform: scale(0.8); }
   50% { opacity: 1; transform: scale(1.2); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
 }
