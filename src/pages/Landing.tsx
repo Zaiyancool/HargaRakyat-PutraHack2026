@@ -5,7 +5,7 @@ import { WhySection } from "@/components/landing/WhySection";
 import { LandingFooter } from "@/components/landing/LandingFooter";
 
 const Landing = () => (
-  <div className="min-h-screen bg-background">
+  <div className="min-h-screen bg-white font-sans antialiased">
     <TopNav />
     <HeroSection />
     <ItemGrid />

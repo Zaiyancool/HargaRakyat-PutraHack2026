@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { ArrowRight, TrendingUp, BarChart3, Database } from "lucide-react";
+import { ArrowRight, TrendingUp, BarChart3, Database, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useItemLookup, usePricesAgg } from "@/hooks/usePriceCatcher";
+import { Link } from "react-router-dom";
 
 export function HeroSection() {
   const [email, setEmail] = useState("");
@@ -17,91 +17,172 @@ export function HeroSection() {
       : "0.00";
 
   return (
-    <section className="relative overflow-hidden py-16 md:py-28">
-      <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 md:grid-cols-2 md:px-6">
+    <section className="relative overflow-visible bg-white">
+      {/* Subtle grid background like Kraken */}
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, #e5eaf3 1px, transparent 1px), linear-gradient(to bottom, #e5eaf3 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+          opacity: 0.5,
+        }}
+      />
+      {/* Blue glow */}
+      <div className="pointer-events-none absolute -top-32 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-primary/8 blur-3xl" />
+
+      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 pb-32 pt-24 md:grid-cols-2">
         {/* Left — copy */}
         <div className="max-w-xl">
-          <h1 className="text-4xl font-black leading-[1.08] tracking-tight text-foreground sm:text-5xl md:text-7xl">
+          <h1 className="text-5xl font-black leading-[1.05] tracking-[-0.03em] text-gray-900 sm:text-6xl md:text-7xl">
             Plan your
             <br />
             <span className="text-primary">grocery</span>
             <br />
             shopping
           </h1>
-          <p className="mt-5 text-lg leading-relaxed text-muted-foreground md:text-xl">
-            The first AI-powered platform forecasting daily grocery prices in
-            Malaysia — powered by KPDN PriceCatcher data.
+
+          <p className="mt-6 text-lg leading-relaxed text-gray-500 md:text-xl">
+            Malaysia's first AI-powered platform forecasting daily grocery prices
+            — powered by KPDN PriceCatcher data across 10,000+ premises.
           </p>
 
+          {/* Trust bullets */}
+          <ul className="mt-5 space-y-2">
+            {[
+              "Real government data, updated monthly",
+              "14-day AI price forecast",
+              "Find cheapest stores near you",
+            ].map((t) => (
+              <li key={t} className="flex items-center gap-2 text-sm text-gray-500">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <Check className="h-3 w-3 text-primary" />
+                </span>
+                {t}
+              </li>
+            ))}
+          </ul>
+
+          {/* Email CTA */}
           <div className="mt-8 flex max-w-md gap-3">
-            <Input
+            <input
               type="email"
               placeholder="Enter your email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-12 rounded-xl border-border bg-card text-base"
+              className="h-13 flex-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
-            <Button className="h-12 shrink-0 rounded-xl px-6 text-base font-semibold">
-              Sign Up <ArrowRight className="ml-1 h-4 w-4" />
+            <Button className="h-[50px] shrink-0 rounded-xl px-6 text-base font-bold shadow-sm">
+              Sign Up <ArrowRight className="ml-1.5 h-4 w-4" />
             </Button>
           </div>
+          <p className="mt-3 text-xs text-gray-400">Free to use. No credit card required.</p>
         </div>
 
         {/* Right — phone mockup */}
         <div className="flex justify-center">
-          <div className="relative mx-auto h-[480px] w-[240px] overflow-hidden rounded-[2.5rem] border-[6px] border-foreground/10 bg-card shadow-2xl md:h-[560px] md:w-[280px]">
-            {/* Status bar */}
-            <div className="flex h-7 items-center justify-center bg-foreground/5 text-[10px] font-semibold text-muted-foreground">
-              HargaRakyat
-            </div>
-            {/* Mini chart placeholder */}
-            <div className="flex flex-col gap-3 p-4">
-              <div className="h-3 w-3/4 rounded-full bg-primary/20" />
-              <div className="h-3 w-1/2 rounded-full bg-primary/10" />
-              <div className="mt-2 h-28 w-full rounded-xl bg-gradient-to-br from-primary/10 to-primary/5" />
-              <div className="mt-1 flex gap-2">
-                <div className="h-16 flex-1 rounded-lg bg-accent/10" />
-                <div className="h-16 flex-1 rounded-lg bg-chart-up/10" />
+          <div className="relative">
+            {/* Glow behind phone */}
+            <div className="absolute inset-0 scale-90 rounded-[3rem] bg-primary/15 blur-2xl" />
+
+            <div className="relative mx-auto h-[520px] w-[260px] overflow-hidden rounded-[2.5rem] border-[7px] border-gray-900 bg-white shadow-2xl md:h-[580px] md:w-[290px]">
+              {/* Notch */}
+              <div className="absolute left-1/2 top-0 h-7 w-24 -translate-x-1/2 rounded-b-2xl bg-gray-900" />
+
+              {/* App header */}
+              <div className="mt-7 flex items-center justify-between border-b border-gray-100 px-4 pb-3 pt-4">
+                <span className="text-[11px] font-black text-gray-900">HargaRakyat</span>
+                <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-bold text-white">LIVE</span>
               </div>
-              <div className="mt-2 space-y-2">
-                {[1, 2, 3, 4].map((i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-lg bg-secondary" />
-                    <div className="flex-1 space-y-1">
-                      <div className="h-2.5 w-3/4 rounded-full bg-secondary" />
-                      <div className="h-2 w-1/2 rounded-full bg-muted" />
+
+              {/* Trending section */}
+              <div className="px-4 pt-4">
+                <p className="text-[9px] font-semibold uppercase tracking-wider text-gray-400">Trending Today</p>
+                <div className="mt-2 space-y-2">
+                  {[
+                    { name: "Ayam (Std)", price: "8.50", pct: "+2.1%", up: true },
+                    { name: "Telur Gred A", price: "14.20", pct: "-0.8%", up: false },
+                    { name: "Beras Super", price: "32.90", pct: "+0.3%", up: true },
+                    { name: "Minyak Masak", price: "7.50", pct: "-1.2%", up: false },
+                  ].map((item) => (
+                    <div key={item.name} className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <div className="h-7 w-7 rounded-lg bg-primary/10 text-[8px] font-bold text-primary flex items-center justify-center">
+                          {item.name.slice(0, 2)}
+                        </div>
+                        <div>
+                          <p className="text-[10px] font-semibold text-gray-800">{item.name}</p>
+                          <p className="text-[9px] text-gray-400">per kg</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[10px] font-bold font-mono text-gray-900">RM {item.price}</p>
+                        <p className={`text-[9px] font-bold ${item.up ? "text-red-500" : "text-emerald-500"}`}>{item.pct}</p>
+                      </div>
                     </div>
-                    <div className="h-3 w-12 rounded-full bg-accent/20" />
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
+
+              {/* Mini chart */}
+              <div className="mt-4 mx-4 rounded-2xl bg-gradient-to-br from-primary/8 to-primary/3 p-3">
+                <p className="text-[9px] font-semibold text-primary">Price Forecast — 14 days</p>
+                <div className="mt-2 flex items-end gap-0.5 h-14">
+                  {[60, 72, 55, 68, 80, 65, 75, 85, 70, 90, 78, 88, 82, 95].map((h, i) => (
+                    <div
+                      key={i}
+                      className="flex-1 rounded-sm"
+                      style={{
+                        height: `${h}%`,
+                        background: i >= 7 ? "rgba(21,88,224,0.25)" : "rgba(21,88,224,0.6)",
+                      }}
+                    />
+                  ))}
+                </div>
+                <p className="mt-1 text-[8px] text-gray-400">Dashed = predicted</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Stats bar */}
-      <div className="mx-auto mt-16 max-w-3xl px-4 md:px-6">
-        <div className="flex flex-wrap items-center justify-center gap-6 rounded-2xl border border-border bg-card px-6 py-5 shadow-sm md:gap-12">
-          <Stat icon={<Database className="h-5 w-5 text-primary" />} value={itemCount.toLocaleString()} label="Items tracked" />
-          <div className="hidden h-8 w-px bg-border md:block" />
-          <Stat icon={<TrendingUp className="h-5 w-5 text-accent" />} value={`RM ${avgPrice}`} label="Avg item price" />
-          <div className="hidden h-8 w-px bg-border md:block" />
-          <Stat icon={<BarChart3 className="h-5 w-5 text-primary" />} value={totalRecords.toLocaleString()} label="Price records" />
+      {/* ── Stats bar — Kraken-style floating card ── */}
+      <div className="relative z-10 mx-auto mt-[-5rem] max-w-5xl px-6 pb-20">
+        <div className="rounded-[2.5rem] bg-white px-8 py-10 shadow-[0_8px_40px_rgba(0,0,0,0.06)] md:py-14">
+          <p className="mb-10 text-center text-[10px] font-bold uppercase tracking-wider text-gray-500">
+            Powered by KPDN PriceCatcher Data
+          </p>
+          <div className="grid grid-cols-1 gap-12 text-center sm:grid-cols-3 sm:gap-8">
+            <StatBlock
+              value={itemCount > 0 ? itemCount.toLocaleString() : "756"}
+              sublabel="Items tracked"
+            />
+            <StatBlock
+              value={`RM ${avgPrice !== "0.00" ? avgPrice : "16.53"}`}
+              sublabel="Avg item price"
+            />
+            <StatBlock
+              value={totalRecords > 0 ? totalRecords.toLocaleString() : "1,369,552"}
+              sublabel="Price records"
+            />
+          </div>
         </div>
       </div>
     </section>
   );
 }
 
-function Stat({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) {
+function StatBlock({
+  value,
+  sublabel,
+}: {
+  value: string;
+  sublabel: string;
+}) {
   return (
-    <div className="flex items-center gap-3">
-      {icon}
-      <div>
-        <p className="font-mono text-lg font-bold text-foreground">{value}</p>
-        <p className="text-xs text-muted-foreground">{label}</p>
-      </div>
+    <div className="flex flex-col items-center gap-3">
+      <p className="text-5xl font-medium tracking-tight text-gray-900 md:text-[56px]">{value}</p>
+      <p className="text-[13px] text-gray-500">{sublabel}</p>
     </div>
   );
 }

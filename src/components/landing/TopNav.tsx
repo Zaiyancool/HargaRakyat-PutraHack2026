@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Menu, X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -9,28 +9,44 @@ const navLinks = [
   { label: "Map", href: "/dashboard?s=map" },
   { label: "Forecast", href: "/dashboard?s=forecast" },
   { label: "Explorer", href: "/dashboard?s=explorer" },
+  { label: "News", href: "/news" },
 ];
 
 export function TopNav() {
   const [open, setOpen] = useState(false);
+  const location = useLocation();
+
+  const isActive = (href: string) => {
+    if (href === "/dashboard" && location.pathname === "/dashboard" && !location.search) return true;
+    if (href !== "/dashboard" && location.pathname + location.search === href) return true;
+    if (href === "/news" && location.pathname === "/news") return true;
+    return false;
+  };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/80 backdrop-blur-lg">
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 md:px-6">
+    <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/95 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <span className="text-xl font-black tracking-tight text-foreground">
+        <Link to="/" className="flex items-center gap-2 shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+            <span className="text-xs font-black text-white">HR</span>
+          </div>
+          <span className="text-lg font-black tracking-tight text-gray-900">
             Harga<span className="text-primary">Rakyat</span>
           </span>
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-0.5 md:flex">
           {navLinks.map((l) => (
             <Link
               key={l.label}
               to={l.href}
-              className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+              className={`rounded-lg px-4 py-2 text-[15px] font-semibold transition-all duration-150 ${
+                isActive(l.href)
+                  ? "bg-gray-100 text-gray-900"
+                  : "text-gray-500 hover:bg-gray-50 hover:text-gray-900"
+              }`}
             >
               {l.label}
             </Link>
@@ -38,41 +54,69 @@ export function TopNav() {
         </nav>
 
         {/* Desktop right */}
-        <div className="hidden items-center gap-2 md:flex">
-          <Button variant="ghost" size="icon" className="text-muted-foreground">
-            <Search className="h-4 w-4" />
+        <div className="hidden items-center gap-2 md:flex shrink-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-gray-500 hover:text-gray-900"
+            aria-label="Search"
+          >
+            <Search className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" className="text-sm font-medium">
+          <Button
+            variant="ghost"
+            className="rounded-lg px-5 text-[15px] font-semibold text-gray-600 hover:text-gray-900"
+          >
             Sign In
           </Button>
-          <Button className="rounded-lg px-5 text-sm font-semibold">
-            Log In
+          <Button className="rounded-xl px-5 text-[15px] font-bold shadow-sm">
+            Get Started
           </Button>
         </div>
 
         {/* Mobile hamburger */}
         <Sheet open={open} onOpenChange={setOpen}>
           <SheetTrigger asChild className="md:hidden">
-            <Button variant="ghost" size="icon">
+            <Button variant="ghost" size="icon" className="text-gray-600">
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-72 bg-background p-6">
-            <nav className="mt-8 flex flex-col gap-2">
-              {navLinks.map((l) => (
-                <Link
-                  key={l.label}
-                  to={l.href}
-                  onClick={() => setOpen(false)}
-                  className="rounded-lg px-3 py-3 text-base font-medium text-foreground transition-colors hover:bg-secondary"
-                >
-                  {l.label}
-                </Link>
-              ))}
-              <hr className="my-4 border-border" />
-              <Button variant="outline" className="w-full">Sign In</Button>
-              <Button className="w-full">Log In</Button>
-            </nav>
+          <SheetContent side="right" className="w-[280px] bg-white p-0">
+            <div className="flex flex-col h-full">
+              {/* Mobile header */}
+              <div className="flex items-center gap-2 p-5 border-b border-gray-100">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+                  <span className="text-xs font-black text-white">HR</span>
+                </div>
+                <span className="text-lg font-black tracking-tight text-gray-900">
+                  Harga<span className="text-primary">Rakyat</span>
+                </span>
+              </div>
+
+              {/* Mobile nav links */}
+              <nav className="flex flex-col gap-1 p-4 flex-1">
+                {navLinks.map((l) => (
+                  <Link
+                    key={l.label}
+                    to={l.href}
+                    onClick={() => setOpen(false)}
+                    className={`rounded-xl px-4 py-3 text-base font-semibold transition-colors ${
+                      isActive(l.href)
+                        ? "bg-primary/10 text-primary"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    }`}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+              </nav>
+
+              {/* Mobile auth buttons */}
+              <div className="p-4 border-t border-gray-100 flex flex-col gap-2">
+                <Button variant="outline" className="w-full font-semibold">Sign In</Button>
+                <Button className="w-full font-bold">Get Started</Button>
+              </div>
+            </div>
           </SheetContent>
         </Sheet>
       </div>

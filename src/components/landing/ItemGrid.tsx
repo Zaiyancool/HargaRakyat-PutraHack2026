@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { ArrowRight, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useItemLookup, usePricesAgg, usePricesAggJan } from "@/hooks/usePriceCatcher";
+import { Marquee } from "@/components/ui/marquee";
 
 const categories = [
   { label: "Popular", filter: null },
@@ -51,13 +52,27 @@ export function ItemGrid() {
 
   const visibleCount = showAll ? filtered.length : VISIBLE_ROWS * COLS;
   const visible = filtered.slice(0, visibleCount);
+  const thirdLength = Math.ceil(visible.length / 3);
+  const firstRow = visible.slice(0, thirdLength);
+  const secondRow = visible.slice(thirdLength, thirdLength * 2);
+  const thirdRow = visible.slice(thirdLength * 2);
 
   return (
-    <section className="py-16 md:py-24">
-      <div className="mx-auto max-w-7xl px-4 md:px-6">
-        <h2 className="text-center text-3xl font-black tracking-tight text-foreground md:text-4xl">
-          Which item do you want to purchase today?
+    <section className="overflow-hidden bg-white py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-6">
+        {/* Section label */}
+        <div className="flex justify-center">
+          <span className="rounded-full border border-primary/20 bg-primary/8 px-4 py-1.5 text-sm font-semibold text-primary">
+            Item Price Tracker
+          </span>
+        </div>
+        <h2 className="mt-5 text-center text-4xl font-black tracking-tight text-gray-900 md:text-5xl">
+          Which item do you want to
+          <br className="hidden sm:block" /> purchase today?
         </h2>
+        <p className="mx-auto mt-4 max-w-xl text-center text-lg text-gray-500">
+          Pause on any card to explore. Data from KPDN PriceCatcher.
+        </p>
 
         {/* Category tabs */}
         <div className="mt-8 flex flex-wrap justify-center gap-2">
@@ -65,10 +80,10 @@ export function ItemGrid() {
             <button
               key={cat.label}
               onClick={() => { setActiveCat(i); setShowAll(false); }}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+              className={`rounded-full px-5 py-2 text-sm font-bold transition-all duration-150 ${
                 i === activeCat
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                  ? "bg-primary text-white shadow-sm"
+                  : "border border-gray-200 bg-white text-gray-500 hover:border-primary/40 hover:text-primary"
               }`}
             >
               {cat.label}
@@ -76,62 +91,66 @@ export function ItemGrid() {
           ))}
         </div>
 
-        {/* Grid */}
-        <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
-          {visible.map((item) => {
-            const price = priceMap.get(item.c);
-            const jan = janMap.get(item.c);
-            const pct =
-              price && jan && jan > 0
-                ? ((price.avg - jan) / jan) * 100
-                : null;
-
-            return (
-              <div
-                key={item.c}
-                className="group flex flex-col items-center rounded-2xl border border-border bg-card p-4 text-center transition-all hover:border-primary/30 hover:shadow-md"
-              >
-                {/* Icon placeholder */}
-                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-xl bg-secondary text-xs font-bold text-muted-foreground">
-                  {item.u || "kg"}
-                </div>
-                <p className="line-clamp-2 text-xs font-semibold leading-tight text-foreground">
-                  {item.n}
-                </p>
-                {price && (
-                  <p className="mt-1 font-mono text-sm font-bold text-foreground">
-                    RM {price.avg.toFixed(2)}
-                  </p>
-                )}
-                {pct !== null && (
-                  <span
-                    className={`mt-1 inline-flex items-center gap-0.5 text-[10px] font-bold ${
-                      pct > 1 ? "text-chart-up" : pct < -1 ? "text-chart-down" : "text-chart-neutral"
-                    }`}
-                  >
-                    {pct > 1 ? <TrendingUp className="h-3 w-3" /> : pct < -1 ? <TrendingDown className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
-                    {pct > 0 ? "+" : ""}
-                    {pct.toFixed(1)}%
-                  </span>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Show more */}
-        {!showAll && filtered.length > visibleCount && (
-          <div className="mt-6 text-center">
-            <Button
-              variant="outline"
-              onClick={() => setShowAll(true)}
-              className="rounded-xl"
-            >
-              Show all {filtered.length} items <ArrowRight className="ml-1 h-4 w-4" />
-            </Button>
+        {/* Marquee Grids */}
+        {visible.length > 0 && (
+          <div className="relative mt-10 flex w-full flex-col items-center justify-center overflow-hidden">
+            <Marquee pauseOnHover className="[--duration:40s]">
+              {firstRow.map((item) => (
+                <ItemCard key={item.c} item={item} price={priceMap.get(item.c)} jan={janMap.get(item.c)} />
+              ))}
+            </Marquee>
+            <Marquee reverse pauseOnHover className="[--duration:45s]">
+              {secondRow.map((item) => (
+                <ItemCard key={item.c} item={item} price={priceMap.get(item.c)} jan={janMap.get(item.c)} />
+              ))}
+            </Marquee>
+            <Marquee pauseOnHover className="[--duration:35s]">
+              {thirdRow.map((item) => (
+                <ItemCard key={item.c} item={item} price={priceMap.get(item.c)} jan={janMap.get(item.c)} />
+              ))}
+            </Marquee>
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-1/5 bg-gradient-to-r from-white"></div>
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-1/5 bg-gradient-to-l from-white"></div>
           </div>
         )}
+
+
+        {/* CTA below marquee */}
+        <div className="mt-12 text-center">
+          <p className="mb-4 text-base text-gray-500">Sign up to track price changes and get alerts.</p>
+          <Button className="h-13 rounded-xl px-8 text-[16px] font-bold shadow-sm">
+            Sign up — it's free <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
+        </div>
       </div>
     </section>
+  );
+}
+
+function ItemCard({ item, price, jan }: { item: any; price: any; jan: any }) {
+  const pct = price && jan && jan > 0 ? ((price.avg - jan) / jan) * 100 : null;
+
+  return (
+    <div className="group flex w-48 shrink-0 flex-col items-center rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-md">
+      <p className="line-clamp-2 text-xs font-semibold leading-tight text-gray-900 mt-2">
+        {item.n}
+      </p>
+      {price && (
+        <p className="mt-1 font-mono text-sm font-bold text-foreground">
+          RM {price.avg.toFixed(2)}
+        </p>
+      )}
+      {pct !== null && (
+        <span
+          className={`mt-1 inline-flex items-center gap-0.5 text-[10px] font-bold ${
+            pct > 1 ? "text-chart-up" : pct < -1 ? "text-chart-down" : "text-chart-neutral"
+          }`}
+        >
+          {pct > 1 ? <TrendingUp className="h-3 w-3" /> : pct < -1 ? <TrendingDown className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
+          {pct > 0 ? "+" : ""}
+          {pct.toFixed(1)}%
+        </span>
+      )}
+    </div>
   );
 }

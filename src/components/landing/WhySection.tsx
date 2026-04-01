@@ -1,10 +1,13 @@
-import { TrendingUp, Brain, ShoppingCart, ArrowRight } from "lucide-react";
+import { TrendingUp, Brain, ShoppingCart, ArrowRight, Zap, Shield, Globe } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
 const features = [
   {
     icon: TrendingUp,
+    iconBg: "bg-blue-50",
+    iconColor: "text-primary",
+    tag: "Live Data",
     title: "Real-Time Prices",
     description:
       "Track prices across 10,000+ premises updated monthly from KPDN PriceCatcher — the most comprehensive grocery price dataset in Malaysia.",
@@ -13,6 +16,9 @@ const features = [
   },
   {
     icon: Brain,
+    iconBg: "bg-violet-50",
+    iconColor: "text-violet-600",
+    tag: "AI Powered",
     title: "AI Forecast",
     description:
       "ML-powered 14-day price predictions trained on 6 months of historical data. Know when prices will drop before you shop.",
@@ -21,6 +27,9 @@ const features = [
   },
   {
     icon: ShoppingCart,
+    iconBg: "bg-emerald-50",
+    iconColor: "text-emerald-600",
+    tag: "Smart Shopping",
     title: "Smart Savings",
     description:
       "Find the cheapest stores near you with geolocation-based search and optimize your basket to save up to 30% on groceries.",
@@ -29,33 +38,68 @@ const features = [
   },
 ];
 
+const secondaryFeatures = [
+  {
+    icon: Zap,
+    title: "Instant search",
+    desc: "Search 756+ grocery items instantly by name, category, or premises.",
+  },
+  {
+    icon: Shield,
+    title: "Government verified",
+    desc: "Data sourced directly from KPDN — Malaysia's official price regulator.",
+  },
+  {
+    icon: Globe,
+    title: "Nationwide coverage",
+    desc: "Prices from Perlis to Sabah — every state, every major chain.",
+  },
+];
+
 export function WhySection() {
   return (
-    <section className="bg-secondary/40 py-16 md:py-24">
-      <div className="mx-auto max-w-7xl px-4 md:px-6">
-        <h2 className="text-center text-3xl font-black tracking-tight text-foreground md:text-4xl">
-          Why HargaRakyat?
+    <section className="bg-[#F7F9FC] py-20 md:py-28">
+      <div className="mx-auto max-w-7xl px-6">
+        {/* Section label */}
+        <div className="flex items-center justify-center">
+          <span className="rounded-full border border-primary/20 bg-primary/8 px-4 py-1.5 text-sm font-semibold text-primary">
+            Why HargaRakyat?
+          </span>
+        </div>
+
+        <h2 className="mx-auto mt-5 max-w-2xl text-center text-4xl font-black tracking-tight text-gray-900 md:text-5xl">
+          Built for Malaysians who stretch every Ringgit
         </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-center text-base text-muted-foreground md:text-lg">
-          Built for Malaysians who want to stretch every Ringgit. Powered by
-          real government data and machine learning.
+        <p className="mx-auto mt-5 max-w-2xl text-center text-lg text-gray-500">
+          Powered by real government data and machine learning — not guesswork.
         </p>
 
-        <div className="mt-12 grid gap-6 md:grid-cols-3">
+        {/* Feature cards */}
+        <div className="mt-14 grid gap-6 md:grid-cols-3">
           {features.map((f) => (
             <div
               key={f.title}
-              className="flex flex-col rounded-2xl border border-border bg-card p-8 transition-all hover:border-primary/30 hover:shadow-lg"
+              className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-8 shadow-sm transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-lg"
             >
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                <f.icon className="h-6 w-6 text-primary" />
+              {/* Icon */}
+              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${f.iconBg}`}>
+                <f.icon className={`h-6 w-6 ${f.iconColor}`} />
               </div>
-              <h3 className="mt-5 text-xl font-bold text-foreground">{f.title}</h3>
-              <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+
+              {/* Tag */}
+              <span className="mt-4 text-xs font-bold uppercase tracking-widest text-gray-400">
+                {f.tag}
+              </span>
+
+              <h3 className="mt-2 text-2xl font-black text-gray-900">{f.title}</h3>
+              <p className="mt-3 flex-1 text-[15px] leading-relaxed text-gray-500">
                 {f.description}
               </p>
-              <Link to={f.href} className="mt-6">
-                <Button variant="outline" className="rounded-xl text-sm">
+              <Link to={f.href} className="mt-8">
+                <Button
+                  variant="outline"
+                  className="w-full rounded-xl border-gray-200 text-[15px] font-semibold text-gray-700 hover:border-primary hover:text-primary"
+                >
                   {f.cta} <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
               </Link>
@@ -63,13 +107,36 @@ export function WhySection() {
           ))}
         </div>
 
+        {/* Secondary mini-features row */}
+        <div className="mt-10 grid gap-4 sm:grid-cols-3">
+          {secondaryFeatures.map((f) => (
+            <div
+              key={f.title}
+              className="flex items-start gap-4 rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-sm"
+            >
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/8">
+                <f.icon className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-bold text-gray-900">{f.title}</p>
+                <p className="mt-0.5 text-sm text-gray-500">{f.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
         {/* CTA */}
-        <div className="mt-16 text-center">
+        <div className="mt-16 flex flex-col items-center gap-4">
           <Link to="/dashboard">
-            <Button size="lg" className="rounded-xl px-8 text-base font-semibold">
-              Get started with HargaRakyat <ArrowRight className="ml-2 h-4 w-4" />
+            <Button
+              size="lg"
+              className="h-14 rounded-xl px-10 text-[17px] font-black shadow-md hover:shadow-lg"
+            >
+              Get started with HargaRakyat{" "}
+              <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
+          <p className="text-sm text-gray-400">Free to use · No sign up required to explore</p>
         </div>
       </div>
     </section>

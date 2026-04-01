@@ -1,55 +1,118 @@
 import { Link } from "react-router-dom";
+import { ArrowRight, Github } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+const footerLinks = {
+  Product: [
+    { label: "Dashboard", href: "/dashboard" },
+    { label: "Price Explorer", href: "/dashboard?s=explorer" },
+    { label: "AI Forecast", href: "/dashboard?s=forecast" },
+    { label: "Price Map", href: "/dashboard?s=map" },
+  ],
+  Tools: [
+    { label: "Store Finder", href: "/dashboard?s=stores" },
+    { label: "Basket Optimizer", href: "/dashboard?s=optimizer" },
+    { label: "Price Timeline", href: "/dashboard?s=timeline" },
+  ],
+  Data: [
+    { label: "data.gov.my", href: "https://data.gov.my", external: true },
+    { label: "KPDN PriceCatcher", href: "https://data.gov.my", external: true },
+    { label: "PutraHack 2026", href: "#" },
+  ],
+};
 
 export function LandingFooter() {
   return (
-    <footer className="border-t border-border bg-card py-12">
-      <div className="mx-auto grid max-w-7xl gap-8 px-4 md:grid-cols-4 md:px-6">
-        {/* Brand */}
-        <div className="md:col-span-1">
-          <span className="text-lg font-black text-foreground">
-            Harga<span className="text-primary">Rakyat</span>
-          </span>
-          <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-            Malaysia's first AI-powered grocery price intelligence platform.
+    <footer className="border-t border-gray-100 bg-white">
+      {/* CTA band */}
+      <div className="bg-primary py-16">
+        <div className="mx-auto max-w-4xl px-6 text-center">
+          <h2 className="text-3xl font-black text-white md:text-4xl">
+            Ready to shop smarter?
+          </h2>
+          <p className="mt-3 text-lg text-white/70">
+            Track prices, predict trends, and save money — all in one place.
           </p>
-        </div>
-
-        {/* Links */}
-        <div>
-          <h4 className="text-sm font-bold text-foreground">Product</h4>
-          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/dashboard" className="hover:text-foreground">Dashboard</Link></li>
-            <li><Link to="/dashboard?s=explorer" className="hover:text-foreground">Price Explorer</Link></li>
-            <li><Link to="/dashboard?s=forecast" className="hover:text-foreground">AI Forecast</Link></li>
-            <li><Link to="/dashboard?s=map" className="hover:text-foreground">Price Map</Link></li>
-          </ul>
-        </div>
-        <div>
-          <h4 className="text-sm font-bold text-foreground">Tools</h4>
-          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li><Link to="/dashboard?s=stores" className="hover:text-foreground">Store Finder</Link></li>
-            <li><Link to="/dashboard?s=optimizer" className="hover:text-foreground">Basket Optimizer</Link></li>
-            <li><Link to="/dashboard?s=timeline" className="hover:text-foreground">Price Timeline</Link></li>
-          </ul>
-        </div>
-        <div>
-          <h4 className="text-sm font-bold text-foreground">About</h4>
-          <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-            <li>
-              <a href="https://data.gov.my" target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
-                data.gov.my
-              </a>
-            </li>
-            <li className="text-xs text-muted-foreground/70">PutraHack 2026 — Food Security Track</li>
-          </ul>
+          <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Link to="/dashboard">
+              <Button
+                size="lg"
+                className="h-13 rounded-xl bg-white px-8 text-[16px] font-black text-primary hover:bg-gray-100"
+              >
+                Go to Dashboard <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
-      <div className="mx-auto mt-10 max-w-7xl border-t border-border px-4 pt-6 md:px-6">
-        <p className="text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} HargaRakyat. Data sourced from KPDN
-          PriceCatcher via data.gov.my.
-        </p>
+      {/* Main footer */}
+      <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-5">
+        {/* Brand */}
+        <div className="md:col-span-2">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
+              <span className="text-xs font-black text-white">HR</span>
+            </div>
+            <span className="text-lg font-black tracking-tight text-gray-900">
+              Harga<span className="text-primary">Rakyat</span>
+            </span>
+          </div>
+          <p className="mt-4 max-w-xs text-sm leading-relaxed text-gray-500">
+            Malaysia's first AI-powered grocery price intelligence platform.
+            Powered by KPDN PriceCatcher data via data.gov.my.
+          </p>
+          <div className="mt-5 flex items-center gap-3">
+            <span className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-500">
+              PutraHack 2026
+            </span>
+            <span className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-500">
+              Food Security Track
+            </span>
+          </div>
+        </div>
+
+        {/* Links */}
+        {Object.entries(footerLinks).map(([heading, links]) => (
+          <div key={heading}>
+            <h4 className="text-sm font-black uppercase tracking-wider text-gray-900">
+              {heading}
+            </h4>
+            <ul className="mt-4 space-y-2.5">
+              {links.map((l) => (
+                <li key={l.label}>
+                  {"external" in l && l.external ? (
+                    <a
+                      href={l.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-gray-500 transition-colors hover:text-primary"
+                    >
+                      {l.label}
+                    </a>
+                  ) : (
+                    <Link
+                      to={l.href}
+                      className="text-sm text-gray-500 transition-colors hover:text-primary"
+                    >
+                      {l.label}
+                    </Link>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      {/* Bottom bar */}
+      <div className="border-t border-gray-100">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-5">
+          <p className="text-xs text-gray-400">
+            © {new Date().getFullYear()} HargaRakyat · Data from KPDN PriceCatcher via data.gov.my
+          </p>
+          <p className="text-xs text-gray-400">Built for PutraHack 2026</p>
+        </div>
       </div>
     </footer>
   );
