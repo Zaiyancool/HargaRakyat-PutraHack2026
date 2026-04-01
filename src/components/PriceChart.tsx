@@ -10,15 +10,16 @@ import { Search, TrendingUp, TrendingDown, Minus, Activity } from "lucide-react"
 import { SkeletonChart } from "@/components/SkeletonCard";
 import { ITEM_GROUPS } from "@/lib/pricecatcher";
 
-const MONTHS = [
+// All possible months in our data window — only those with actual records are shown
+const ALL_MONTHS = [
   "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12",
-  "2026-01", "2026-02",
+  "2026-01", "2026-02", "2026-03",
 ];
 
 const MONTH_LABELS: Record<string, string> = {
   "2025-07": "Jul '25", "2025-08": "Aug '25", "2025-09": "Sep '25",
   "2025-10": "Oct '25", "2025-11": "Nov '25", "2025-12": "Dec '25",
-  "2026-01": "Jan '26", "2026-02": "Feb '26",
+  "2026-01": "Jan '26", "2026-02": "Feb '26", "2026-03": "Mar '26",
 };
 
 export function PriceChart() {
@@ -51,8 +52,9 @@ export function PriceChart() {
     if (!history || !selectedItem) return [];
     const itemHistory = history[selectedItem];
     if (!itemHistory) return [];
-    return MONTHS
-      .filter((m) => itemHistory[m])
+    // Only include months that actually have price records for this item
+    return ALL_MONTHS
+      .filter((m) => itemHistory[m] && itemHistory[m].n > 0)
       .map((m) => ({
         month: MONTH_LABELS[m], avg: itemHistory[m].avg,
         min: itemHistory[m].min, max: itemHistory[m].max, records: itemHistory[m].n,
@@ -68,15 +70,15 @@ export function PriceChart() {
   }, [chartData]);
 
   return (
-    <div>
-      <div className="space-y-6">
+    <div className="max-w-4xl mx-auto">
+      <div className="space-y-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Activity className="w-6 h-6 text-primary" />
-            <h2 className="text-2xl font-bold tracking-tight">Price Timeline</h2>
+          <h2 className="text-xl md:text-2xl font-bold tracking-tight">Price Timeline</h2>
           </div>
-          <p className="text-muted-foreground mt-1">
-            Track price trends for individual items over the past 8 months
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">
+            Track price trends backed by real KPDN PriceCatcher data
           </p>
         </div>
 
@@ -131,10 +133,10 @@ export function PriceChart() {
                   RM {Math.max(...chartData.map((d) => d.max)).toFixed(2)}
                 </p>
               </div>
-              {priceChange && (
+                {priceChange && (
                 <div className="glass-card rounded-xl p-4">
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    8-Month Change
+                    {chartData.length}-Month Change
                     {priceChange.change > 1 ? <TrendingUp className="w-3 h-3 text-chart-down" /> :
                      priceChange.change < -1 ? <TrendingDown className="w-3 h-3 text-chart-up" /> :
                      <Minus className="w-3 h-3" />}
@@ -150,8 +152,12 @@ export function PriceChart() {
 
             <div className="glass-card rounded-xl p-6">
               <h3 className="font-semibold mb-1">{selectedItemData?.n}</h3>
+              {/* Dynamic date range from actual data */}
               <p className="text-sm text-muted-foreground mb-6">
-                {selectedItemData?.k} · {selectedItemData?.u} · Jul 2025 – Feb 2026
+                {selectedItemData?.k} · {selectedItemData?.u}
+                {chartData.length >= 2 && (
+                  <> · {chartData[0].month} – {chartData[chartData.length - 1].month}</>
+                )}
               </p>
               <div className="h-[300px] md:h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">

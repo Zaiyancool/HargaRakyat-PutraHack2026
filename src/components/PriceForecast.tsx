@@ -3,23 +3,58 @@ import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend, ReferenceLine,
 } from "recharts";
-import { useItemLookup, usePriceForecast } from "@/hooks/usePriceCatcher";
+import { useItemLookup, usePriceForecast, useNewsContext } from "@/hooks/usePriceCatcher";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Search, TrendingUp, TrendingDown, Minus, Brain } from "lucide-react";
+import {
+  Search, TrendingUp, TrendingDown, Minus, Brain,
+  ChevronDown, ChevronUp, AlertTriangle, FlaskConical,
+  Globe, Thermometer, DollarSign,
+} from "lucide-react";
 import { SkeletonChart } from "@/components/SkeletonCard";
 import { ITEM_GROUPS } from "@/lib/pricecatcher";
+import { getProductImage } from "@/lib/image-mapper";
 import { BestTimeToBuy } from "@/components/BestTimeToBuy";
+
+// News-to-item-group keyword mapping for cross-referencing
+const NEWS_CATEGORY_KEYWORDS: Record<string, string[]> = {
+  Geopolitical: ["Cooking Oil", "Chicken", "Transportation", "Poultry", "Vegetables"],
+  Currency: ["Wheat Products", "Sugar", "Cooking Oil", "Rice"],
+  Climate: ["Vegetables", "Leafy Greens", "Tomatoes", "Chili", "Fresh Produce"],
+  Supply: ["Eggs", "Poultry", "Rice", "White Rice"],
+  Commodity: ["Cooking Oil", "Palm Oil"],
+};
+
+const GEOPOLITICAL_CATEGORIES = ["BARANGAN SEGAR", "BARANGAN KERING"];
+const NEWS_CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  Geopolitical: <Globe className="w-3.5 h-3.5" />,
+  Currency: <DollarSign className="w-3.5 h-3.5" />,
+  Climate: <Thermometer className="w-3.5 h-3.5" />,
+};
 
 export function PriceForecast() {
   const [selectedItem, setSelectedItem] = useState<string>("");
   const [search, setSearch] = useState("");
   const [selectedGroup, setSelectedGroup] = useState<string>("all");
+  const [showModelInfo, setShowModelInfo] = useState(false);
 
   const { data: items, isLoading: loadingItems } = useItemLookup();
   const { data: forecast, isLoading: loadingForecast } = usePriceForecast();
+  const { data: news } = useNewsContext();
 
   const isLoading = loadingItems || loadingForecast;
+
+  // Today's date for dynamic description
+  const todayLabel = useMemo(() => {
+    const today = new Date();
+    return today.toLocaleDateString("en-MY", { day: "numeric", month: "long", year: "numeric" });
+  }, []);
+
+  const forecastEndLabel = useMemo(() => {
+    const end = new Date();
+    end.setDate(end.getDate() + 13);
+    return end.toLocaleDateString("en-MY", { day: "numeric", month: "long", year: "numeric" });
+  }, []);
 
   const filteredItems = useMemo(() => {
     if (!items || !forecast) return [];
@@ -74,19 +109,91 @@ export function PriceForecast() {
     return formatDate(itemForecast.history[itemForecast.history.length - 1].date);
   }, [itemForecast]);
 
+  // Cross-reference selected item with news — find relevant news items
+  const relevantNews = useMemo(() => {
+    if (!news || !selectedItemData) return [];
+    const itemName = selectedItemData.n.toLowerCase();
+    const itemGroup = selectedItemData.g;
+
+    return news.filter((n) => {
+      // Check if any affected item keyword matches the selected item name
+      const keywordMatch = n.items_affected.some(
+        (kw) =>
+          itemName.includes(kw.toLowerCase()) ||
+          kw.toLowerCase().includes(itemName.split(" ")[0].toLowerCase())
+      );
+      // Also flag geopolitical/currency news for fresh & dry goods
+      const categoryMatch =
+        (n.category === "Geopolitical" || n.category === "Currency" || n.category === "Climate") &&
+        GEOPOLITICAL_CATEGORIES.includes(itemGroup);
+      return keywordMatch || categoryMatch;
+    });
+  }, [news, selectedItemData]);
+
   return (
     <div>
       <div className="space-y-6">
+        {/* Header */}
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Brain className="w-6 h-6 text-accent" />
             <h2 className="text-2xl font-bold tracking-tight">Price Forecast</h2>
           </div>
           <p className="text-muted-foreground mt-1">
-            ML-powered 14-day price prediction based on 6 months of government data (Oct 2025 – Mar 2026)
+            ML-powered 14-day price prediction from{" "}
+            <span className="text-primary font-semibold">{todayLabel}</span>
+            {" "}→{" "}
+            <span className="text-accent font-semibold">{forecastEndLabel}</span>
+            {" "}· Based on 6 months of KPDN PriceCatcher data
           </p>
         </div>
 
+        {/* ML Model Info accordion */}
+        <div className="bg-white border border-border shadow-sm rounded-xl overflow-hidden mt-4">
+          <button
+            className="w-full flex items-center justify-between px-5 py-3 text-sm font-medium hover:bg-primary/5 transition-colors"
+            onClick={() => setShowModelInfo(!showModelInfo)}
+          >
+            <span className="flex items-center gap-2 text-muted-foreground">
+              <FlaskConical className="w-4 h-4 text-accent" />
+              Model: Polynomial Regression (degree 3) on weekly KPDN data
+            </span>
+            {showModelInfo ? (
+              <ChevronUp className="w-4 h-4 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            )}
+          </button>
+          {showModelInfo && (
+            <div className="px-5 pb-4 pt-2 border-t border-border/40 text-sm text-muted-foreground space-y-2 animate-fade-in">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <p className="font-semibold text-foreground mb-1">Training Data</p>
+                  <ul className="space-y-1 text-xs">
+                    <li>• Source: data.gov.my PriceCatcher (KPDN)</li>
+                    <li>• Window: Oct 2025 – Mar 2026 (6 months)</li>
+                    <li>• Frequency: Weekly weighted averages</li>
+                    <li>• Items: {filteredItems.length}+ goods tracked nationally</li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground mb-1">Methodology</p>
+                  <ul className="space-y-1 text-xs">
+                    <li>• Algorithm: <code className="bg-secondary px-1 rounded">numpy.polyfit</code> (degree 3)</li>
+                    <li>• Forecast horizon: 14 days from today</li>
+                    <li>• Trend classification: slope threshold ±0.05/day</li>
+                    <li>• Note: Historical patterns only — external shocks not modeled</li>
+                  </ul>
+                </div>
+              </div>
+              <p className="text-xs bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-lg px-3 py-2 mt-2">
+                ⚠ This model captures historical price trends. Real-world shocks (geopolitics, weather, policy) may cause deviations. See the news widget on the Dashboard for context.
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Filters */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -111,29 +218,59 @@ export function PriceForecast() {
         {isLoading ? (
           <SkeletonChart />
         ) : !selectedItem ? (
-          <div className="glass-card rounded-xl p-12 text-center">
-            <Brain className="w-12 h-12 text-muted-foreground mx-auto mb-4 opacity-40" />
-            <p className="text-muted-foreground">Select an item to see its 14-day price forecast</p>
+          <div className="bg-white border border-border shadow-sm rounded-xl p-16 text-center">
+            <Brain className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+            <p className="text-muted-foreground font-medium">Select an item above to see its 14-day price forecast</p>
           </div>
         ) : !itemForecast ? (
-          <div className="glass-card rounded-xl p-12 text-center">
+          <div className="bg-white border border-border shadow-sm rounded-xl p-16 text-center">
             <p className="text-muted-foreground">No forecast data available for this item</p>
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-stagger">
-              <div className="glass-card rounded-xl p-4">
-                <p className="text-xs text-muted-foreground">Current Price</p>
-                <p className="text-2xl font-bold font-mono mt-1">RM {itemForecast.last_price.toFixed(2)}</p>
+            {/* News-aware warning for selected item */}
+            {relevantNews.length > 0 && (
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
+                <div className="flex items-start gap-3">
+                  <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-amber-400 mb-1">
+                      Market Risk Alert for {selectedItemData?.n}
+                    </p>
+                    <div className="space-y-1">
+                      {relevantNews.slice(0, 2).map((n) => (
+                        <p key={n.id} className="text-xs text-amber-300/80 flex items-center gap-1.5">
+                          <span className="shrink-0">
+                            {NEWS_CATEGORY_ICONS[n.category] || <Globe className="w-3.5 h-3.5" />}
+                          </span>
+                          <span>
+                            <span className="font-semibold">{n.category}:</span> {n.headline.substring(0, 90)}
+                            {n.headline.length > 90 ? "…" : ""}
+                          </span>
+                        </p>
+                      ))}
+                    </div>
+                    <p className="text-[11px] text-amber-500/70 mt-1.5">
+                      These external factors are not captured by the polynomial regression model.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div className="glass-card rounded-xl p-4">
-                <p className="text-xs text-muted-foreground">14-Day Forecast</p>
+            )}
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-stagger">
+              <div className="bg-white border border-border shadow-sm rounded-xl p-4">
+                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Current Price</p>
+                <p className="text-2xl font-bold font-mono mt-1 text-primary">RM {itemForecast.last_price.toFixed(2)}</p>
+              </div>
+              <div className="bg-white border border-border shadow-sm rounded-xl p-4">
+                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">14-Day Forecast</p>
                 <p className="text-2xl font-bold font-mono mt-1">
                   RM {itemForecast.forecast[itemForecast.forecast.length - 1]?.price.toFixed(2)}
                 </p>
               </div>
-              <div className="glass-card rounded-xl p-4">
-                <p className="text-xs text-muted-foreground">Trend</p>
+              <div className="bg-white border border-border shadow-sm rounded-xl p-4">
+                <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Trend</p>
                 <div className="flex items-center gap-2 mt-1">
                   {itemForecast.trend === "up" ? (
                     <TrendingUp className="w-5 h-5 text-chart-down" />
@@ -151,8 +288,8 @@ export function PriceForecast() {
                 </div>
               </div>
               {forecastSummary && (
-                <div className="glass-card rounded-xl p-4">
-                  <p className="text-xs text-muted-foreground">Predicted Change</p>
+                <div className="bg-white border border-border shadow-sm rounded-xl p-4">
+                  <p className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Predicted Change</p>
                   <p className={`text-2xl font-bold font-mono mt-1 ${
                     forecastSummary.change > 0 ? "text-chart-down" : "text-chart-up"
                   }`}>
@@ -162,11 +299,17 @@ export function PriceForecast() {
               )}
             </div>
 
-            <div className="glass-card rounded-xl p-6">
-              <h3 className="font-semibold mb-1">{selectedItemData?.n}</h3>
-              <p className="text-sm text-muted-foreground mb-6">
-                {selectedItemData?.k} · {selectedItemData?.u} · Oct 2025 – Mar 2026 + 14-day forecast
-              </p>
+            <div className="bg-white border border-border shadow-sm rounded-xl p-6">
+              <div className="flex items-start gap-4 mb-8">
+                <div>
+                  <h3 className="font-bold text-xl md:text-2xl mb-2 text-foreground leading-tight px-1">{selectedItemData?.n}</h3>
+                  <div className="flex flex-wrap gap-2 text-xs font-semibold uppercase tracking-wide">
+                    <span className="bg-primary/10 text-primary border border-primary/20 px-2 rounded-md py-1">{selectedItemData?.k}</span>
+                    <span className="bg-secondary text-muted-foreground px-2 rounded-md py-1">Unit: {selectedItemData?.u}</span>
+                  </div>
+                </div>
+              </div>
+
               <div className="h-[300px] md:h-[400px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
@@ -188,7 +331,7 @@ export function PriceForecast() {
                 </ResponsiveContainer>
               </div>
               <p className="text-xs text-muted-foreground mt-4 text-center">
-                Forecast uses polynomial regression on 6 months of data from data.gov.my PriceCatcher
+                Polynomial regression (degree 3) · Trained on 6 months of weekly national averages · data.gov.my PriceCatcher
               </p>
             </div>
 

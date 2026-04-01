@@ -8,6 +8,7 @@ import {
   fetchPriceHistory,
   fetchCheapestStores,
   fetchPriceForecast,
+  fetchLiveNews,
   type ItemLookup,
   type PremiseLookup,
   type PriceAgg,
@@ -15,6 +16,7 @@ import {
   type PriceHistory,
   type CheapestStores,
   type PriceForecastData,
+  type NewsItem,
 } from "@/lib/pricecatcher";
 
 export function useItemLookup() {
@@ -78,5 +80,14 @@ export function usePriceForecast() {
     queryKey: ["price-forecast"],
     queryFn: fetchPriceForecast,
     staleTime: Infinity,
+  });
+}
+
+export function useNewsContext() {
+  return useQuery<NewsItem[]>({
+    queryKey: ["news-context"],
+    queryFn: fetchLiveNews,   // tries RSS first, falls back to static
+    staleTime: 1000 * 60 * 60, // 1 hour
+    retry: 1,
   });
 }

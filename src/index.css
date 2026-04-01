@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Nunito:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,51 +6,60 @@
 
 @layer base {
   :root {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    /* ── Blue & White Design System ────────────────────────────── */
+    /* Page background: soft blue-tinted white — easy on the eyes */
+    --background: 214 60% 97%;       /* #f0f5fc — barely-blue white */
+    --foreground: 215 45% 14%;       /* #131e35 — deep navy text */
 
-    --card: 217 33% 17%;
-    --card-foreground: 210 40% 98%;
+    /* Cards: pure white with gentle elevation */
+    --card: 0 0% 100%;
+    --card-foreground: 215 45% 14%;
 
-    --popover: 217 33% 17%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 45% 14%;
 
-    --primary: 160 84% 39%;
-    --primary-foreground: 222 47% 11%;
+    /* Primary: trusted Malaysian-sky indigo-blue */
+    --primary: 217 91% 47%;          /* #1558e0 — rich, confident blue */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 215 20% 65%;
+    /* Secondary: soft cool-blue tint for surfaces */
+    --secondary: 214 55% 93%;        /* #daeaf7 — ice-blue */
+    --secondary-foreground: 215 45% 20%;
 
-    --muted: 217 33% 14%;
-    --muted-foreground: 215 20% 50%;
+    /* Muted: readable slate for helper text */
+    --muted: 214 40% 94%;
+    --muted-foreground: 215 25% 42%; /* accessible gray-blue */
 
-    --accent: 38 92% 50%;
-    --accent-foreground: 38 92% 10%;
+    /* Accent: warm teal-green for savings/discounts */
+    --accent: 160 68% 38%;           /* #1d9e6d — confident green */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 3 85% 55%;        /* #f03a2e — clear red */
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 215 25% 27%;
-    --input: 215 25% 27%;
-    --ring: 160 84% 39%;
+    --border: 214 40% 88%;           /* #c7daed — visible but gentle */
+    --input: 214 40% 88%;
+    --ring: 217 91% 47%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
 
-    --chart-up: 160 84% 39%;
-    --chart-down: 0 70% 50%;
-    --chart-neutral: 38 92% 50%;
+    /* Charts: semantically correct colours */
+    --chart-up: 3 85% 55%;           /* red = price rising = bad for consumer */
+    --chart-down: 160 68% 38%;       /* green = price falling = good */
+    --chart-neutral: 38 95% 52%;     /* amber = stable */
 
-    --sidebar-background: 222 47% 9%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 160 84% 39%;
-    --sidebar-primary-foreground: 222 47% 11%;
-    --sidebar-accent: 217 33% 17%;
-    --sidebar-accent-foreground: 215 20% 65%;
-    --sidebar-border: 215 25% 27%;
-    --sidebar-ring: 160 84% 39%;
+    /* Sidebar: deep navy for contrast & trust */
+    --sidebar-background: 219 60% 12%;   /* #0d1e40 — deep navy */
+    --sidebar-foreground: 214 55% 90%;   /* near-white blue text */
+    --sidebar-primary: 217 91% 65%;      /* lighter blue accent on dark bg */
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 219 45% 20%;       /* slightly lighter navy for hover */
+    --sidebar-accent-foreground: 214 55% 90%;
+    --sidebar-border: 219 45% 20%;
+    --sidebar-ring: 217 91% 65%;
 
-    --font-heading: 'Space Grotesk', sans-serif;
-    --font-body: 'Inter', sans-serif;
+    --font-heading: 'Plus Jakarta Sans', sans-serif;
+    --font-body: 'Nunito', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
   }
 }
@@ -67,67 +76,134 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
-    background: radial-gradient(ellipse at center, hsl(217 33% 17%) 0%, hsl(222 47% 11%) 70%);
+    background: hsl(var(--background));
     min-height: 100vh;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
+    font-weight: 700;
+    color: hsl(215 45% 14%);
   }
 }
 
 @layer utilities {
+  /* ── Surface-card: replaces old dark glass-card ─────────────── */
   .glass-card {
-    background: rgba(30, 41, 59, 0.6);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid hsl(215 25% 27%);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: hsl(0 0% 100%);
+    border: 1px solid hsl(214 40% 88%);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 8px 0 rgba(13, 30, 64, 0.07), 0 0 0 0 rgba(21, 88, 224, 0);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   }
 
   .glass-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px -8px hsl(var(--primary) / 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px -4px rgba(21, 88, 224, 0.18), 0 0 0 0 transparent;
+    border-color: hsl(var(--primary) / 0.35);
   }
 
+  /* ── Elevated stat-card for dashboard KPI boxes ─────────────── */
+  .stat-card {
+    background: hsl(0 0% 100%);
+    border: 1px solid hsl(214 40% 88%);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 6px 0 rgba(13, 30, 64, 0.06);
+    transition: box-shadow 0.2s ease;
+  }
+
+  .stat-card:hover {
+    box-shadow: 0 4px 18px -4px rgba(21, 88, 224, 0.14);
+  }
+
+  /* ── Blue shimmer for primary CTA areas ─────────────────────── */
   .glow-primary {
-    box-shadow: 0 0 40px -10px hsl(var(--primary) / 0.3);
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0),
+                0 4px 24px -6px hsl(var(--primary) / 0.28);
   }
 
+  /* ── Pulsing live indicator dot ─────────────────────────────── */
   .pulse-dot {
     @apply w-2 h-2 rounded-full bg-primary;
     animation: pulse-dot 2s ease-in-out infinite;
   }
 
+  /* ── Staggered card animation ───────────────────────────────── */
   .animate-stagger > * {
-    animation: fade-in-up 0.5s ease-out both;
+    animation: fade-in-up 0.45s ease-out both;
   }
 
   .animate-stagger > *:nth-child(1) { animation-delay: 0ms; }
-  .animate-stagger > *:nth-child(2) { animation-delay: 80ms; }
-  .animate-stagger > *:nth-child(3) { animation-delay: 160ms; }
-  .animate-stagger > *:nth-child(4) { animation-delay: 240ms; }
-  .animate-stagger > *:nth-child(5) { animation-delay: 320ms; }
-  .animate-stagger > *:nth-child(6) { animation-delay: 400ms; }
+  .animate-stagger > *:nth-child(2) { animation-delay: 70ms; }
+  .animate-stagger > *:nth-child(3) { animation-delay: 140ms; }
+  .animate-stagger > *:nth-child(4) { animation-delay: 210ms; }
+  .animate-stagger > *:nth-child(5) { animation-delay: 280ms; }
+  .animate-stagger > *:nth-child(6) { animation-delay: 350ms; }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out both;
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.35s ease-out both;
+  }
+
+  /* ── Scrollbar hide utility ─────────────────────────────────── */
+  .hide-scrollbar::-webkit-scrollbar { display: none; }
+  .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* ── Price badges ───────────────────────────────────────────── */
+  .badge-up {
+    @apply inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full;
+    background: hsl(3 85% 55% / 0.1);
+    color: hsl(3 85% 45%);
+    border: 1px solid hsl(3 85% 55% / 0.25);
+  }
+
+  .badge-down {
+    @apply inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full;
+    background: hsl(160 68% 38% / 0.1);
+    color: hsl(160 68% 30%);
+    border: 1px solid hsl(160 68% 38% / 0.25);
+  }
+
+  /* ── News category pill colours — high contrast on white ────── */
+  .cat-geopolitical { background: hsl(3 80% 96%); color: hsl(3 70% 40%); border-color: hsl(3 70% 80%); }
+  .cat-policy       { background: hsl(217 91% 96%); color: hsl(217 91% 35%); border-color: hsl(217 91% 75%); }
+  .cat-supply       { background: hsl(160 68% 94%); color: hsl(160 68% 28%); border-color: hsl(160 68% 70%); }
+  .cat-currency     { background: hsl(38 95% 94%); color: hsl(38 90% 32%); border-color: hsl(38 90% 70%); }
+  .cat-climate      { background: hsl(195 75% 94%); color: hsl(195 75% 28%); border-color: hsl(195 75% 68%); }
+  .cat-commodity    { background: hsl(270 70% 96%); color: hsl(270 60% 40%); border-color: hsl(270 60% 78%); }
 }
 
+/* ── Keyframes ───────────────────────────────────────────────── */
 @keyframes pulse-dot {
-  0%, 100% { opacity: 0.4; transform: scale(0.8); }
-  50% { opacity: 1; transform: scale(1.2); }
+  0%, 100% { opacity: 0.5; transform: scale(0.85); }
+  50%       { opacity: 1;   transform: scale(1.2); }
 }
 
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(10px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 @keyframes scroll-left {
-  0% { transform: translateX(0%); }
+  0%   { transform: translateX(0%); }
   100% { transform: translateX(-50%); }
 }
 
@@ -140,4 +216,20 @@
 
 .ticker-scroll:hover {
   animation-play-state: paused;
+}
+
+/* ── Custom scrollbar for lists ──────────────────────────────── */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: hsl(var(--secondary));
+  border-radius: 99px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.35);
+  border-radius: 99px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.6);
 }

@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
-import { ShoppingBasket, Plus, Trash2, TrendingUp, TrendingDown, Minus, Search } from "lucide-react";
+import { ShoppingBasket, Plus, Trash2, TrendingUp, TrendingDown, Minus, Search, ShoppingCart } from "lucide-react";
 import { useItemLookup, usePricesAgg, usePricesAggJan, usePriceForecast } from "@/hooks/usePriceCatcher";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { getProductImage } from "@/lib/image-mapper";
 
 interface BasketItem {
   code: number;
@@ -45,8 +46,8 @@ export function BasketTracker() {
   }, [pricesAggJan]);
 
   const itemMap = useMemo(() => {
-    if (!items) return new Map<number, string>();
-    return new Map(items.map((i) => [i.c, i.n]));
+    if (!items) return new Map<number, { n: string, g: string }>();
+    return new Map(items.map((i) => [i.c, { n: i.n, g: i.g }]));
   }, [items]);
 
   const searchResults = useMemo(() => {
@@ -91,10 +92,10 @@ export function BasketTracker() {
   const fcChange = costs && costs.current > 0 ? ((costs.fc - costs.current) / costs.current) * 100 : 0;
 
   return (
-    <div className="glass-card rounded-xl p-5">
+    <div className="bg-white border border-border shadow-sm rounded-xl p-5 mb-6">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-          <ShoppingBasket className="w-4 h-4 text-primary" /> My Grocery Basket
+        <h3 className="text-sm font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+          <ShoppingBasket className="w-5 h-5 text-primary" /> My Grocery Cart
         </h3>
         <Button
           variant="outline"
@@ -138,60 +139,85 @@ export function BasketTracker() {
       )}
 
       {basket.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-6">
-          Add essential items to track your weekly grocery cost
-        </p>
+        <div className="text-center text-muted-foreground py-10 flex flex-col items-center bg-secondary/30 rounded-xl border border-dashed border-border/50">
+          <ShoppingCart className="w-10 h-10 mb-3 text-border stroke-[1.5]" />
+          <p className="text-sm font-medium text-foreground">Your cart is empty</p>
+          <p className="text-xs mt-1">Search above to add items</p>
+        </div>
       ) : (
         <>
-          <div className="space-y-1.5 mb-4 max-h-[200px] overflow-y-auto">
-            {basket.map((b) => (
-              <div key={b.code} className="flex items-center gap-2 py-1.5 border-b border-border/20 last:border-0">
-                <span className="text-sm truncate flex-1">{itemMap.get(b.code) || b.code}</span>
-                <div className="flex items-center gap-1 shrink-0">
-                  <button
-                    onClick={() => updateQty(b.code, b.qty - 1)}
-                    className="w-6 h-6 rounded bg-secondary text-xs font-bold hover:bg-primary/20 transition-colors"
-                  >
-                    −
-                  </button>
-                  <span className="w-6 text-center text-sm font-mono">{b.qty}</span>
-                  <button
-                    onClick={() => updateQty(b.code, b.qty + 1)}
-                    className="w-6 h-6 rounded bg-secondary text-xs font-bold hover:bg-primary/20 transition-colors"
-                  >
-                    +
-                  </button>
+          <div className="space-y-3 mb-6 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
+            {basket.map((b) => {
+              const itemInfo = itemMap.get(b.code) || { n: String(b.code), g: "" };
+              return (
+                <div key={b.code} className="flex gap-3 py-3 border-b border-border/40 last:border-0 group">
+                  {/* Details */}
+                  <div className="flex-1 flex flex-col justify-center min-w-0">
+                    <span className="text-sm font-semibold truncate leading-tight group-hover:text-primary transition-colors">{itemInfo.n}</span>
+                    <span className="text-xs text-muted-foreground mt-1">
+                      RM {priceMap.has(b.code) ? (priceMap.get(b.code)!).toFixed(2) : "0.00"} / unit
+                    </span>
+                  </div>
+                  
+                  {/* Controls */}
+                  <div className="flex flex-col items-end justify-between shrink-0">
+                    <span className="text-sm font-bold text-primary">
+                      RM {((priceMap.get(b.code) || 0) * b.qty).toFixed(2)}
+                    </span>
+                    
+                    <div className="flex items-center gap-2 mt-auto">
+                      <div className="flex items-center bg-secondary rounded-md border border-border/50 h-7 overflow-hidden">
+                        <button
+                          onClick={() => updateQty(b.code, b.qty - 1)}
+                          className="w-7 h-full flex items-center justify-center hover:bg-white transition-colors"
+                        >
+                          <Minus className="w-3 h-3" />
+                        </button>
+                        <span className="w-6 text-center text-xs font-bold">{b.qty}</span>
+                        <button
+                          onClick={() => updateQty(b.code, b.qty + 1)}
+                          className="w-7 h-full flex items-center justify-center hover:bg-white transition-colors"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </button>
+                      </div>
+                      
+                      <button 
+                        onClick={() => removeItem(b.code)} 
+                        className="w-7 h-7 flex items-center justify-center rounded-md bg-red-50 text-red-500 hover:bg-red-100 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <span className="text-sm font-mono font-semibold w-16 text-right">
-                  RM {((priceMap.get(b.code) || 0) * b.qty).toFixed(2)}
-                </span>
-                <button onClick={() => removeItem(b.code)} className="text-muted-foreground hover:text-destructive transition-colors">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {costs && (
-            <div className="grid grid-cols-3 gap-2">
-              <div className="bg-secondary/50 rounded-lg p-3 text-center">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Last Month</p>
-                <p className="text-lg font-bold font-mono mt-1">RM {costs.jan.toFixed(2)}</p>
+            <div className="grid grid-cols-3 gap-3 border-t border-border pt-4">
+              <div className="bg-white rounded-lg p-3 text-center border border-border">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold pb-1">Previous Month</p>
+                <p className="text-lg font-bold">RM {costs.jan.toFixed(2)}</p>
               </div>
-              <div className="bg-primary/10 rounded-lg p-3 text-center border border-primary/20">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Today</p>
-                <p className="text-lg font-bold font-mono mt-1">RM {costs.current.toFixed(2)}</p>
-                <p className={`text-[10px] font-mono font-bold mt-0.5 flex items-center justify-center gap-0.5 ${momChange > 0 ? "text-chart-down" : "text-chart-up"}`}>
-                  {momChange > 0 ? <TrendingUp className="w-3 h-3" /> : momChange < 0 ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
-                  {momChange > 0 ? "+" : ""}{momChange.toFixed(1)}%
+              <div className="bg-primary/5 rounded-lg p-3 text-center border border-primary/20 relative shadow-sm">
+                <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-white text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                  CURRENT Cart
+                </span>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold pb-1 invisible">Today</p>
+                <p className="text-xl font-black text-primary">RM {costs.current.toFixed(2)}</p>
+                <p className={`text-[11px] font-bold mt-1 flex items-center justify-center gap-1 ${momChange > 0 ? "text-red-500" : "text-emerald-500"}`}>
+                  {momChange > 0 ? <TrendingUp className="w-3 h-3" /> : momChange < 0 ? <TrendingDown className="w-3 h-3" /> : null}
+                  {momChange > 0 ? "+" : ""}{momChange.toFixed(1)}% vs Last Month
                 </p>
               </div>
-              <div className="bg-accent/10 rounded-lg p-3 text-center">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">14-Day FC</p>
-                <p className="text-lg font-bold font-mono mt-1">RM {costs.fc.toFixed(2)}</p>
-                <p className={`text-[10px] font-mono font-bold mt-0.5 flex items-center justify-center gap-0.5 ${fcChange > 0 ? "text-chart-down" : "text-chart-up"}`}>
-                  {fcChange > 0 ? <TrendingUp className="w-3 h-3" /> : fcChange < 0 ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
-                  {fcChange > 0 ? "+" : ""}{fcChange.toFixed(1)}%
+              <div className="bg-white rounded-lg p-3 text-center border border-border shadow-sm">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold pb-1 text-emerald-600">14-Day AI Forecast</p>
+                <p className="text-lg font-bold">RM {costs.fc.toFixed(2)}</p>
+                <p className={`text-[11px] font-bold mt-1 flex items-center justify-center gap-1 ${fcChange > 0 ? "text-red-500" : "text-emerald-500"}`}>
+                  {fcChange > 0 ? <TrendingUp className="w-3 h-3" /> : fcChange < 0 ? <TrendingDown className="w-3 h-3" /> : null}
+                  {fcChange > 0 ? "+" : ""}{fcChange.toFixed(1)}% Est.
                 </p>
               </div>
             </div>

@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "date": "2026-04-01",
+    "headline": "Iran-US Tensions Push Brent Crude Above $95/Barrel — Malaysian Logistics Costs at Risk",
+    "source": "Bernama",
+    "url": "https://www.bernama.com/en/general/news.php?id=",
+    "impact": "up",
+    "category": "Geopolitical",
+    "summary": "Escalating Iran-US tensions have pushed Brent crude above $95/barrel. Logistics associations warn that trucking and cold-chain costs for Malaysian fresh produce could rise 3–5% over the next 30 days, directly affecting poultry and vegetable prices at the wet market level.",
+    "items_affected": ["Cooking Oil", "Chicken", "Vegetables", "Transportation"],
+    "sentiment_score": 0.8
+  },
+  {
+    "id": 2,
+    "date": "2026-04-01",
+    "headline": "KPDN Confirms Price Controls on Essential Items Remain Until June 2026",
+    "source": "The Star",
+    "url": "https://www.thestar.com.my/search?q=harga+kawalan+kpdn+2026",
+    "impact": "down",
+    "category": "Policy",
+    "summary": "The Ministry of Domestic Trade and Cost of Living (KPDN) reaffirmed that price ceilings on controlled food items — including standard cooking oil (RM 2.50/kg), chicken, and eggs — will remain enforced through June 2026. This provides a buffer against global commodity price shocks for B40 households.",
+    "items_affected": ["Cooking Oil", "Chicken", "Eggs"],
+    "sentiment_score": -0.6
+  },
+  {
+    "id": 3,
+    "date": "2026-03-31",
+    "headline": "Egg Production Deficit Narrows — Supply Expected to Stabilise by Mid-April",
+    "source": "BFM Business",
+    "url": "https://www.bfm.my/podcast/morning-run/the-bigger-picture",
+    "impact": "down",
+    "category": "Supply",
+    "summary": "The National Egg Producers Association (NEPA) reported that production levels have recovered to 95% of pre-shortage capacity. This follows government intervention subsidising feed prices. Analysts expect retail egg prices to stabilise at RM 0.42–0.45 per egg by mid-April.",
+    "items_affected": ["Eggs", "Poultry"],
+    "sentiment_score": -0.5
+  },
+  {
+    "id": 4,
+    "date": "2026-03-30",
+    "headline": "Ringgit Weakens to 4.68/USD Amid Regional Risk-Off — Import Costs Under Pressure",
+    "source": "Edge Markets",
+    "url": "https://www.theedgemarkets.com/markets/currencies",
+    "impact": "up",
+    "category": "Currency",
+    "summary": "The Malaysian Ringgit weakened to MYR 4.68 per US Dollar as global risk appetite deteriorated amid Middle East uncertainty. A weaker Ringgit raises the cost of imported food commodities — particularly wheat, sugar, and cooking oil — which could translate to higher retail prices within 4–6 weeks.",
+    "items_affected": ["Wheat Products", "Sugar", "Cooking Oil", "Rice"],
+    "sentiment_score": 0.7
+  },
+  {
+    "id": 5,
+    "date": "2026-03-29",
+    "headline": "La Niña Threat Looms — Peninsular Malaysia Vegetable Belt Faces Rainfall Disruption",
+    "source": "Utusan Malaysia",
+    "url": "https://www.utusan.com.my/search?q=sayuran+harga+cameron+highlands",
+    "impact": "up",
+    "category": "Climate",
+    "summary": "MetMalaysia issued a seasonal advisory warning of above-normal rainfall expected in Cameron Highlands and Lojing — Malaysia's primary vegetable belts — through April 2026. Historical patterns show 15–20% price spikes for leafy greens and brassicas during prolonged wet seasons due to harvest disruption.",
+    "items_affected": ["Vegetables", "Leafy Greens", "Tomatoes", "Chili"],
+    "sentiment_score": 0.6
+  },
+  {
+    "id": 6,
+    "date": "2026-03-28",
+    "headline": "Paddy Harvest Season Ahead — Rice Prices Expected to Ease in May",
+    "source": "Bernama",
+    "url": "https://www.bernama.com/en/general/news_food.php",
+    "impact": "down",
+    "category": "Supply",
+    "summary": "The Department of Agriculture confirmed that the main paddy harvest season across Kedah, Perak, and Kelantan is on track for April–May. This is projected to boost domestic rice supply by 12–15%, providing relief to rice prices that spiked during Q1 2026.",
+    "items_affected": ["Rice", "White Rice"],
+    "sentiment_score": -0.4
+  },
+  {
+    "id": 7,
+    "date": "2026-03-27",
+    "headline": "Global Palm Oil Output Rises — Cooking Oil Retail Prices May Drop Slightly in Q2",
+    "source": "Bernama",
+    "url": "https://www.bernama.com/en/general/news.php?cat=biz",
+    "impact": "down",
+    "category": "Commodity",
+    "summary": "The Malaysia Palm Oil Board (MPOB) reported that crude palm oil (CPO) production rose 8.3% year-on-year in February 2026. Analysts project that retail cooking oil prices could soften by 3–7% in Q2 if production momentum is sustained, offsetting some of the pressure from the weaker Ringgit.",
+    "items_affected": ["Cooking Oil", "Palm Oil"],
+    "sentiment_score": -0.5
+  }
+]

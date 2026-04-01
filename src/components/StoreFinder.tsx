@@ -28,16 +28,23 @@ export function StoreFinder() {
     return map;
   }, [premises]);
 
+  // Only show items that have at least one store carrying them
+  const itemsWithStores = useMemo(() => {
+    if (!cheapest) return new Set<string>();
+    return new Set(Object.keys(cheapest).filter(k => (cheapest[k] || []).length > 0));
+  }, [cheapest]);
+
   const filteredItems = useMemo(() => {
     if (!items) return [];
     return items
       .filter((i) => {
+        if (!itemsWithStores.has(String(i.c))) return false;
         if (selectedGroup !== "all" && i.g !== selectedGroup) return false;
         if (search && !i.n.toLowerCase().includes(search.toLowerCase())) return false;
         return true;
       })
       .sort((a, b) => a.n.localeCompare(b.n));
-  }, [items, search, selectedGroup]);
+  }, [items, search, selectedGroup, itemsWithStores]);
 
   const selectedItemData = useMemo(() => {
     if (!items) return null;
@@ -95,14 +102,14 @@ export function StoreFinder() {
   const bestPrice = storeResults.length > 0 ? storeResults[0].avg : null;
 
   return (
-    <div>
-      <div className="space-y-6">
+    <div className="max-w-4xl mx-auto">
+      <div className="space-y-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Store className="w-6 h-6 text-primary" />
             <h2 className="text-2xl font-bold tracking-tight">Cheapest Store Finder</h2>
           </div>
-          <p className="text-muted-foreground mt-1">
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">
             Find nearest stores with the lowest prices for any item (Feb 2026 data)
           </p>
         </div>
@@ -127,15 +134,16 @@ export function StoreFinder() {
           </Select>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-4">
+        {/* Item + State selectors */}
+        <div className="flex flex-col gap-3">
           <Select value={selectedItem} onValueChange={setSelectedItem}>
-            <SelectTrigger className="flex-1 bg-secondary border-border"><SelectValue placeholder="Select an item to find cheapest stores..." /></SelectTrigger>
-            <SelectContent className="max-h-[300px]">
+            <SelectTrigger className="w-full bg-secondary border-border"><SelectValue placeholder="Select an item to find cheapest stores..." /></SelectTrigger>
+            <SelectContent className="max-h-[300px]" style={{ zIndex: 50 }}>
               {filteredItems.map((i) => (<SelectItem key={i.c} value={String(i.c)}>{i.n} ({i.u})</SelectItem>))}
             </SelectContent>
           </Select>
           <Select value={selectedState} onValueChange={setSelectedState}>
-            <SelectTrigger className="w-[200px] bg-secondary border-border">
+            <SelectTrigger className="w-full sm:w-[200px] bg-secondary border-border">
               <MapPin className="w-4 h-4 mr-2 text-muted-foreground" />
               <SelectValue placeholder="Filter by state" />
             </SelectTrigger>

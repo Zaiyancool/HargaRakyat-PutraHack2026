@@ -107,14 +107,14 @@ export function PriceMap() {
   }, [cheapest, selectedItem, premises, selectedState, premiseMap]);
 
   return (
-    <div>
-      <div className="space-y-6">
+    <div className="max-w-4xl mx-auto">
+      <div className="space-y-4">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <MapIcon className="w-6 h-6 text-primary" />
             <h2 className="text-2xl font-bold tracking-tight">Price Map</h2>
           </div>
-          <p className="text-muted-foreground mt-1">Visualize where the cheapest prices are across Malaysia</p>
+          <p className="text-muted-foreground mt-1 text-sm md:text-base">Visualize where the cheapest prices are across Malaysia</p>
         </div>
 
         <div className="flex flex-col md:flex-row gap-4">
@@ -122,8 +122,8 @@ export function PriceMap() {
             <Input placeholder="Search items..." value={search} onChange={(e) => setSearch(e.target.value)} className="bg-secondary border-border" />
           </div>
           <Select value={selectedGroup} onValueChange={(v) => { setSelectedGroup(v); setSelectedItem(""); }}>
-            <SelectTrigger className="w-[220px] bg-secondary border-border"><SelectValue placeholder="Category" /></SelectTrigger>
-            <SelectContent>
+            <SelectTrigger className="w-full sm:w-[220px] bg-secondary border-border"><SelectValue placeholder="Category" /></SelectTrigger>
+            <SelectContent style={{ zIndex: 9999 }}>
               <SelectItem value="all">All Categories</SelectItem>
               {ITEM_GROUPS.map((g) => (<SelectItem key={g} value={g}>{g}</SelectItem>))}
             </SelectContent>
@@ -133,13 +133,13 @@ export function PriceMap() {
         <div className="flex flex-col md:flex-row gap-4">
           <Select value={selectedItem} onValueChange={setSelectedItem}>
             <SelectTrigger className="flex-1 bg-secondary border-border"><SelectValue placeholder="Select an item to map..." /></SelectTrigger>
-            <SelectContent className="max-h-[300px]">
+            <SelectContent className="max-h-[300px]" style={{ zIndex: 9999 }}>
               {filteredItems.map((i) => (<SelectItem key={i.c} value={String(i.c)}>{i.n} ({i.u})</SelectItem>))}
             </SelectContent>
           </Select>
           <Select value={selectedState} onValueChange={setSelectedState}>
-            <SelectTrigger className="w-[200px] bg-secondary border-border"><SelectValue placeholder="Zoom to state" /></SelectTrigger>
-            <SelectContent>
+            <SelectTrigger className="w-full sm:w-[200px] bg-secondary border-border"><SelectValue placeholder="Zoom to state" /></SelectTrigger>
+            <SelectContent style={{ zIndex: 9999 }}>
               <SelectItem value="all">All Malaysia</SelectItem>
               {STATES.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
             </SelectContent>
@@ -151,8 +151,8 @@ export function PriceMap() {
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         ) : (
-          <div className="glass-card rounded-xl overflow-hidden">
-            <div className="h-[500px]">
+          <div className="glass-card rounded-xl overflow-hidden" style={{ position: 'relative', zIndex: 0 }}>
+            <div className="h-[300px] sm:h-[400px] md:h-[500px]">
               <MapContainer center={[4.2, 108.5]} zoom={6} style={{ height: "100%", width: "100%" }} className="rounded-xl">
                 <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 {selectedState !== "all" && <FlyToState state={selectedState} />}

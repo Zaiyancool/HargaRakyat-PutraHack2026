@@ -33,9 +33,9 @@ export function AppSidebar({ activeSection, onSectionChange }: AppSidebarProps) 
 
   return (
     <Sidebar collapsible="icon" className="border-r border-border/50">
-      <SidebarContent className="bg-[hsl(222_47%_9%)]">
+      <SidebarContent style={{ background: "hsl(var(--sidebar-background))" }}>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-xs uppercase tracking-widest text-muted-foreground/60">
+          <SidebarGroupLabel className="text-xs uppercase tracking-widest opacity-50" style={{ color: "hsl(var(--sidebar-foreground))" }}>
             Navigation
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -49,12 +49,13 @@ export function AppSidebar({ activeSection, onSectionChange }: AppSidebarProps) 
                     }}
                     className={`transition-all duration-200 ${
                       activeSection === item.id
-                        ? "bg-primary/10 text-primary border-l-2 border-primary"
-                        : "text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                        ? "bg-primary/20 text-primary border-l-2 border-primary font-semibold"
+                        : "opacity-70 hover:opacity-100 hover:bg-white/10"
                     }`}
+                    style={{ color: activeSection === item.id ? "hsl(var(--sidebar-primary))" : "hsl(var(--sidebar-foreground))" }}
                     tooltip={item.title}
                   >
-                    <item.icon className="w-4 h-4" />
+                    <item.icon className="w-4 h-4 shrink-0" />
                     {!collapsed && <span>{item.title}</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -65,10 +66,10 @@ export function AppSidebar({ activeSection, onSectionChange }: AppSidebarProps) 
       </SidebarContent>
 
       {!collapsed && (
-        <SidebarFooter className="bg-[hsl(222_47%_9%)] border-t border-border/30 p-4">
-          <div className="text-[10px] text-muted-foreground/50 space-y-1">
+        <SidebarFooter style={{ background: "hsl(var(--sidebar-background))", borderTop: "1px solid hsl(var(--sidebar-border))" }} className="p-4">
+          <div className="text-[10px] space-y-1" style={{ color: "hsl(var(--sidebar-foreground) / 0.5)" }}>
             <p className="flex items-center gap-1">
-              <ShieldCheck className="w-3 h-3 text-primary/50" />
+              <ShieldCheck className="w-3 h-3" style={{ color: "hsl(var(--sidebar-primary) / 0.6)" }} />
               <a href="https://data.gov.my" target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">
                 data.gov.my
               </a>

@@ -3,6 +3,8 @@ import { TrendingUp, TrendingDown, Minus, BarChart3, ShoppingCart, Database, Act
 import { useItemLookup, usePricesAgg, usePricesAggJan, usePriceForecast } from "@/hooks/usePriceCatcher";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { BasketTracker } from "@/components/BasketTracker";
+import { FoodNewsWidget } from "@/components/FoodNewsWidget";
+import { getProductImage } from "@/lib/image-mapper";
 
 export function DashboardHome() {
   const { data: items, isLoading: li } = useItemLookup();
@@ -20,15 +22,22 @@ export function DashboardHome() {
 
   const topMovers = useMemo(() => {
     if (!pricesAgg || !pricesAggJan || !items) return [];
-    const itemMap = new Map(items.map((i) => [i.c, i.n]));
+    const itemMap = new Map(items.map((i) => [i.c, i]));
     const janMap = new Map(pricesAggJan.map((p) => [p.c, p.avg]));
 
     return pricesAgg
       .filter((p) => janMap.has(p.c) && itemMap.has(p.c))
       .map((p) => {
+        const item = itemMap.get(p.c)!;
         const janAvg = janMap.get(p.c)!;
         const change = ((p.avg - janAvg) / janAvg) * 100;
-        return { name: itemMap.get(p.c)!, price: p.avg, change: Math.round(change * 100) / 100 };
+        return { 
+          item, 
+          image: getProductImage(item.n, item.g),
+          name: item.n, 
+          price: p.avg, 
+          change: Math.round(change * 100) / 100 
+        };
       })
       .sort((a, b) => Math.abs(b.change) - Math.abs(a.change))
       .slice(0, 8);
@@ -70,25 +79,44 @@ export function DashboardHome() {
       {/* Basket Tracker */}
       <BasketTracker />
 
+      {/* Food News Widget */}
+      <FoodNewsWidget />
+
       {/* Bento Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Top Movers - 2 cols */}
+        {/* Top Movers Carousel - 2 cols */}
         <div className="lg:col-span-2 glass-card rounded-xl p-5">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-primary" /> Top Price Movers (MoM)
+          <h3 className="text-sm font-bold text-foreground uppercase tracking-wider mb-4 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-primary" /> Hot Price Movers
           </h3>
-          <div className="space-y-2">
+          
+          <div className="-mx-5 px-5 flex overflow-x-auto pb-2 gap-4 snap-x custom-scrollbar">
             {topMovers.map((m, i) => (
-              <div key={i} className="flex items-center justify-between py-2 border-b border-border/20 last:border-0">
-                <span className="text-sm truncate flex-1 mr-4">{m.name}</span>
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-sm font-mono font-semibold">RM {m.price.toFixed(2)}</span>
-                  <span className={`inline-flex items-center gap-1 text-xs font-mono font-bold px-2 py-0.5 rounded-full ${
-                    m.change > 0 ? "bg-destructive/10 text-chart-down" : "bg-primary/10 text-chart-up"
-                  }`}>
-                    {m.change > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-                    {m.change > 0 ? "+" : ""}{m.change}%
-                  </span>
+              <div 
+                key={i} 
+                className="snap-start shrink-0 w-[160px] bg-white border border-border rounded-xl overflow-hidden hover:shadow-md hover:border-primary/40 transition-all group"
+              >
+                {/* Product Info */}
+                <div className="p-3">
+                  <h4 className="text-xs font-semibold line-clamp-2 leading-tight h-8 mb-2 group-hover:text-primary transition-colors">
+                    {m.name}
+                  </h4>
+                  
+                  <div className="flex items-end justify-between">
+                    <span className="text-lg font-bold text-primary">
+                      RM{m.price.toFixed(2)}
+                    </span>
+                  </div>
+                  
+                  {/* Badge */}
+                  <div className="mt-2">
+                    <span className={`inline-flex w-full justify-center items-center gap-1 text-[10px] font-bold px-1.5 py-1 rounded-md ${
+                      m.change > 0 ? "bg-red-50 text-red-600 border border-red-100" : "bg-emerald-50 text-emerald-600 border border-emerald-100"
+                    }`}>
+                      {m.change > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                      {m.change > 0 ? "+" : ""}{m.change}% VS JAN
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
