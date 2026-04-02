@@ -115,13 +115,6 @@ export function ItemGrid() {
         )}
 
 
-        {/* CTA below marquee */}
-        <div className="mt-12 text-center">
-          <p className="mb-4 text-base text-gray-500">Sign up to track price changes and get alerts.</p>
-          <Button className="h-13 rounded-xl px-8 text-[16px] font-bold shadow-sm">
-            Sign up — it's free <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
-        </div>
       </div>
     </section>
   );

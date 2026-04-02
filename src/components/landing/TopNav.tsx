@@ -91,11 +91,6 @@ export function TopNav() {
                 ))}
               </nav>
 
-              {/* Mobile auth buttons */}
-              <div className="p-4 border-t border-gray-100 flex flex-col gap-2">
-                <Button variant="outline" className="w-full font-semibold">Sign In</Button>
-                <Button className="w-full font-bold">Get Started</Button>
-              </div>
             </div>
           </SheetContent>
         </Sheet>

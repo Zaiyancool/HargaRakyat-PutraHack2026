@@ -136,7 +136,7 @@ export function WhySection() {
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
           </Link>
-          <p className="text-sm text-gray-400">Free to use · No sign up required to explore</p>
+          <p className="text-sm text-gray-400">Free to use · Open data for everyone</p>
         </div>
       </div>
     </section>
