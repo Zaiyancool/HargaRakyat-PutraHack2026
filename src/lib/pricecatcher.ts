@@ -210,7 +210,7 @@ export async function fetchLiveNews(): Promise<NewsItem[]> {
   for (const q of queries) {
     try {
       const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-MY&gl=MY&ceid=MY:en`;
-      const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=5`;
+      const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;`;
 
       const resp = await fetch(apiUrl, { signal: AbortSignal.timeout(6000) });
       if (!resp.ok) continue;

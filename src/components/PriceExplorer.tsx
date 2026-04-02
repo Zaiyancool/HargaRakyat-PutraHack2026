@@ -86,7 +86,7 @@ export function PriceExplorer() {
         </div>
 
         <div className="text-sm text-muted-foreground">
-          Data period: <span className="text-foreground font-medium font-mono">Feb 2026</span>
+          Data period: <span className="text-foreground font-medium font-mono">Data period: <span className="text-foreground font-medium font-mono">Mar 2026</span></span>
           {!isLoading && <span className="ml-4 font-mono">{aggregated.length} items found</span>}
         </div>
 
