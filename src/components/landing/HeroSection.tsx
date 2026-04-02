@@ -81,7 +81,7 @@ export function HeroSection() {
               src="/images/mockup_phone.webp"
               alt="HargaRakyat app preview"
               loading="eager"
-              className="relative h-[580px] w-auto drop-shadow-2xl transition-transform duration-700 ease-out hover:scale-105 md:h-[650px]"
+              className="relative h-[600px] w-auto drop-shadow-2xl transition-transform duration-700 ease-out hover:scale-105 md:h-[720px]"
             />
           </div>
         </div>
