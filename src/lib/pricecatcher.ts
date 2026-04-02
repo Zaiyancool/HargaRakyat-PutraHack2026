@@ -269,6 +269,14 @@ export const STATES = [
   "W.P. Kuala Lumpur", "W.P. Labuan", "W.P. Putrajaya",
 ];
 
+export const PREMISE_TYPES = [
+  "HYPERMARKET",
+  "PASAR RAYA / SUPERMARKET",
+  "PASAR BASAH",
+  "PASAR MINI",
+  "KEDAI RUNCIT",
+];
+
 export const ITEM_GROUPS = [
   "BARANGAN SEGAR", "BARANGAN KERING", "BARANGAN BERBUNGKUS",
   "BARANGAN KEDAI SERBANEKA", "MAKANAN SIAP MASAK",
