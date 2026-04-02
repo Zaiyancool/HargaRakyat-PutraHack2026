@@ -88,7 +88,7 @@ export function HeroSection() {
       </div>
 
       {/* ── Stats bar — Kraken-style floating card ── */}
-      <div className="relative z-10 mx-auto mt-[-5rem] max-w-5xl px-6 pb-20">
+      <div className="relative z-10 mx-auto mt-[-3rem] max-w-5xl px-6 pb-20 md:mt-[-5rem]">
         <div className="rounded-[2.5rem] bg-white px-8 py-10 shadow-[0_8px_40px_rgba(0,0,0,0.06)] md:py-14">
           <p className="mb-10 text-center text-[10px] font-bold uppercase tracking-wider text-gray-500">
             Powered by KPDN PriceCatcher Data
