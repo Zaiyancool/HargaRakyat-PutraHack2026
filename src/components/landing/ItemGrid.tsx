@@ -12,8 +12,6 @@ export function ItemGrid() {
   const { data: items } = useItemLookup();
   const { data: pricesAgg } = usePricesAgg();
   const { data: pricesJan } = usePricesAggJan();
-  const [activeCat, setActiveCat] = useState(0);
-  const [showAll, setShowAll] = useState(false);
 
   const priceMap = useMemo(() => {
     const m = new Map<number, { avg: number; n: number }>();
