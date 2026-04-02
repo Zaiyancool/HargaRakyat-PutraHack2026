@@ -17,6 +17,7 @@ import {
 } from "@/hooks/usePriceCatcher";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { ItemPriceModal } from "@/components/ItemPriceModal";
+import { YearlyOverview } from "@/components/YearlyOverview";
 import { ITEM_GROUPS, type ItemLookup, type PriceAgg } from "@/lib/pricecatcher";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -313,6 +314,9 @@ export function DashboardHome() {
           </div>
         </div>
       </div>
+
+      {/* ── Yearly Overview Chart ── */}
+      <YearlyOverview />
 
       {/* ── Data Table ── */}
       <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
