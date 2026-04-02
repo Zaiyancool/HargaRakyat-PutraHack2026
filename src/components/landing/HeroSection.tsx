@@ -77,62 +77,16 @@ export function HeroSection() {
             {/* Glow behind phone */}
             <div className="absolute inset-0 scale-90 rounded-[3rem] bg-primary/15 blur-2xl" />
 
-            <div className="relative mx-auto h-[520px] w-[260px] overflow-hidden rounded-[2.5rem] border-[7px] border-gray-900 bg-white shadow-2xl md:h-[580px] md:w-[290px]">
-              {/* Notch */}
-              <div className="absolute left-1/2 top-0 h-7 w-24 -translate-x-1/2 rounded-b-2xl bg-gray-900" />
-
-              {/* App header */}
-              <div className="mt-7 flex items-center justify-between border-b border-gray-100 px-4 pb-3 pt-4">
-                <span className="text-[11px] font-black text-gray-900">HargaRakyat</span>
-                <span className="rounded-full bg-primary px-2 py-0.5 text-[9px] font-bold text-white">LIVE</span>
-              </div>
-
-              {/* Trending section */}
-              <div className="px-4 pt-4">
-                <p className="text-[9px] font-semibold uppercase tracking-wider text-gray-400">Trending Today</p>
-                <div className="mt-2 space-y-2">
-                  {[
-                    { name: "Ayam (Std)", price: "8.50", pct: "+2.1%", up: true },
-                    { name: "Telur Gred A", price: "14.20", pct: "-0.8%", up: false },
-                    { name: "Beras Super", price: "32.90", pct: "+0.3%", up: true },
-                    { name: "Minyak Masak", price: "7.50", pct: "-1.2%", up: false },
-                  ].map((item) => (
-                    <div key={item.name} className="flex items-center justify-between rounded-xl bg-gray-50 px-3 py-2">
-                      <div className="flex items-center gap-2">
-                        <div className="h-7 w-7 rounded-lg bg-primary/10 text-[8px] font-bold text-primary flex items-center justify-center">
-                          {item.name.slice(0, 2)}
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-semibold text-gray-800">{item.name}</p>
-                          <p className="text-[9px] text-gray-400">per kg</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[10px] font-bold font-mono text-gray-900">RM {item.price}</p>
-                        <p className={`text-[9px] font-bold ${item.up ? "text-red-500" : "text-emerald-500"}`}>{item.pct}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Mini chart */}
-              <div className="mt-4 mx-4 rounded-2xl bg-gradient-to-br from-primary/8 to-primary/3 p-3">
-                <p className="text-[9px] font-semibold text-primary">Price Forecast — 14 days</p>
-                <div className="mt-2 flex items-end gap-0.5 h-14">
-                  {[60, 72, 55, 68, 80, 65, 75, 85, 70, 90, 78, 88, 82, 95].map((h, i) => (
-                    <div
-                      key={i}
-                      className="flex-1 rounded-sm"
-                      style={{
-                        height: `${h}%`,
-                        background: i >= 7 ? "rgba(21,88,224,0.25)" : "rgba(21,88,224,0.6)",
-                      }}
-                    />
-                  ))}
-                </div>
-                <p className="mt-1 text-[8px] text-gray-400">Dashed = predicted</p>
-              </div>
+            <div className="relative mx-auto h-[520px] w-[260px] overflow-hidden rounded-[2.5rem] border-[7px] border-gray-900 shadow-2xl md:h-[580px] md:w-[290px]">
+              <video
+                src="/videos/mockup_video.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="h-full w-full object-cover"
+                style={{ mixBlendMode: "multiply" }}
+              />
             </div>
           </div>
         </div>
