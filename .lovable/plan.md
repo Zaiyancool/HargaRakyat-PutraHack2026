@@ -1,47 +1,42 @@
+# Replace Phone Mockup with Video
+
+## What Changes
+
+Replace the static HTML phone mockup content (trending items, mini chart) with the uploaded `mockup_video.mp4` playing inside the phone frame. Use CSS `mix-blend-mode: multiply` to blend away the white background from the video. make the video responsive and efficiency, reduce the video storage size
+
+## Steps
+
+### 1. Copy video to project
+
+Copy `user-uploads://mockup_video.mp4` to `public/videos/mockup_video.mp4`
+
+### 2. Update `src/components/landing/HeroSection.tsx`
+
+Replace lines 80-136 (the phone frame inner content — notch, app header, trending section, mini chart) with a single `<video>` element:
+
+```tsx
+<div className="relative mx-auto h-[520px] w-[260px] overflow-hidden rounded-[2.5rem] border-[7px] border-gray-900 shadow-2xl md:h-[580px] md:w-[290px]">
+  <video
+    src="/videos/mockup_video.mp4"
+    autoPlay
+    loop
+    muted
+    playsInline
+    className="h-full w-full object-cover"
+    style={{ mixBlendMode: "multiply" }}
+  />
+</div>
+```
+
+- `mix-blend-mode: multiply` makes white areas transparent, blending the video naturally into whatever is behind the phone frame
+- `autoPlay loop muted playsInline` ensures silent autoplay on all browsers
+- Remove the `bg-white` from the phone container so the blend works against the page background
+- Keep the glow behind phone, the border frame, and rounded corners
+
+## Files Changed
 
 
-# Enhance News Page with Real Data Sources
-
-## Overview
-Remove static placeholder news, add more Malaysian RSS feeds, and add an AI-generated market intelligence summary at the top of the news page.
-
-## Changes
-
-### 1. Remove static placeholder news
-- Delete `public/data/news_context.json`
-- Remove `fetchNewsContext` export from `pricecatcher.ts`
-- Update `fetchLiveNews()` to no longer load/merge static news — rely purely on live RSS
-- Keep the classification logic (it works well for live articles too)
-
-### 2. Add more Malaysian RSS sources
-Add direct RSS feeds alongside Google News for broader coverage:
-- **Bernama**: `https://www.bernama.com/en/rss/general.xml`
-- **The Star Business**: `https://www.thestar.com.my/rss/News/Business`
-- **Free Malaysia Today**: `https://www.freemalaysiatoday.com/rss/`
-- **Malay Mail**: `https://www.malaymail.com/feed/rss/malaysia`
-
-All via the same rss2json.com proxy (free, no API key). Add Malaysian food/price keyword filtering so only relevant articles surface.
-
-### 3. Add AI-powered market intelligence brief
-Create a new edge function `supabase/functions/news-ai/index.ts` that:
-- Uses Lovable AI (LOVABLE_API_KEY already available) to generate a market intelligence summary
-- Takes the fetched RSS headlines as input context
-- Returns a concise "AI Market Brief" analyzing trends and implications for Malaysian grocery prices
-- Display as a highlighted card at the top of the news page
-
-### Files to Change
-| File | Change |
-|------|--------|
-| `src/lib/pricecatcher.ts` | Add more RSS feeds, remove static news dependency, add keyword filter |
-| `public/data/news_context.json` | Delete |
-| `src/components/FoodNewsWidget.tsx` | Add "AI Market Brief" card, update loading states |
-| `supabase/functions/news-ai/index.ts` | New edge function for AI news summary |
-| `src/pages/News.tsx` | Minor layout update for AI brief section |
-
-### Technical Details
-- RSS feeds via rss2json.com: `https://api.rss2json.com/v1/api.json?rss_url={encoded_feed_url}`
-- Keyword filter for relevance: `harga|price|food|makanan|grocery|inflation|subsid|ayam|telur|beras|sayur|minyak|gula`
-- Cap at 15 articles total, sorted by date descending
-- AI summary uses non-streaming `supabase.functions.invoke()` call
-- Cache AI summary for 1 hour via `staleTime` in react-query
-
+| File                                     | Change                                           |
+| ---------------------------------------- | ------------------------------------------------ |
+| `public/videos/mockup_video.mp4`         | New — copied from upload                         |
+| `src/components/landing/HeroSection.tsx` | Replace static mockup content with video element |
