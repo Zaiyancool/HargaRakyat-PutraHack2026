@@ -3,7 +3,7 @@ import {
   TrendingDown,
   Minus,
   Search,
-  Star,
+  
   X,
   ChevronUp,
   ChevronDown,
