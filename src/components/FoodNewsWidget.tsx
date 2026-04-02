@@ -2,9 +2,9 @@ import { useState, useMemo, useEffect } from "react";
 import {
   Newspaper, TrendingUp, TrendingDown, Minus, ExternalLink,
   Globe, Thermometer, DollarSign, Leaf, BarChart2, AlertCircle,
-  ChevronDown, ChevronUp, Wifi, RefreshCw, Radio,
+  ChevronDown, ChevronUp, Wifi, RefreshCw, Radio, Sparkles, Loader2,
 } from "lucide-react";
-import { useNewsContext } from "@/hooks/usePriceCatcher";
+import { useNewsContext, useAIMarketBrief } from "@/hooks/usePriceCatcher";
 import type { NewsItem } from "@/lib/pricecatcher";
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
@@ -49,7 +49,45 @@ function ImpactBadge({ impact }: { impact: NewsItem["impact"] }) {
   );
 }
 
-function NewsCard({ item, isLive }: { item: NewsItem; isLive: boolean }) {
+function AIMarketBrief({ headlines }: { headlines: Array<{ headline: string; impact: string; category: string; date: string }> }) {
+  const { data, isLoading, error } = useAIMarketBrief(headlines);
+
+  if (error && !data) return null;
+
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-primary/30 bg-gradient-to-br from-primary/5 via-primary/10 to-accent/5 p-4 mb-4">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl" />
+      <div className="relative">
+        <div className="flex items-center gap-2 mb-2">
+          <Sparkles className="w-4 h-4 text-primary" />
+          <h4 className="text-sm font-bold text-foreground">AI Market Brief</h4>
+          <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/20 text-primary font-semibold border border-primary/30">
+            Powered by AI
+          </span>
+        </div>
+        {isLoading ? (
+          <div className="flex items-center gap-2 py-3">
+            <Loader2 className="w-4 h-4 text-primary animate-spin" />
+            <span className="text-xs text-muted-foreground">Analyzing market signals...</span>
+          </div>
+        ) : data?.brief ? (
+          <>
+            <p className="text-xs text-foreground/80 leading-relaxed whitespace-pre-line">
+              {data.brief}
+            </p>
+            {data.generated_at && (
+              <p className="text-[10px] text-muted-foreground mt-2">
+                Generated {new Date(data.generated_at).toLocaleTimeString("en-MY", { hour: "2-digit", minute: "2-digit" })}
+              </p>
+            )}
+          </>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+function NewsCard({ item }: { item: NewsItem }) {
   const [expanded, setExpanded] = useState(false);
   const catColor = CATEGORY_COLORS[item.category] ?? "bg-secondary text-muted-foreground border-border";
   const catIcon = CATEGORY_ICONS[item.category] ?? <Newspaper className="w-3.5 h-3.5" />;
@@ -58,11 +96,6 @@ function NewsCard({ item, isLive }: { item: NewsItem; isLive: boolean }) {
     day: "numeric", month: "short", year: "numeric",
   });
 
-  const hasRealUrl = item.url && item.url.startsWith("http") && !item.url.includes("bernama.com") &&
-    !item.url.includes("thestar.com") && !item.url.includes("bfm.my") &&
-    !item.url.includes("theedgemarkets") && !item.url.includes("utusan");
-
-  // For curated static news, URLs are homepages — still link to them
   const linkUrl = item.url || "#";
 
   return (
@@ -75,21 +108,17 @@ function NewsCard({ item, isLive }: { item: NewsItem; isLive: boolean }) {
           : ""
       }`}
     >
-      {/* Category + source row */}
       <div className="flex items-center gap-2 mb-2 flex-wrap">
         <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full border ${catColor}`}>
           {catIcon} {item.category}
         </span>
         <ImpactBadge impact={item.impact} />
-        {isLive && (
-          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/40">
-            <Wifi className="w-2.5 h-2.5 animate-pulse" /> LIVE
-          </span>
-        )}
+        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/40">
+          <Wifi className="w-2.5 h-2.5 animate-pulse" /> LIVE
+        </span>
         <span className="text-[10px] text-muted-foreground ml-auto">{date}</span>
       </div>
 
-      {/* Headline — clickable link to real article */}
       <a
         href={linkUrl}
         target="_blank"
@@ -103,7 +132,6 @@ function NewsCard({ item, isLive }: { item: NewsItem; isLive: boolean }) {
         </p>
       </a>
 
-      {/* Source */}
       <a
         href={linkUrl}
         target="_blank"
@@ -114,7 +142,6 @@ function NewsCard({ item, isLive }: { item: NewsItem; isLive: boolean }) {
         <ExternalLink className="w-2.5 h-2.5" />
       </a>
 
-      {/* Items affected pills */}
       <div className="flex flex-wrap gap-1 mb-2">
         {item.items_affected.slice(0, 4).map((tag) => (
           <span key={tag} className="text-[10px] px-1.5 py-0.5 rounded bg-secondary/80 text-muted-foreground border border-border/50">
@@ -123,7 +150,6 @@ function NewsCard({ item, isLive }: { item: NewsItem; isLive: boolean }) {
         ))}
       </div>
 
-      {/* Expandable summary — only if there's real content */}
       {item.summary && item.summary.length > 20 && (
         <>
           {expanded && (
@@ -245,8 +271,15 @@ function HeadlineTicker({ items }: { items: NewsItem[] }) {
 export function FoodNewsWidget() {
   const { data: news, isLoading, isFetching, dataUpdatedAt, refetch } = useNewsContext();
 
-  // IDs >= 1000 are from live RSS fetch
-  const liveCount = useMemo(() => (news ?? []).filter(n => n.id >= 1000).length, [news]);
+  const aiHeadlines = useMemo(() =>
+    (news ?? []).map(n => ({
+      headline: n.headline,
+      impact: n.impact,
+      category: n.category,
+      date: n.date,
+    })),
+    [news]
+  );
 
   const updatedTime = useMemo(() => {
     if (!dataUpdatedAt) return "";
@@ -266,7 +299,17 @@ export function FoodNewsWidget() {
     );
   }
 
-  if (!news || news.length === 0) return null;
+  if (!news || news.length === 0) {
+    return (
+      <div className="glass-card rounded-xl p-5 text-center">
+        <Newspaper className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+        <p className="text-sm text-muted-foreground">No live news available right now.</p>
+        <button onClick={() => refetch()} className="mt-2 text-xs text-primary hover:underline">
+          Try again
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="glass-card rounded-xl p-5">
@@ -276,14 +319,12 @@ export function FoodNewsWidget() {
           <div className="flex items-center gap-2 mb-0.5">
             <Newspaper className="w-5 h-5 text-accent" />
             <h3 className="text-base font-bold tracking-tight">Malaysian Food Price News</h3>
-            {liveCount > 0 && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/40">
-                <Wifi className="w-2.5 h-2.5 animate-pulse" /> {liveCount} Live
-              </span>
-            )}
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-primary/20 text-primary border border-primary/40">
+              <Wifi className="w-2.5 h-2.5 animate-pulse" /> {news.length} Live
+            </span>
           </div>
           <p className="text-xs text-muted-foreground">
-            Geopolitical &amp; market factors affecting your grocery basket
+            Live feeds from Google News, Bernama, The Star, FMT &amp; Malay Mail
             {updatedTime && <span className="ml-1">· Updated {updatedTime}</span>}
           </p>
         </div>
@@ -303,7 +344,10 @@ export function FoodNewsWidget() {
         </div>
       </div>
 
-      {/* Live ticker — clickable */}
+      {/* AI Market Brief */}
+      {aiHeadlines.length > 0 && <AIMarketBrief headlines={aiHeadlines} />}
+
+      {/* Live ticker */}
       <HeadlineTicker items={news} />
 
       {/* Sentiment bar */}
@@ -312,15 +356,12 @@ export function FoodNewsWidget() {
       {/* News cards */}
       <div className="space-y-3">
         {news.map((item) => (
-          <NewsCard key={item.id} item={item} isLive={item.id >= 1000} />
+          <NewsCard key={item.id} item={item} />
         ))}
       </div>
 
       <p className="text-[10px] text-muted-foreground text-center mt-4 pt-3 border-t border-border/40">
-        {liveCount > 0
-          ? `${liveCount} live headlines from Google News · ${news.length - liveCount} curated by HargaRakyat team`
-          : "Curated from Bernama, The Star, BFM, Edge Markets & Utusan Malaysia"
-        }
+        All {news.length} articles sourced live from Google News, Bernama, The Star, FMT &amp; Malay Mail
         {" "}· Click any headline to read the full article
       </p>
     </div>
