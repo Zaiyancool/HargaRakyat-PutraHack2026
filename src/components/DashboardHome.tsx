@@ -315,6 +315,9 @@ export function DashboardHome() {
         </div>
       </div>
 
+      {/* ── Yearly Overview Chart ── */}
+      <YearlyOverview />
+
       {/* ── Data Table ── */}
       <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
         {/* Table header: tabs + search */}
