@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { useNewsContext, useAIMarketBrief } from "@/hooks/usePriceCatcher";
 import type { NewsItem } from "@/lib/pricecatcher";
+import { toast } from "sonner";
 
 const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   Geopolitical: <Globe className="w-3.5 h-3.5" />,
