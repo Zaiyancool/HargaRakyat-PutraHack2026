@@ -420,7 +420,7 @@ function ForecastDetailView({
         </h1>
         <p className="mt-2 text-sm text-gray-500 max-w-lg">
           What will <strong>{item.name}</strong> cost in the next 14 days?
-          Our ML model forecasts the price using 6 months of KPDN PriceCatcher data.
+          Our ML model forecasts the price using 1 year of KPDN PriceCatcher data.
         </p>
       </div>
 
