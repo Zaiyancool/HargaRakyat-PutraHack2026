@@ -17,6 +17,7 @@ import {
 } from "@/hooks/usePriceCatcher";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { ItemPriceModal } from "@/components/ItemPriceModal";
+import { YearlyOverview } from "@/components/YearlyOverview";
 import { ITEM_GROUPS, type ItemLookup, type PriceAgg } from "@/lib/pricecatcher";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
