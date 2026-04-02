@@ -3,13 +3,6 @@ import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { useItemLookup, usePricesAgg, usePricesAggJan } from "@/hooks/usePriceCatcher";
 import { Marquee } from "@/components/ui/marquee";
 
-const categories = [
-  { label: "Popular", filter: null },
-  { label: "Food", filter: "Barangan Makanan" },
-  { label: "Vegetables", filter: "Sayur-sayuran" },
-  { label: "Fruits", filter: "Buah-buahan" },
-  { label: "Seafood", filter: "Barangan Ikan / Seafood" },
-];
 
 const TOP_N = 100;
 const VISIBLE_ROWS = 3;
