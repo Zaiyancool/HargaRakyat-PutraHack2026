@@ -119,11 +119,22 @@ export function ItemGrid() {
   );
 }
 
+function getCategoryEmoji(category: string): string {
+  const cat = category.toLowerCase();
+  if (cat.includes("sayur")) return "🥬";
+  if (cat.includes("buah")) return "🍎";
+  if (cat.includes("ikan") || cat.includes("seafood")) return "🐟";
+  if (cat.includes("makanan")) return "🛒";
+  return "📦";
+}
+
 function ItemCard({ item, price, jan }: { item: any; price: any; jan: any }) {
   const pct = price && jan && jan > 0 ? ((price.avg - jan) / jan) * 100 : null;
+  const emoji = getCategoryEmoji(item.k || "");
 
   return (
     <div className="group flex w-48 shrink-0 flex-col items-center rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-md">
+      <span className="text-2xl">{emoji}</span>
       <p className="line-clamp-2 text-xs font-semibold leading-tight text-gray-900 mt-2">
         {item.n}
       </p>

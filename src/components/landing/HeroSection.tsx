@@ -122,7 +122,7 @@ function StatBlock({
 }) {
   return (
     <div className="flex flex-col items-center gap-3">
-      <p className="text-5xl font-medium tracking-tight text-gray-900 md:text-[56px]">{value}</p>
+      <p className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl md:text-[56px]">{value}</p>
       <p className="text-[13px] text-gray-500">{sublabel}</p>
     </div>
   );
