@@ -35,8 +35,7 @@ export function ItemGrid() {
     return list.slice(0, TOP_N);
   }, [items, priceMap]);
 
-  const visibleCount = showAll ? filtered.length : VISIBLE_ROWS * COLS;
-  const visible = filtered.slice(0, visibleCount);
+  const visible = filtered.slice(0, VISIBLE_ROWS * COLS);
   const thirdLength = Math.ceil(visible.length / 3);
   const firstRow = visible.slice(0, thirdLength);
   const secondRow = visible.slice(thirdLength, thirdLength * 2);
