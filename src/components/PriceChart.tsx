@@ -10,13 +10,15 @@ import { Search, TrendingUp, TrendingDown, Minus, Activity } from "lucide-react"
 import { SkeletonChart } from "@/components/SkeletonCard";
 import { ITEM_GROUPS } from "@/lib/pricecatcher";
 
-// All possible months in our data window — only those with actual records are shown
+// All possible months in our data window — full year Mar 2025 – Mar 2026
 const ALL_MONTHS = [
+  "2025-03", "2025-04", "2025-05", "2025-06",
   "2025-07", "2025-08", "2025-09", "2025-10", "2025-11", "2025-12",
   "2026-01", "2026-02", "2026-03",
 ];
 
 const MONTH_LABELS: Record<string, string> = {
+  "2025-03": "Mar '25", "2025-04": "Apr '25", "2025-05": "May '25", "2025-06": "Jun '25",
   "2025-07": "Jul '25", "2025-08": "Aug '25", "2025-09": "Sep '25",
   "2025-10": "Oct '25", "2025-11": "Nov '25", "2025-12": "Dec '25",
   "2026-01": "Jan '26", "2026-02": "Feb '26", "2026-03": "Mar '26",
