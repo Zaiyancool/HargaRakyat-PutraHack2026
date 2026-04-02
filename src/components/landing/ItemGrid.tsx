@@ -88,14 +88,6 @@ export function ItemGrid() {
   );
 }
 
-function getCategoryEmoji(category: string): string {
-  const cat = category.toLowerCase();
-  if (cat.includes("sayur")) return "🥬";
-  if (cat.includes("buah")) return "🍎";
-  if (cat.includes("ikan") || cat.includes("seafood")) return "🐟";
-  if (cat.includes("makanan")) return "🛒";
-  return "📦";
-}
 
 function ItemCard({ item, price, jan }: { item: any; price: any; jan: any }) {
   const pct = price && jan && jan > 0 ? ((price.avg - jan) / jan) * 100 : null;
