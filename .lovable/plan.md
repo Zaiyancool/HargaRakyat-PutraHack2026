@@ -1,37 +1,76 @@
 
 
-# Fix: Remove Fake Phone Frame, Use Mockup Image Directly
+# UI/UX Review & Fix Plan
 
-## Problem
-The uploaded image (`mockup_phone.webp`) already contains a realistic iPhone mockup with its own bezels and frame. But the code wraps it inside a **second fake phone frame** — a `div` with `border-[7px] border-black bg-black rounded-[2.5rem]` and fixed dimensions. This creates a black rectangle around the already-framed phone image.
+## Issues Found
 
-## Fix — `src/components/landing/HeroSection.tsx`
+### Critical Layout Issues
 
-Remove the fake phone container div entirely. Display the image directly with natural sizing:
+**1. Mobile: Phone mockup too large, overflows viewport**
+On 390px mobile, the phone image at `h-[600px]` dominates the viewport and pushes content far down. The mockup extends beyond the visible area and creates excessive whitespace below it before the stats bar.
 
-```tsx
-{/* Right — phone mockup */}
-<div className="flex justify-center">
-  <div className="relative">
-    {/* Glow behind phone */}
-    <div className="absolute inset-0 scale-90 rounded-[3rem] bg-primary/15 blur-2xl" />
+**2. Mobile: Stats bar numbers overflow on small screens**
+The stat values (e.g. "1,509,649") at `text-5xl` / `md:text-[56px]` are too large for mobile — they nearly touch card edges on 390px screens. The "RM 16.28" value also runs wide.
 
-    <img
-      src="/images/mockup_phone.webp"
-      alt="HargaRakyat app preview"
-      loading="eager"
-      className="relative h-[520px] w-auto drop-shadow-2xl md:h-[580px]"
-    />
-  </div>
-</div>
-```
+**3. Mobile: Item grid cards clipped at edges**
+The first and last cards in the marquee rows get clipped at screen edges (visible in screenshots — left column items like "HALIA BASAH (TUA)" are cut off).
 
-**What changes:**
-- Remove the wrapper `div` with `border-black bg-black overflow-hidden rounded-[2.5rem]`
-- Remove `scale-[1.12]` and `object-cover` (no longer cropping to fit a fake frame)
-- Use `h-[520px] w-auto` so the image scales naturally at its aspect ratio
-- Add `drop-shadow-2xl` for depth (replaces the old `shadow-2xl` on the container)
-- Keep the blue glow behind
+**4. Desktop: Large empty whitespace between hero and stats bar**
+There's a ~5rem negative margin gap that creates too much dead space between the phone mockup and the stats card on desktop.
 
-**One file changed, ~3 lines replaced.**
+### Design Polish Issues
+
+**5. Landing page hero: No visual hierarchy between sections**
+The transition from hero → stats → item grid → why section is flat. Adding subtle section dividers or background color alternation would improve flow.
+
+**6. Item grid section: Cards lack food images/icons**
+All item cards are plain text — no emoji or icon to represent the food category. This makes them visually monotonous.
+
+**7. Stats bar: Font weight too light**
+The stat numbers use `font-medium` which feels thin for such prominent data. Should be `font-bold` for impact.
+
+**8. Mobile: TopNav hamburger menu accessibility**
+The mobile nav works but the Sheet doesn't have an accessible title (missing `SheetTitle`), which triggers accessibility warnings.
+
+### Performance Notes
+- DOM nodes: 17,925 (high but acceptable for data-heavy page)
+- FCP: ~3s (Vite dev mode — production will be much faster)
+- Mockup image: 111KB WebP — well optimized
+- No JS errors in console, only React Router v7 deprecation warnings (harmless)
+
+## Proposed Fixes
+
+### `src/components/landing/HeroSection.tsx`
+1. **Reduce mobile mockup size**: `h-[420px]` mobile, keep `md:h-[620px]` desktop
+2. **Fix stats bar**: Reduce stat font to `text-3xl sm:text-4xl md:text-[56px]` so mobile doesn't overflow
+3. **Bold stat numbers**: `font-medium` → `font-bold`
+4. **Reduce hero bottom padding on mobile**: `pb-16 md:pb-32` to tighten mobile layout
+5. **Tighten negative margin**: `mt-[-3rem] md:mt-[-5rem]` for responsive spacing
+
+### `src/components/landing/ItemGrid.tsx`
+6. **Add food emoji to cards**: Map item categories to emoji (vegetables → 🥬, fruits → 🍎, seafood → 🐟, etc.) to add visual interest
+7. **Fix card clipping**: Ensure gradient overlays don't clip content text
+
+### `src/components/landing/WhySection.tsx`
+8. No major issues — design is clean. Keep as-is.
+
+### `src/components/landing/TopNav.tsx`
+9. **Add SheetTitle** for accessibility compliance in mobile nav
+
+### `src/components/landing/LandingFooter.tsx`
+10. No issues found — layout and responsiveness are good.
+
+### `src/pages/Index.tsx` (Dashboard)
+11. Dashboard layout is clean on both desktop and mobile. No changes needed.
+
+### `src/pages/News.tsx`
+12. News page layout is functional. No changes needed.
+
+## Files Changed
+
+| File | Changes |
+|------|---------|
+| `src/components/landing/HeroSection.tsx` | Responsive mockup sizing, stat bar fixes, font weight |
+| `src/components/landing/ItemGrid.tsx` | Food emoji on cards |
+| `src/components/landing/TopNav.tsx` | Accessibility fix for mobile Sheet |
 
