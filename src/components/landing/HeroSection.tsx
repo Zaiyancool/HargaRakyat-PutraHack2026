@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { ArrowRight, TrendingUp, BarChart3, Database, Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useItemLookup, usePricesAgg } from "@/hooks/usePriceCatcher";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useItemLookup, usePricesAgg } from "@/hooks/usePriceCatcher";
 import { Link } from "react-router-dom";
