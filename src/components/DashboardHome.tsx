@@ -134,9 +134,10 @@ export function DashboardHome() {
       .sort((a, b) => b.records - a.records)
       .slice(0, 3);
 
-    // Top 3 cheapest overall
+    // Top 3 biggest price drops (most negative changePct)
     const cheapest = [...enriched]
-      .sort((a, b) => a.price - b.price)
+      .filter((i) => i.changePct !== null)
+      .sort((a, b) => (a.changePct ?? 0) - (b.changePct ?? 0))
       .slice(0, 3);
 
     return { avgPrice, overallChangePct, upPct, downPct, trending, cheapest };
@@ -151,8 +152,8 @@ export function DashboardHome() {
       data = data.filter((i) => i.name.toLowerCase().includes(q));
     }
     if (activeTab === "Most popular") data.sort((a, b) => b.records - a.records);
-    else if (activeTab === "Cheapest") data.sort((a, b) => a.price - b.price);
-    else if (activeTab === "Expensive") data.sort((a, b) => b.price - a.price);
+    else if (activeTab === "Cheapest") data.sort((a, b) => (a.changePct ?? 0) - (b.changePct ?? 0));
+    else if (activeTab === "Expensive") data.sort((a, b) => (b.changePct ?? 0) - (a.changePct ?? 0));
     return data;
   }, [enriched, activeTab, activeCategory, search]);
 
