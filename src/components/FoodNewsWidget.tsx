@@ -260,13 +260,25 @@ function HeadlineTicker({ items }: { items: NewsItem[] }) {
   if (!items.length) return null;
   const current = items[idx];
 
+  const linkUrl = current.url || "";
+  const hasUrl = linkUrl.startsWith("http");
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!hasUrl) return;
+    const win = window.open(linkUrl, "_blank", "noopener,noreferrer");
+    if (!win) {
+      navigator.clipboard.writeText(linkUrl).then(() => {
+        toast.success("Link copied — paste in your browser");
+      }).catch(() => {});
+    }
+  };
+
   return (
-    <a
-      href={current.url || "#"}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center gap-3 px-4 py-2 rounded-lg bg-primary/10 border border-primary/20 mb-4 overflow-hidden hover:bg-primary/15 hover:border-primary/30 transition-colors group"
-      onClick={(e) => { if (!current.url) e.preventDefault(); }}
+    <button
+      onClick={handleClick}
+      disabled={!hasUrl}
+      className="flex items-center gap-3 px-4 py-2 rounded-lg bg-primary/10 border border-primary/20 mb-4 overflow-hidden hover:bg-primary/15 hover:border-primary/30 transition-colors group w-full text-left"
     >
       <span className="shrink-0 flex items-center gap-1 text-[10px] font-bold text-primary uppercase tracking-widest">
         <Wifi className="w-3 h-3 animate-pulse" /> Live
@@ -280,7 +292,7 @@ function HeadlineTicker({ items }: { items: NewsItem[] }) {
       <span className="shrink-0 flex items-center gap-1 text-[10px] text-muted-foreground group-hover:text-primary transition-colors font-medium">
         {current.source} <ExternalLink className="w-2.5 h-2.5 opacity-0 group-hover:opacity-60 transition-opacity" />
       </span>
-    </a>
+    </button>
   );
 }
 
