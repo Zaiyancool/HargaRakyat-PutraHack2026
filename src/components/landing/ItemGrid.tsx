@@ -27,18 +27,13 @@ export function ItemGrid() {
 
   const filtered = useMemo(() => {
     if (!items) return [];
-    const cat = categories[activeCat];
-    let list = cat.filter ? items.filter((i) => i.k === cat.filter) : items;
-
-    // Sort by record count desc → top 100
-    list = [...list].sort((a, b) => {
+    let list = [...items].sort((a, b) => {
       const na = priceMap.get(a.c)?.n ?? 0;
       const nb = priceMap.get(b.c)?.n ?? 0;
       return nb - na;
     });
-
     return list.slice(0, TOP_N);
-  }, [items, activeCat, priceMap]);
+  }, [items, priceMap]);
 
   const visibleCount = showAll ? filtered.length : VISIBLE_ROWS * COLS;
   const visible = filtered.slice(0, visibleCount);
