@@ -29,7 +29,7 @@ export function HeroSection() {
       {/* Blue glow */}
       <div className="pointer-events-none absolute -top-32 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-primary/8 blur-3xl" />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 pb-32 pt-24 md:grid-cols-2">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 pb-16 pt-24 md:grid-cols-2 md:pb-32">
         {/* Left — copy */}
         <div className="max-w-xl">
           <h1 className="text-5xl font-black leading-[1.05] tracking-[-0.03em] text-gray-900 sm:text-6xl md:text-7xl">
