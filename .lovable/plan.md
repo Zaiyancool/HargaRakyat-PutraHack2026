@@ -1,9 +1,9 @@
+
+
 # Enhance News Page with Real Data Sources
 
-## Current State
-- `fetchLiveNews()` already fetches Google News RSS via rss2json.com (working, returning 200)
-- Falls back to static `news_context.json` (7 hardcoded articles from late March 2026)
-- Keyword-based classification for impact/category/items_affected
+## Overview
+Remove static placeholder news, add more Malaysian RSS feeds, and add an AI-generated market intelligence summary at the top of the news page.
 
 ## Changes
 
@@ -22,12 +22,12 @@ Add direct RSS feeds alongside Google News for broader coverage:
 
 All via the same rss2json.com proxy (free, no API key). Add Malaysian food/price keyword filtering so only relevant articles surface.
 
-### 3. Add Perplexity AI-powered news summary (optional enhancement)
+### 3. Add AI-powered market intelligence brief
 Create a new edge function `supabase/functions/news-ai/index.ts` that:
-- Uses Lovable AI (LOVABLE_API_KEY already available) to generate a daily market intelligence summary
-- Prompt: "Summarize the latest Malaysian food price news, policy changes, and supply chain updates"
-- Display as a highlighted "AI Market Brief" card at the top of the news page
-- No Perplexity connector needed — Lovable AI with `google/gemini-3-flash-preview` can generate contextual summaries from the RSS headlines we already fetch
+- Uses Lovable AI (LOVABLE_API_KEY already available) to generate a market intelligence summary
+- Takes the fetched RSS headlines as input context
+- Returns a concise "AI Market Brief" analyzing trends and implications for Malaysian grocery prices
+- Display as a highlighted card at the top of the news page
 
 ### Files to Change
 | File | Change |
@@ -42,5 +42,6 @@ Create a new edge function `supabase/functions/news-ai/index.ts` that:
 - RSS feeds via rss2json.com: `https://api.rss2json.com/v1/api.json?rss_url={encoded_feed_url}`
 - Keyword filter for relevance: `harga|price|food|makanan|grocery|inflation|subsid|ayam|telur|beras|sayur|minyak|gula`
 - Cap at 15 articles total, sorted by date descending
-- AI summary edge function uses non-streaming `supabase.functions.invoke()` call
+- AI summary uses non-streaming `supabase.functions.invoke()` call
 - Cache AI summary for 1 hour via `staleTime` in react-query
+
