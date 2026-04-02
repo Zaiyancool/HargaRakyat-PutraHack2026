@@ -3,13 +3,6 @@ import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { useItemLookup, usePricesAgg, usePricesAggJan } from "@/hooks/usePriceCatcher";
 import { Marquee } from "@/components/ui/marquee";
 
-const categories = [
-  { label: "Popular", filter: null },
-  { label: "Food", filter: "Barangan Makanan" },
-  { label: "Vegetables", filter: "Sayur-sayuran" },
-  { label: "Fruits", filter: "Buah-buahan" },
-  { label: "Seafood", filter: "Barangan Ikan / Seafood" },
-];
 
 const TOP_N = 100;
 const VISIBLE_ROWS = 3;
@@ -19,8 +12,6 @@ export function ItemGrid() {
   const { data: items } = useItemLookup();
   const { data: pricesAgg } = usePricesAgg();
   const { data: pricesJan } = usePricesAggJan();
-  const [activeCat, setActiveCat] = useState(0);
-  const [showAll, setShowAll] = useState(false);
 
   const priceMap = useMemo(() => {
     const m = new Map<number, { avg: number; n: number }>();
@@ -36,21 +27,15 @@ export function ItemGrid() {
 
   const filtered = useMemo(() => {
     if (!items) return [];
-    const cat = categories[activeCat];
-    let list = cat.filter ? items.filter((i) => i.k === cat.filter) : items;
-
-    // Sort by record count desc → top 100
-    list = [...list].sort((a, b) => {
+    let list = [...items].sort((a, b) => {
       const na = priceMap.get(a.c)?.n ?? 0;
       const nb = priceMap.get(b.c)?.n ?? 0;
       return nb - na;
     });
-
     return list.slice(0, TOP_N);
-  }, [items, activeCat, priceMap]);
+  }, [items, priceMap]);
 
-  const visibleCount = showAll ? filtered.length : VISIBLE_ROWS * COLS;
-  const visible = filtered.slice(0, visibleCount);
+  const visible = filtered.slice(0, VISIBLE_ROWS * COLS);
   const thirdLength = Math.ceil(visible.length / 3);
   const firstRow = visible.slice(0, thirdLength);
   const secondRow = visible.slice(thirdLength, thirdLength * 2);
@@ -73,22 +58,6 @@ export function ItemGrid() {
           Pause on any card to explore. Data from KPDN PriceCatcher.
         </p>
 
-        {/* Category tabs */}
-        <div className="mt-8 flex flex-wrap justify-center gap-2">
-          {categories.map((cat, i) => (
-            <button
-              key={cat.label}
-              onClick={() => { setActiveCat(i); setShowAll(false); }}
-              className={`rounded-full px-5 py-2 text-sm font-bold transition-all duration-150 ${
-                i === activeCat
-                  ? "bg-primary text-white shadow-sm"
-                  : "border border-gray-200 bg-white text-gray-500 hover:border-primary/40 hover:text-primary"
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
 
         {/* Marquee Grids */}
         {visible.length > 0 && (
@@ -119,22 +88,12 @@ export function ItemGrid() {
   );
 }
 
-function getCategoryEmoji(category: string): string {
-  const cat = category.toLowerCase();
-  if (cat.includes("sayur")) return "🥬";
-  if (cat.includes("buah")) return "🍎";
-  if (cat.includes("ikan") || cat.includes("seafood")) return "🐟";
-  if (cat.includes("makanan")) return "🛒";
-  return "📦";
-}
 
 function ItemCard({ item, price, jan }: { item: any; price: any; jan: any }) {
   const pct = price && jan && jan > 0 ? ((price.avg - jan) / jan) * 100 : null;
-  const emoji = getCategoryEmoji(item.k || "");
 
   return (
     <div className="group flex w-48 shrink-0 flex-col items-center rounded-2xl border border-gray-100 bg-white p-4 text-center shadow-sm transition-all hover:-translate-y-1 hover:border-primary/30 hover:shadow-md">
-      <span className="text-2xl">{emoji}</span>
       <p className="line-clamp-2 text-xs font-semibold leading-tight text-gray-900 mt-2">
         {item.n}
       </p>
