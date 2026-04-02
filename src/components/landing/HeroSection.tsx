@@ -84,8 +84,7 @@ export function HeroSection() {
                 loop
                 muted
                 playsInline
-                className="h-full w-full object-cover"
-                
+                className="h-full w-full scale-[1.12] object-cover object-center"
               />
             </div>
           </div>
