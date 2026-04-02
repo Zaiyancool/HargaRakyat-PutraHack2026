@@ -159,7 +159,7 @@ export function PriceForecast() {
           Product Price Predictions
         </h1>
         <p className="mt-2 text-base text-gray-500 max-w-xl mx-auto">
-          ML-powered 14-day price forecasts based on 6 months of KPDN PriceCatcher data.
+          ML-powered 14-day price forecasts based on 1 year of KPDN PriceCatcher data.
         </p>
       </div>
 
