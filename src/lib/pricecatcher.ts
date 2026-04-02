@@ -133,8 +133,6 @@ export const fetchPriceHistory = () => fetchJSON<PriceHistory>("/data/prices_his
 export const fetchCheapestStores = () => fetchJSON<CheapestStores>("/data/cheapest_stores.json");
 export const fetchPriceForecast = () =>
   fetchJSON<PriceForecastData>("/data/price_forecast.json").then(shiftForecastToToday);
-export const fetchNewsContext = () => fetchJSON<NewsItem[]>("/data/news_context.json");
-
 // --- Live RSS news fetch ---
 
 interface Rss2JsonResponse {
@@ -149,32 +147,31 @@ interface Rss2JsonResponse {
   }>;
 }
 
+const RELEVANCE_RE = /harga|price|food|makanan|grocery|inflation|subsid|ayam|telur|beras|sayur|minyak|gula|chicken|egg|rice|vegetable|cooking oil|sugar|tepung|flour|ikan|fish|daging|beef|cost of living|kos sara hidup/i;
+
 /**
  * Detects impact and category from news headline/description using keyword matching.
  */
 function classifyNewsItem(title: string, desc: string): Pick<NewsItem, "impact" | "category" | "items_affected" | "sentiment_score"> {
   const text = (title + " " + desc).toLowerCase();
 
-  // Impact detection
   const upWords = ["naik", "meningkat", "tinggi", "mahal", "kenaikan", "surge", "rise", "jump", "spike", "increase", "expensive", "costly", "oil", "inflation"];
   const downWords = ["turun", "menurun", "rendah", "murah", "penurunan", "fall", "drop", "decrease", "cheaper", "subsidi", "subsidy", "control", "ceiling"];
 
-  let upScore = upWords.filter(w => text.includes(w)).length;
-  let downScore = downWords.filter(w => text.includes(w)).length;
+  const upScore = upWords.filter(w => text.includes(w)).length;
+  const downScore = downWords.filter(w => text.includes(w)).length;
 
   const impact: NewsItem["impact"] = upScore > downScore ? "up" : downScore > upScore ? "down" : "neutral";
   const sentiment_score = impact === "up" ? 0.6 : impact === "down" ? -0.5 : 0;
 
-  // Category detection
   let category = "Market";
   if (/(iran|us|usa|war|conflict|sanction|geopolit|opec|crude|brent)/i.test(text)) category = "Geopolitical";
   else if (/(ringgit|myr|exchange|dollar|currency|forex)/i.test(text)) category = "Currency";
   else if (/(rain|flood|weather|drought|climate|harvest|pertanian|ladang)/i.test(text)) category = "Climate";
   else if (/(subsid|kawalan|control|dasar|policy|kpdn|pkns|bera|paddy|padi)/i.test(text)) category = "Policy";
-  else if (/(bekalan|supply|shortage|shortage|pengeluaran|output|stok|stock)/i.test(text)) category = "Supply";
+  else if (/(bekalan|supply|shortage|pengeluaran|output|stok|stock)/i.test(text)) category = "Supply";
   else if (/(sawit|palm|minyak|oil|komoditi|commodity)/i.test(text)) category = "Commodity";
 
-  // Items affected
   const items_affected: string[] = [];
   if (/(ayam|poultry|chicken)/i.test(text)) items_affected.push("Chicken");
   if (/(telur|egg)/i.test(text)) items_affected.push("Eggs");
@@ -190,76 +187,85 @@ function classifyNewsItem(title: string, desc: string): Pick<NewsItem, "impact" 
   return { impact, category, items_affected, sentiment_score };
 }
 
+async function fetchRssFeed(rssUrl: string): Promise<Rss2JsonResponse | null> {
+  try {
+    const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+    const resp = await fetch(apiUrl, { signal: AbortSignal.timeout(6000) });
+    if (!resp.ok) return null;
+    const data: Rss2JsonResponse = await resp.json();
+    if (data.status !== "ok" || !data.items?.length) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Fetches real Malaysian food price news from Google News RSS (via rss2json.com proxy).
- * Returns NewsItem[] merged with static curated news, deduped by headline keywords.
- * Falls back to static-only on any network/parse error.
+ * Fetches live Malaysian food price news from multiple RSS sources.
+ * Uses Google News search + direct Malaysian news feeds via rss2json.com proxy.
+ * Filters for relevance using keyword matching.
  */
 export async function fetchLiveNews(): Promise<NewsItem[]> {
-  // Always load static news first (our curated, high-quality baseline)
-  const staticNews = await fetchJSON<NewsItem[]>("/data/news_context.json").catch(() => [] as NewsItem[]);
-
-  // Try fetching live Google News RSS via rss2json.com (free, no key, CORS-friendly)
-  const queries = [
-    "harga makanan malaysia 2026",
-    "food price malaysia inflation",
+  // All RSS sources — Google News searches + direct feeds
+  const rssSources = [
+    // Google News searches
+    `https://news.google.com/rss/search?q=${encodeURIComponent("harga makanan malaysia 2026")}&hl=en-MY&gl=MY&ceid=MY:en`,
+    `https://news.google.com/rss/search?q=${encodeURIComponent("food price malaysia inflation")}&hl=en-MY&gl=MY&ceid=MY:en`,
+    // Direct Malaysian news RSS feeds
+    "https://www.bernama.com/en/rss/general.xml",
+    "https://www.thestar.com.my/rss/News/Business",
+    "https://www.freemalaysiatoday.com/rss/",
+    "https://www.malaymail.com/feed/rss/malaysia",
   ];
 
-  const liveItems: NewsItem[] = [];
+  // Fetch all feeds in parallel
+  const feedResults = await Promise.all(rssSources.map(fetchRssFeed));
 
-  for (const q of queries) {
-    try {
-      const rssUrl = `https://news.google.com/rss/search?q=${encodeURIComponent(q)}&hl=en-MY&gl=MY&ceid=MY:en`;
-      const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+  const allItems: NewsItem[] = [];
+  const seenTitles = new Set<string>();
+  let id = 1000;
 
-      const resp = await fetch(apiUrl, { signal: AbortSignal.timeout(6000) });
-      if (!resp.ok) continue;
+  for (const data of feedResults) {
+    if (!data) continue;
+    for (const item of data.items) {
+      if (!item.title || item.title.length < 15) continue;
 
-      const data: Rss2JsonResponse = await resp.json();
-      if (data.status !== "ok" || !data.items?.length) continue;
+      // Deduplicate by normalized title
+      const normTitle = item.title.toLowerCase().replace(/[^a-z0-9\s]/g, "").trim();
+      if (seenTitles.has(normTitle)) continue;
+      seenTitles.add(normTitle);
 
-      let id = 1000 + liveItems.length;
-      for (const item of data.items) {
-        if (!item.title || item.title.length < 15) continue;
+      const fullText = (item.title + " " + (item.description ?? "")).toLowerCase();
 
-        const classification = classifyNewsItem(item.title, item.description ?? "");
-        const pubDate = item.pubDate
-          ? new Date(item.pubDate).toISOString().split("T")[0]
-          : new Date().toISOString().split("T")[0];
+      // Keyword relevance filter — only keep food/price-related articles
+      if (!RELEVANCE_RE.test(fullText)) continue;
 
-        // Extract clean source name from "Title - Source Name" Google News format
-        const titleParts = item.title.split(" - ");
-        const cleanTitle = titleParts.slice(0, -1).join(" - ") || item.title;
-        const sourceName = titleParts[titleParts.length - 1] || "News";
+      const classification = classifyNewsItem(item.title, item.description ?? "");
+      const pubDate = item.pubDate
+        ? new Date(item.pubDate).toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0];
 
-        liveItems.push({
-          id: id++,
-          date: pubDate,
-          headline: cleanTitle,
-          source: sourceName,
-          url: item.link,
-          summary: (item.description ?? "").replace(/<[^>]*>/g, "").slice(0, 300),
-          ...classification,
-        });
-      }
-    } catch {
-      // RSS fetch failed — that's fine, we still have static news
+      // Extract clean source name from "Title - Source Name" Google News format
+      const titleParts = item.title.split(" - ");
+      const cleanTitle = titleParts.length > 1 ? titleParts.slice(0, -1).join(" - ") : item.title;
+      const sourceName = titleParts.length > 1 ? titleParts[titleParts.length - 1] : "News";
+
+      allItems.push({
+        id: id++,
+        date: pubDate,
+        headline: cleanTitle,
+        source: sourceName,
+        url: item.link,
+        summary: (item.description ?? "").replace(/<[^>]*>/g, "").slice(0, 300),
+        ...classification,
+      });
     }
   }
 
-  // Deduplicate live vs static by checking title similarity
-  const filteredLive = liveItems.filter(live => {
-    const liveWords = new Set(live.headline.toLowerCase().split(/\s+/).filter(w => w.length > 4));
-    return !staticNews.some(s => {
-      const staticWords = s.headline.toLowerCase().split(/\s+/).filter(w => w.length > 4);
-      const overlap = staticWords.filter(w => liveWords.has(w)).length;
-      return overlap >= 3; // too similar
-    });
-  });
+  // Sort by date descending
+  allItems.sort((a, b) => b.date.localeCompare(a.date));
 
-  // Live news on top (more current), static below
-  const merged = [...filteredLive.slice(0, 5), ...staticNews];
-  return merged.slice(0, 12); // cap at 12 total
+  return allItems.slice(0, 15);
 }
 
 export const STATES = [

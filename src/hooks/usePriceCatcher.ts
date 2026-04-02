@@ -18,6 +18,7 @@ import {
   type PriceForecastData,
   type NewsItem,
 } from "@/lib/pricecatcher";
+import { supabase } from "@/integrations/supabase/client";
 
 export function useItemLookup() {
   return useQuery<ItemLookup[]>({
@@ -86,7 +87,23 @@ export function usePriceForecast() {
 export function useNewsContext() {
   return useQuery<NewsItem[]>({
     queryKey: ["news-context"],
-    queryFn: fetchLiveNews,   // tries RSS first, falls back to static
+    queryFn: fetchLiveNews,
+    staleTime: 1000 * 60 * 60,
+    retry: 1,
+  });
+}
+
+export function useAIMarketBrief(headlines: Array<{ headline: string; impact: string; category: string; date: string }> | undefined) {
+  return useQuery<{ brief: string; generated_at: string }>({
+    queryKey: ["ai-market-brief", headlines?.length],
+    queryFn: async () => {
+      const { data, error } = await supabase.functions.invoke("news-ai", {
+        body: { headlines },
+      });
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!headlines && headlines.length > 0,
     staleTime: 1000 * 60 * 60, // 1 hour
     retry: 1,
   });
