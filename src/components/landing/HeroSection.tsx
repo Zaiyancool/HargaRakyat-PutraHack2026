@@ -2,12 +2,8 @@ import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useItemLookup, usePricesAgg } from "@/hooks/usePriceCatcher";
 import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { useItemLookup, usePricesAgg } from "@/hooks/usePriceCatcher";
-import { Link } from "react-router-dom";
 
 export function HeroSection() {
-  const [email, setEmail] = useState("");
   const { data: items } = useItemLookup();
   const { data: pricesAgg } = usePricesAgg();
 
