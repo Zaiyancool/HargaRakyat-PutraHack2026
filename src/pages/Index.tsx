@@ -25,7 +25,7 @@ export default function Index() {
       case "forecast":  return <PriceForecast />;
       case "optimizer": return <GroceryOptimizer />;
       case "map":       return <PriceMap />;
-      case "stores":    return <StoreFinder />;
+      case "stores":    return <PriceMap />;
       default:          return <DashboardHome />;
     }
   };
