@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
@@ -53,26 +53,6 @@ export function TopNav() {
           ))}
         </nav>
 
-        {/* Desktop right */}
-        <div className="hidden items-center gap-2 md:flex shrink-0">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-gray-500 hover:text-gray-900"
-            aria-label="Search"
-          >
-            <Search className="h-5 w-5" />
-          </Button>
-          <Button
-            variant="ghost"
-            className="rounded-lg px-5 text-[15px] font-semibold text-gray-600 hover:text-gray-900"
-          >
-            Sign In
-          </Button>
-          <Button className="rounded-xl px-5 text-[15px] font-bold shadow-sm">
-            Get Started
-          </Button>
-        </div>
 
         {/* Mobile hamburger */}
         <Sheet open={open} onOpenChange={setOpen}>
@@ -111,11 +91,6 @@ export function TopNav() {
                 ))}
               </nav>
 
-              {/* Mobile auth buttons */}
-              <div className="p-4 border-t border-gray-100 flex flex-col gap-2">
-                <Button variant="outline" className="w-full font-semibold">Sign In</Button>
-                <Button className="w-full font-bold">Get Started</Button>
-              </div>
             </div>
           </SheetContent>
         </Sheet>

@@ -1,11 +1,9 @@
-import { useState } from "react";
-import { ArrowRight, TrendingUp, BarChart3, Database, Check } from "lucide-react";
+import { ArrowRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useItemLookup, usePricesAgg } from "@/hooks/usePriceCatcher";
 import { Link } from "react-router-dom";
 
 export function HeroSection() {
-  const [email, setEmail] = useState("");
   const { data: items } = useItemLookup();
   const { data: pricesAgg } = usePricesAgg();
 
@@ -63,20 +61,14 @@ export function HeroSection() {
             ))}
           </ul>
 
-          {/* Email CTA */}
-          <div className="mt-8 flex max-w-md gap-3">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="h-13 flex-1 rounded-xl border border-gray-200 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 shadow-sm outline-none ring-0 transition focus:border-primary focus:ring-2 focus:ring-primary/20"
-            />
-            <Button className="h-[50px] shrink-0 rounded-xl px-6 text-base font-bold shadow-sm">
-              Sign Up <ArrowRight className="ml-1.5 h-4 w-4" />
-            </Button>
+          {/* CTA */}
+          <div className="mt-8">
+            <Link to="/dashboard">
+              <Button className="h-[50px] shrink-0 rounded-xl px-8 text-base font-bold shadow-sm">
+                Explore Dashboard <ArrowRight className="ml-1.5 h-4 w-4" />
+              </Button>
+            </Link>
           </div>
-          <p className="mt-3 text-xs text-gray-400">Free to use. No credit card required.</p>
         </div>
 
         {/* Right — phone mockup */}
