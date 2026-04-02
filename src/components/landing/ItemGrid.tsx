@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { useItemLookup, usePricesAgg, usePricesAggJan } from "@/hooks/usePriceCatcher";
 import { Marquee } from "@/components/ui/marquee";
 
