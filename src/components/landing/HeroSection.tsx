@@ -29,7 +29,7 @@ export function HeroSection() {
       {/* Blue glow */}
       <div className="pointer-events-none absolute -top-32 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-primary/8 blur-3xl" />
 
-      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 pb-32 pt-24 md:grid-cols-2">
+      <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-6 pb-16 pt-24 md:grid-cols-2 md:pb-32">
         {/* Left — copy */}
         <div className="max-w-xl">
           <h1 className="text-5xl font-black leading-[1.05] tracking-[-0.03em] text-gray-900 sm:text-6xl md:text-7xl">
@@ -81,14 +81,14 @@ export function HeroSection() {
               src="/images/mockup_phone.webp"
               alt="HargaRakyat app preview"
               loading="eager"
-              className="relative h-[600px] w-auto drop-shadow-2xl transition-transform duration-700 ease-out hover:scale-105 md:h-[720px]"
+              className="relative h-[420px] w-auto drop-shadow-2xl transition-transform duration-700 ease-out hover:scale-105 md:h-[620px]"
             />
           </div>
         </div>
       </div>
 
       {/* ── Stats bar — Kraken-style floating card ── */}
-      <div className="relative z-10 mx-auto mt-[-5rem] max-w-5xl px-6 pb-20">
+      <div className="relative z-10 mx-auto mt-[-3rem] max-w-5xl px-6 pb-20 md:mt-[-5rem]">
         <div className="rounded-[2.5rem] bg-white px-8 py-10 shadow-[0_8px_40px_rgba(0,0,0,0.06)] md:py-14">
           <p className="mb-10 text-center text-[10px] font-bold uppercase tracking-wider text-gray-500">
             Powered by KPDN PriceCatcher Data
@@ -122,7 +122,7 @@ function StatBlock({
 }) {
   return (
     <div className="flex flex-col items-center gap-3">
-      <p className="text-5xl font-medium tracking-tight text-gray-900 md:text-[56px]">{value}</p>
+      <p className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl md:text-[56px]">{value}</p>
       <p className="text-[13px] text-gray-500">{sublabel}</p>
     </div>
   );

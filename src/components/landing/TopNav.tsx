@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 
 const navLinks = [
   { label: "Dashboard", href: "/dashboard" },
@@ -62,6 +62,7 @@ export function TopNav() {
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-[280px] bg-white p-0">
+            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
             <div className="flex flex-col h-full">
               {/* Mobile header */}
               <div className="flex items-center gap-2 p-5 border-b border-gray-100">
@@ -90,7 +91,6 @@ export function TopNav() {
                   </Link>
                 ))}
               </nav>
-
             </div>
           </SheetContent>
         </Sheet>
