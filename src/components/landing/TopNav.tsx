@@ -63,6 +63,7 @@ export function TopNav() {
           </SheetTrigger>
           <SheetContent side="right" className="w-[280px] bg-white p-0">
             <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+            <div className="flex flex-col h-full">
               {/* Mobile header */}
               <div className="flex items-center gap-2 p-5 border-b border-gray-100">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
@@ -90,7 +91,6 @@ export function TopNav() {
                   </Link>
                 ))}
               </nav>
-
             </div>
           </SheetContent>
         </Sheet>
