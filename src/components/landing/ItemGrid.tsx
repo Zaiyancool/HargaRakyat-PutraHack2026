@@ -58,22 +58,6 @@ export function ItemGrid() {
           Pause on any card to explore. Data from KPDN PriceCatcher.
         </p>
 
-        {/* Category tabs */}
-        <div className="mt-8 flex flex-wrap justify-center gap-2">
-          {categories.map((cat, i) => (
-            <button
-              key={cat.label}
-              onClick={() => { setActiveCat(i); setShowAll(false); }}
-              className={`rounded-full px-5 py-2 text-sm font-bold transition-all duration-150 ${
-                i === activeCat
-                  ? "bg-primary text-white shadow-sm"
-                  : "border border-gray-200 bg-white text-gray-500 hover:border-primary/40 hover:text-primary"
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
 
         {/* Marquee Grids */}
         {visible.length > 0 && (
