@@ -77,7 +77,7 @@ export function HeroSection() {
             {/* Glow behind phone */}
             <div className="absolute inset-0 scale-90 rounded-[3rem] bg-primary/15 blur-2xl" />
 
-            <div className="relative mx-auto h-[520px] w-[260px] overflow-hidden rounded-[2.5rem] border-[7px] border-gray-900 shadow-2xl md:h-[580px] md:w-[290px]">
+            <div className="relative mx-auto h-[520px] w-[260px] overflow-hidden rounded-[2.5rem] border-[7px] border-black bg-black shadow-2xl md:h-[580px] md:w-[290px]">
               <video
                 src="/videos/mockup_video.mp4"
                 autoPlay
