@@ -1,36 +1,37 @@
 
 
-# Replace Video Mockup with Static Image
+# Fix: Remove Fake Phone Frame, Use Mockup Image Directly
 
-## What Changes
-Replace the `<video>` element in the phone mockup with the uploaded PNG image. Compress the image for fast loading. Remove the video file.
+## Problem
+The uploaded image (`mockup_phone.webp`) already contains a realistic iPhone mockup with its own bezels and frame. But the code wraps it inside a **second fake phone frame** — a `div` with `border-[7px] border-black bg-black rounded-[2.5rem]` and fixed dimensions. This creates a black rectangle around the already-framed phone image.
 
-## Steps
+## Fix — `src/components/landing/HeroSection.tsx`
 
-### 1. Copy and compress image
-- Copy `user-uploads://mockup_phone_1.png` to `public/images/mockup_phone.webp`
-- Convert to WebP format at ~80% quality for significant size reduction while maintaining visual quality
-
-### 2. Update `src/components/landing/HeroSection.tsx`
-Replace the `<video>` tag (lines 84-90) with an `<img>` tag:
+Remove the fake phone container div entirely. Display the image directly with natural sizing:
 
 ```tsx
-<img
-  src="/images/mockup_phone.webp"
-  alt="HargaRakyat app preview"
-  loading="eager"
-  className="h-full w-full scale-[1.12] object-cover object-center"
-/>
+{/* Right — phone mockup */}
+<div className="flex justify-center">
+  <div className="relative">
+    {/* Glow behind phone */}
+    <div className="absolute inset-0 scale-90 rounded-[3rem] bg-primary/15 blur-2xl" />
+
+    <img
+      src="/images/mockup_phone.webp"
+      alt="HargaRakyat app preview"
+      loading="eager"
+      className="relative h-[520px] w-auto drop-shadow-2xl md:h-[580px]"
+    />
+  </div>
+</div>
 ```
 
-### 3. Delete `public/videos/mockup_video.mp4`
-No longer needed — saves ~1.7MB from the bundle.
+**What changes:**
+- Remove the wrapper `div` with `border-black bg-black overflow-hidden rounded-[2.5rem]`
+- Remove `scale-[1.12]` and `object-cover` (no longer cropping to fit a fake frame)
+- Use `h-[520px] w-auto` so the image scales naturally at its aspect ratio
+- Add `drop-shadow-2xl` for depth (replaces the old `shadow-2xl` on the container)
+- Keep the blue glow behind
 
-## Files Changed
-
-| File | Change |
-|------|--------|
-| `public/images/mockup_phone.webp` | New — compressed image |
-| `src/components/landing/HeroSection.tsx` | `<video>` → `<img>` |
-| `public/videos/mockup_video.mp4` | Deleted |
+**One file changed, ~3 lines replaced.**
 
