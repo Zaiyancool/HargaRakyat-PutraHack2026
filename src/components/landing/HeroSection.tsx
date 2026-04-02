@@ -85,7 +85,7 @@ export function HeroSection() {
                 muted
                 playsInline
                 className="h-full w-full object-cover"
-                style={{ mixBlendMode: "multiply" }}
+                
               />
             </div>
           </div>
