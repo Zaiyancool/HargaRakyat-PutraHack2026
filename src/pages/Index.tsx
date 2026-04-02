@@ -7,7 +7,7 @@ import { PriceExplorer } from "@/components/PriceExplorer";
 import { PriceForecast } from "@/components/PriceForecast";
 import { GroceryOptimizer } from "@/components/GroceryOptimizer";
 import { PriceMap } from "@/components/PriceMap";
-import { StoreFinder } from "@/components/StoreFinder";
+
 import { AIChatAdvisor } from "@/components/AIChatAdvisor";
 
 export default function Index() {
