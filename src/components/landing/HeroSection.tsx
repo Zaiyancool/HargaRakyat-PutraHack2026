@@ -77,14 +77,12 @@ export function HeroSection() {
             {/* Glow behind phone */}
             <div className="absolute inset-0 scale-90 rounded-[3rem] bg-primary/15 blur-2xl" />
 
-            <div className="relative mx-auto h-[520px] w-[260px] overflow-hidden rounded-[2.5rem] border-[7px] border-black bg-black shadow-2xl md:h-[580px] md:w-[290px]">
-              <img
-                src="/images/mockup_phone.webp"
-                alt="HargaRakyat app preview"
-                loading="eager"
-                className="h-full w-full scale-[1.12] object-cover object-center"
-              />
-            </div>
+            <img
+              src="/images/mockup_phone.webp"
+              alt="HargaRakyat app preview"
+              loading="eager"
+              className="relative h-[520px] w-auto drop-shadow-2xl md:h-[580px]"
+            />
           </div>
         </div>
       </div>
