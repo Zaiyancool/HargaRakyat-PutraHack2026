@@ -1,4 +1,4 @@
-import { LayoutDashboard, BarChart3, Brain, ShoppingCart, Map, Activity, Store, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, BarChart3, Brain, Map, Activity, ShieldCheck } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -16,10 +16,8 @@ const navItems = [
   { id: "dashboard", title: "Dashboard", icon: LayoutDashboard },
   { id: "explorer", title: "Explorer", icon: BarChart3 },
   { id: "forecast", title: "AI Forecast", icon: Brain },
-  { id: "optimizer", title: "Smart Basket", icon: ShoppingCart },
   { id: "map", title: "Price Map", icon: Map },
   { id: "timeline", title: "Timeline", icon: Activity },
-  { id: "stores", title: "Store Finder", icon: Store },
 ];
 
 interface AppSidebarProps {
@@ -74,7 +72,6 @@ export function AppSidebar({ activeSection, onSectionChange }: AppSidebarProps) 
                 data.gov.my
               </a>
             </p>
-            <p>PutraHack 2026</p>
           </div>
         </SidebarFooter>
       )}

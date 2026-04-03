@@ -65,6 +65,7 @@ export interface NewsItem {
 
 /**
  * Shifts all forecast dates so the first forecast point aligns with today.
+ * Also shifts history dates by the same offset.
  * Prices remain unchanged — only date labels are re-mapped.
  * This ensures the forecast always shows "from today" regardless of when the
  * ML script was originally run.
@@ -101,6 +102,10 @@ export function shiftForecastToToday(data: PriceForecastData): PriceForecastData
 
     result[itemCode] = {
       ...itemForecast,
+      history: itemForecast.history.map((p) => ({
+        ...p,
+        date: shiftDate(p.date),
+      })),
       forecast: itemForecast.forecast.map((p) => ({
         ...p,
         date: shiftDate(p.date),

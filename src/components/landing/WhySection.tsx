@@ -1,4 +1,4 @@
-import { TrendingUp, Brain, ShoppingCart, ArrowRight, Zap, Shield, Globe } from "lucide-react";
+import { TrendingUp, Brain, ShoppingCart, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -35,24 +35,6 @@ const features = [
       "Find the cheapest stores near you with geolocation-based search and optimize your basket to save up to 30% on groceries.",
     cta: "Find stores",
     href: "/dashboard?s=stores",
-  },
-];
-
-const secondaryFeatures = [
-  {
-    icon: Zap,
-    title: "Instant search",
-    desc: "Search 756+ grocery items instantly by name, category, or premises.",
-  },
-  {
-    icon: Shield,
-    title: "Government verified",
-    desc: "Data sourced directly from KPDN — Malaysia's official price regulator.",
-  },
-  {
-    icon: Globe,
-    title: "Nationwide coverage",
-    desc: "Prices from Perlis to Sabah — every state, every major chain.",
   },
 ];
 
@@ -103,24 +85,6 @@ export function WhySection() {
                   {f.cta} <ArrowRight className="ml-1 h-4 w-4" />
                 </Button>
               </Link>
-            </div>
-          ))}
-        </div>
-
-        {/* Secondary mini-features row */}
-        <div className="mt-10 grid gap-4 sm:grid-cols-3">
-          {secondaryFeatures.map((f) => (
-            <div
-              key={f.title}
-              className="flex items-start gap-4 rounded-2xl border border-gray-200 bg-white px-6 py-5 shadow-sm"
-            >
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/8">
-                <f.icon className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="font-bold text-gray-900">{f.title}</p>
-                <p className="mt-0.5 text-sm text-gray-500">{f.desc}</p>
-              </div>
             </div>
           ))}
         </div>

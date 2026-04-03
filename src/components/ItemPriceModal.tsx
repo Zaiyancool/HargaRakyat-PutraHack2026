@@ -5,6 +5,7 @@ import {
 } from "recharts";
 import { X, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { usePriceHistory } from "@/hooks/usePriceCatcher";
+import { formatCurrency, formatPercent, formatNumber } from "@/lib/formatters";
 
 // All months in the data window (full year Mar 2025 – Mar 2026)
 const ALL_MONTHS = [
@@ -83,17 +84,18 @@ export function ItemPriceModal({ item, onClose }: { item: ItemInfo; onClose: () 
             <p className="text-sm text-gray-400">{item.category} · {item.unit}</p>
           </div>
           <div className="text-right shrink-0">
-            <p className="text-2xl font-black font-mono text-gray-900">RM {item.price.toFixed(2)}</p>
+            <p className="text-2xl font-black font-mono text-gray-900">{formatCurrency(item.price)}</p>
             {item.changePct !== null && (
               <p className={`text-sm font-bold flex items-center justify-end gap-0.5 ${up ? "text-red-500" : down ? "text-emerald-600" : "text-gray-400"}`}>
                 {up ? <TrendingUp className="h-3.5 w-3.5" /> : down ? <TrendingDown className="h-3.5 w-3.5" /> : <Minus className="h-3.5 w-3.5" />}
-                {up ? "+" : ""}{item.changePct.toFixed(2)}% vs last month
+                {formatPercent(item.changePct)} vs last month
               </p>
             )}
           </div>
           <button
             onClick={onClose}
-            className="shrink-0 rounded-xl p-2 hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
+            className="shrink-0 rounded-xl p-3 hover:bg-gray-100 text-gray-400 hover:text-gray-700 transition-colors"
+            aria-label="Close item details"
           >
             <X className="h-5 w-5" />
           </button>
@@ -104,15 +106,15 @@ export function ItemPriceModal({ item, onClose }: { item: ItemInfo; onClose: () 
           <div className="grid grid-cols-3 gap-3">
             <div className="rounded-2xl bg-gray-50 p-4 text-center">
               <p className="text-xs text-gray-400 mb-1">Current Avg</p>
-              <p className="text-lg font-black font-mono text-gray-900">RM {item.price.toFixed(2)}</p>
+              <p className="text-lg font-black font-mono text-gray-900">{formatCurrency(item.price)}</p>
             </div>
             <div className="rounded-2xl bg-emerald-50 p-4 text-center">
               <p className="text-xs text-gray-400 mb-1">Lowest recorded</p>
-              <p className="text-lg font-black font-mono text-emerald-600">RM {item.min.toFixed(2)}</p>
+              <p className="text-lg font-black font-mono text-emerald-600">{formatCurrency(item.min)}</p>
             </div>
             <div className="rounded-2xl bg-red-50 p-4 text-center">
               <p className="text-xs text-gray-400 mb-1">Highest recorded</p>
-              <p className="text-lg font-black font-mono text-red-500">RM {item.max.toFixed(2)}</p>
+              <p className="text-lg font-black font-mono text-red-500">{formatCurrency(item.max)}</p>
             </div>
           </div>
 
@@ -135,7 +137,7 @@ export function ItemPriceModal({ item, onClose }: { item: ItemInfo; onClose: () 
                   </span>
                 )}
               </div>
-              <div className="h-56">
+              <div className="h-48 md:h-56">
                 <ResponsiveContainer width="100%" height="100%">
                   <AreaChart data={chartData} margin={{ top: 5, right: 5, left: 0, bottom: 5 }}>
                     <defs>
@@ -146,12 +148,12 @@ export function ItemPriceModal({ item, onClose }: { item: ItemInfo; onClose: () 
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                     <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#9ca3af" }} />
-                    <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} tickFormatter={(v) => `RM${v.toFixed(0)}`} domain={["auto", "auto"]} width={50} />
+                    <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} tickFormatter={(v) => `RM${Math.round(v)}`} domain={["auto", "auto"]} width={50} />
                     <Tooltip
                       contentStyle={{ backgroundColor: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", fontSize: "12px" }}
                       formatter={(value: number, name: string) => {
                         const labels: Record<string, string> = { avg: "Average", min: "Min", max: "Max" };
-                        return [`RM ${value.toFixed(2)}`, labels[name] ?? name];
+                        return [formatCurrency(value), labels[name] ?? name];
                       }}
                     />
                     <Legend formatter={(value) => ({ avg: "Average", min: "Min", max: "Max" }[value] ?? value)} />
@@ -166,7 +168,7 @@ export function ItemPriceModal({ item, onClose }: { item: ItemInfo; onClose: () 
 
           {/* Monthly table */}
           {chartData.length > 0 && (
-            <div className="rounded-2xl border border-gray-100 overflow-hidden">
+            <div className="rounded-2xl border border-gray-100 overflow-x-auto">
               <table className="w-full">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100">
@@ -184,15 +186,15 @@ export function ItemPriceModal({ item, onClose }: { item: ItemInfo; onClose: () 
                     return (
                       <tr key={row.month} className="hover:bg-gray-50 transition-colors">
                         <td className="py-3 px-4 text-sm font-semibold text-gray-700">{row.month}</td>
-                        <td className="py-3 px-4 text-sm font-mono font-bold text-primary text-right">RM {row.avg.toFixed(2)}</td>
-                        <td className="py-3 px-4 text-sm font-mono text-emerald-600 text-right">RM {row.min.toFixed(2)}</td>
-                        <td className="py-3 px-4 text-sm font-mono text-red-500 text-right">RM {row.max.toFixed(2)}</td>
-                        <td className="py-3 px-4 text-sm font-mono text-gray-400 text-right">{row.records.toLocaleString()}</td>
+                        <td className="py-3 px-4 text-sm font-mono font-bold text-primary text-right">{formatCurrency(row.avg)}</td>
+                        <td className="py-3 px-4 text-sm font-mono text-emerald-600 text-right">{formatCurrency(row.min)}</td>
+                        <td className="py-3 px-4 text-sm font-mono text-red-500 text-right">{formatCurrency(row.max)}</td>
+                        <td className="py-3 px-4 text-sm font-mono text-gray-400 text-right">{formatNumber(row.records)}</td>
                         <td className={`py-3 px-4 text-sm font-mono font-bold text-right ${
                           change === null ? "text-gray-300"
                           : change > 0 ? "text-red-500" : change < 0 ? "text-emerald-600" : "text-gray-400"
                         }`}>
-                          {change === null ? "—" : `${change > 0 ? "+" : ""}${change.toFixed(2)}%`}
+                          {change === null ? "—" : formatPercent(change)}
                         </td>
                       </tr>
                     );

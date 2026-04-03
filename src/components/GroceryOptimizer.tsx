@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { ShoppingCart, Plus, X, MapPin, Navigation, Store, Sparkles, Check, Loader2 } from "lucide-react";
+import { ShoppingCart, Plus, X, MapPin, Navigation, Sparkles, Check, Loader2 } from "lucide-react";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useItemLookup, usePremises, useCheapestStores } from "@/hooks/usePriceCatcher";
 import { STATES } from "@/lib/pricecatcher";
 import { getDistance } from "@/lib/geo";
+import { formatCurrency } from "@/lib/formatters";
 
 interface BasketItem {
   code: string;
@@ -82,7 +83,7 @@ export function GroceryOptimizer() {
       }
     }
 
-    let results = Array.from(premiseCosts.entries())
+    const results = Array.from(premiseCosts.entries())
       .filter(([, data]) => data.items === basket.length)
       .map(([premiseCode, data]) => {
         const premise = premiseMap.get(premiseCode)!;
@@ -161,13 +162,13 @@ export function GroceryOptimizer() {
         </div>
 
         <div className="flex flex-col md:flex-row gap-4">
-          <Button variant="outline" onClick={getLocation} disabled={locating} className="gap-2">
+          <Button variant="outline" onClick={getLocation} disabled={locating} className="gap-2 min-h-11">
             {locating ? <Loader2 className="w-4 h-4 animate-spin" /> :
               userLocation ? <Check className="w-4 h-4 text-primary" /> : <Navigation className="w-4 h-4" />}
             {userLocation ? "Location Set" : "Use My Location"}
           </Button>
           <Select value={selectedState} onValueChange={setSelectedState}>
-            <SelectTrigger className="w-[200px] bg-secondary border-border">
+            <SelectTrigger className="w-full md:w-[200px] bg-secondary border-border" aria-label="Filter stores by state">
               <MapPin className="w-4 h-4 mr-2 text-muted-foreground" />
               <SelectValue placeholder="Filter by state" />
             </SelectTrigger>
@@ -179,12 +180,21 @@ export function GroceryOptimizer() {
         </div>
 
         <div className="relative">
+          <label htmlFor="grocery-optimizer-search" className="sr-only">Search grocery items to add to basket</label>
           <ShoppingCart className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Search items to add to your basket..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 bg-secondary border-border" />
+          <Input
+            id="grocery-optimizer-search"
+            placeholder="Search items to add to your basket..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            maxLength={120}
+            aria-label="Search grocery items to add to basket"
+            className="pl-10 bg-secondary border-border"
+          />
           {searchResults.length > 0 && (
             <div className="absolute z-20 w-full mt-1 rounded-lg border border-border bg-popover shadow-xl max-h-[250px] overflow-auto">
               {searchResults.map((item) => (
-                <button key={item.c} onClick={() => addToBasket(item)} className="w-full text-left px-4 py-2.5 hover:bg-secondary flex items-center justify-between text-sm">
+                <button key={item.c} onClick={() => addToBasket(item)} className="w-full min-h-11 text-left px-4 py-2.5 hover:bg-secondary flex items-center justify-between text-sm">
                   <span>{item.n} <span className="text-muted-foreground">({item.u})</span></span>
                   <Plus className="w-4 h-4 text-primary" />
                 </button>
@@ -204,7 +214,7 @@ export function GroceryOptimizer() {
                 <div key={item.code} className="flex items-center gap-2 bg-secondary rounded-lg px-3 py-1.5 text-sm">
                   <span>{item.name}</span>
                   <span className="text-xs text-muted-foreground">({item.unit})</span>
-                  <button onClick={() => removeFromBasket(item.code)} className="text-muted-foreground hover:text-destructive">
+                  <button onClick={() => removeFromBasket(item.code)} className="p-1 text-muted-foreground hover:text-destructive" aria-label={`Remove ${item.name} from basket`}>
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -271,7 +281,7 @@ export function GroceryOptimizer() {
                   </div>
                   <div className="text-right shrink-0">
                     <p className={`text-xl font-bold font-mono ${idx === 0 ? "text-chart-up" : "text-primary"}`}>
-                      RM {store.total.toFixed(2)}
+                      {formatCurrency(store.total)}
                     </p>
                     <p className="text-xs text-muted-foreground">estimated total</p>
                   </div>

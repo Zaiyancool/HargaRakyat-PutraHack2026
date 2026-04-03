@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useItemLookup, usePricesAgg, usePricesByState } from "@/hooks/usePriceCatcher";
-import { STATES, ITEM_GROUPS } from "@/lib/pricecatcher";
+import { STATES, ITEM_GROUPS, type ItemLookup } from "@/lib/pricecatcher";
 
 export function PriceExplorer() {
   const [search, setSearch] = useState("");
@@ -20,7 +20,7 @@ export function PriceExplorer() {
   const isLoading = loadingItems || loadingPrices || loadingByState;
 
   const itemMap = useMemo(() => {
-    const map = new Map<number, (typeof items extends (infer T)[] | undefined ? T : never)>();
+    const map = new Map<number, ItemLookup>();
     items?.forEach((i) => map.set(i.c, i));
     return map;
   }, [items]);
@@ -61,12 +61,21 @@ export function PriceExplorer() {
 
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
           <div className="relative flex-1 w-full">
+            <label htmlFor="price-explorer-search" className="sr-only">Search items in price explorer</label>
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="Search items... e.g. ayam, beras, minyak" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 bg-secondary border-border" />
+            <Input
+              id="price-explorer-search"
+              placeholder="Search items... e.g. ayam, beras, minyak"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              maxLength={120}
+              aria-label="Search items in price explorer"
+              className="pl-10 bg-secondary border-border"
+            />
           </div>
-          <div className="flex gap-3 w-full md:w-auto">
+          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
             <Select value={selectedState} onValueChange={setSelectedState}>
-              <SelectTrigger className="w-[180px] bg-secondary border-border">
+              <SelectTrigger className="w-full sm:w-[180px] bg-secondary border-border" aria-label="Filter by state">
                 <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
                 <SelectValue placeholder="State" />
               </SelectTrigger>
@@ -76,7 +85,9 @@ export function PriceExplorer() {
               </SelectContent>
             </Select>
             <Select value={selectedGroup} onValueChange={setSelectedGroup}>
-              <SelectTrigger className="w-[200px] bg-secondary border-border"><SelectValue placeholder="Category" /></SelectTrigger>
+              <SelectTrigger className="w-full sm:w-[200px] bg-secondary border-border" aria-label="Filter by category">
+                <SelectValue placeholder="Category" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Categories</SelectItem>
                 {ITEM_GROUPS.map((g) => (<SelectItem key={g} value={g}>{g}</SelectItem>))}
@@ -86,7 +97,7 @@ export function PriceExplorer() {
         </div>
 
         <div className="text-sm text-muted-foreground">
-          Data period: <span className="text-foreground font-medium font-mono">Data period: <span className="text-foreground font-medium font-mono">Mar 2026</span></span>
+          Data period: <span className="text-foreground font-medium font-mono">Mar 2026</span>
           {!isLoading && <span className="ml-4 font-mono">{aggregated.length} items found</span>}
         </div>
 
@@ -94,8 +105,29 @@ export function PriceExplorer() {
           <SkeletonTable rows={8} />
         ) : (
           <>
+            <div className="md:hidden space-y-2">
+              {aggregated.slice(0, showCount).map((row) => (
+                <div key={row.item_code} className="glass-card rounded-xl p-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground truncate">{row.item}</p>
+                      <p className="text-xs text-muted-foreground truncate">{row.category} • {row.unit}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-sm font-mono font-semibold text-primary">RM {row.avg.toFixed(2)}</p>
+                      <p className="text-xs text-muted-foreground">{row.n.toLocaleString()} records</p>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-xs font-mono">
+                    <span className="text-chart-up">Min RM {row.min.toFixed(2)}</span>
+                    <span className="text-chart-down">Max RM {row.max.toFixed(2)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
             <div className="glass-card rounded-xl overflow-hidden">
-              <div className="overflow-x-auto">
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-border/50">
@@ -128,7 +160,7 @@ export function PriceExplorer() {
             </div>
             {aggregated.length > showCount && (
               <div className="flex justify-center">
-                <Button variant="outline" onClick={() => setShowCount((c) => c + 50)} className="gap-2">
+                <Button variant="outline" onClick={() => setShowCount((c) => c + 50)} className="gap-2 min-h-11">
                   <ChevronDown className="w-4 h-4" />
                   Show More ({aggregated.length - showCount} remaining)
                 </Button>

@@ -3,8 +3,11 @@ import { Bot, X, Send, MessageSquare, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ReactMarkdown from "react-markdown";
 import { usePriceForecast, useItemLookup } from "@/hooks/usePriceCatcher";
+import { supabase } from "@/integrations/supabase/client";
 
 type Msg = { role: "user" | "assistant"; content: string };
+
+const MAX_MESSAGE_LENGTH = 500;
 
 const QUICK_PROMPTS = [
   "When should I buy chicken?",
@@ -12,8 +15,6 @@ const QUICK_PROMPTS = [
   "Best time to stock up on rice?",
   "Tips to save on groceries this month",
 ];
-
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 
 export function AIChatAdvisor() {
   const [open, setOpen] = useState(false);
@@ -46,6 +47,14 @@ export function AIChatAdvisor() {
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || isLoading) return;
+    if (text.trim().length > MAX_MESSAGE_LENGTH) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "assistant", content: `Please keep messages under ${MAX_MESSAGE_LENGTH} characters.` },
+      ]);
+      return;
+    }
+
     const userMsg: Msg = { role: "user", content: text.trim() };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
@@ -55,17 +64,14 @@ export function AIChatAdvisor() {
     const allMessages = [...messages, userMsg];
 
     try {
-      const resp = await fetch(CHAT_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-        },
-        body: JSON.stringify({ messages: allMessages, context }),
+      const { data: resp, error } = await supabase.functions.invoke("chat", {
+        body: { messages: allMessages, context },
       });
 
-      if (!resp.ok || !resp.body) {
-        const err = await resp.json().catch(() => ({ error: "Failed to connect" }));
+      if (error || !(resp instanceof Response) || !resp.body) {
+        const err = error
+          ? { error: error.message }
+          : await (resp as Response | null)?.json?.().catch(() => ({ error: "Failed to connect" })) ?? { error: "Failed to connect" };
         setMessages((prev) => [...prev, { role: "assistant", content: err.error || "Something went wrong. Please try again." }]);
         setIsLoading(false);
         return;
@@ -145,7 +151,7 @@ export function AIChatAdvisor() {
               <h3 className="font-heading font-semibold text-sm">HargaRakyat AI</h3>
               <p className="text-xs text-muted-foreground">Smart grocery advisor</p>
             </div>
-            <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
+            <button onClick={() => setOpen(false)} className="p-2 text-muted-foreground hover:text-foreground" aria-label="Close chat advisor">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -163,7 +169,7 @@ export function AIChatAdvisor() {
                     <button
                       key={q}
                       onClick={() => sendMessage(q)}
-                      className="w-full text-left px-3 py-2 text-sm rounded-lg border border-border/50 hover:bg-secondary/80 hover:border-primary/30 transition-all"
+                      className="w-full min-h-11 text-left px-3 py-2 text-sm rounded-lg border border-border/50 hover:bg-secondary/80 hover:border-primary/30 transition-all"
                     >
                       <MessageSquare className="w-3 h-3 inline mr-2 text-primary" />
                       {q}
@@ -183,7 +189,15 @@ export function AIChatAdvisor() {
                 >
                   {m.role === "assistant" ? (
                     <div className="prose prose-sm prose-invert max-w-none [&_p]:mb-1 [&_p]:mt-0 [&_ul]:my-1 [&_li]:my-0">
-                      <ReactMarkdown>{m.content}</ReactMarkdown>
+                      <ReactMarkdown
+                        skipHtml
+                        allowedElements={["p", "strong", "em", "ul", "ol", "li", "code", "a", "br"]}
+                        components={{
+                          a: ({ ...props }) => <a {...props} target="_blank" rel="noopener noreferrer" />,
+                        }}
+                      >
+                        {m.content}
+                      </ReactMarkdown>
                     </div>
                   ) : (
                     m.content
@@ -213,6 +227,8 @@ export function AIChatAdvisor() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Ask about prices..."
+                maxLength={MAX_MESSAGE_LENGTH}
+                aria-label="Ask AI advisor about prices"
                 className="flex-1 bg-secondary/80 border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
                 disabled={isLoading}
               />

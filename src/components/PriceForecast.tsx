@@ -5,7 +5,7 @@ import {
 } from "recharts";
 import { useItemLookup, usePriceForecast, usePricesAgg, usePricesAggJan, usePriceHistory } from "@/hooks/usePriceCatcher";
 import {
-  Search, TrendingDown, ChevronLeft, ChevronRight, X,
+  Search, ChevronLeft, ChevronRight, X,
 } from "lucide-react";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { BestTimeToBuy } from "@/components/BestTimeToBuy";
@@ -121,13 +121,6 @@ export function PriceForecast() {
   const tableData = allFiltered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const globalOffset = page * PAGE_SIZE;
 
-  // ── Tomorrow's date string ───────────────────────────────────────────────
-  const tomorrowLabel = useMemo(() => {
-    const d = new Date();
-    d.setDate(d.getDate() + 1);
-    return d.toLocaleDateString("en-MY", { day: "numeric", month: "short", year: "numeric" });
-  }, []);
-
   // Loading
   if (isLoading) {
     return (
@@ -216,6 +209,8 @@ export function PriceForecast() {
               placeholder="Search products..."
               value={search}
               onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+              maxLength={120}
+              aria-label="Search forecasted products"
               className="w-full rounded-xl border border-gray-200 bg-gray-50 pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             />
             {search && (
@@ -299,7 +294,7 @@ export function PriceForecast() {
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-5 py-4 border-t border-gray-100">
-            <p className="text-sm text-gray-400">
+            <p className="hidden sm:block text-sm text-gray-400">
               Showing <strong className="text-gray-700">{globalOffset + 1}–{Math.min(globalOffset + PAGE_SIZE, allFiltered.length)}</strong> of <strong className="text-gray-700">{allFiltered.length}</strong>
             </p>
             <div className="flex items-center gap-1">
@@ -320,7 +315,7 @@ export function PriceForecast() {
                   item === "..." ? (
                     <span key={`e-${i}`} className="px-2 text-gray-400 text-sm">…</span>
                   ) : (
-                    <button key={item} onClick={() => setPage(item as number)} className={`rounded-lg w-9 h-9 text-sm font-bold transition-all ${page === item ? "bg-primary text-white" : "text-gray-500 hover:bg-gray-100"}`}>{(item as number) + 1}</button>
+                    <button key={item} onClick={() => setPage(item as number)} className={`rounded-lg w-11 h-11 sm:w-9 sm:h-9 text-sm font-bold transition-all ${page === item ? "bg-primary text-white" : "text-gray-500 hover:bg-gray-100"}`}>{(item as number) + 1}</button>
                   )
                 )}
               <button onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={page === totalPages - 1} className="flex items-center rounded-lg px-3 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all" aria-label="Next">

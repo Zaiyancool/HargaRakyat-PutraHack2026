@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { useItemLookup, usePricesAgg, usePricesAggJan } from "@/hooks/usePriceCatcher";
 import { Marquee } from "@/components/ui/marquee";
@@ -27,7 +27,7 @@ export function ItemGrid() {
 
   const filtered = useMemo(() => {
     if (!items) return [];
-    let list = [...items].sort((a, b) => {
+    const list = [...items].sort((a, b) => {
       const na = priceMap.get(a.c)?.n ?? 0;
       const nb = priceMap.get(b.c)?.n ?? 0;
       return nb - na;
@@ -89,7 +89,7 @@ export function ItemGrid() {
 }
 
 
-function ItemCard({ item, price, jan }: { item: any; price: any; jan: any }) {
+function ItemCard({ item, price, jan }: { item: { n: string; c: number }; price: { avg: number; n: number } | undefined; jan: number | undefined }) {
   const pct = price && jan && jan > 0 ? ((price.avg - jan) / jan) * 100 : null;
 
   return (

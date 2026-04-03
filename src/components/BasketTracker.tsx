@@ -3,7 +3,7 @@ import { ShoppingBasket, Plus, Trash2, TrendingUp, TrendingDown, Minus, Search, 
 import { useItemLookup, usePricesAgg, usePricesAggJan, usePriceForecast } from "@/hooks/usePriceCatcher";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { getProductImage } from "@/lib/image-mapper";
+import { formatCurrency, formatPercent } from "@/lib/formatters";
 
 interface BasketItem {
   code: number;
@@ -129,7 +129,7 @@ export function BasketTracker() {
                 >
                   <span className="truncate">{item.n}</span>
                   <span className="text-xs text-muted-foreground font-mono ml-2">
-                    RM {priceMap.get(item.c)?.toFixed(2)}
+                    {formatCurrency(priceMap.get(item.c))}
                   </span>
                 </button>
               ))}
@@ -155,14 +155,14 @@ export function BasketTracker() {
                   <div className="flex-1 flex flex-col justify-center min-w-0">
                     <span className="text-sm font-semibold truncate leading-tight group-hover:text-primary transition-colors">{itemInfo.n}</span>
                     <span className="text-xs text-muted-foreground mt-1">
-                      RM {priceMap.has(b.code) ? (priceMap.get(b.code)!).toFixed(2) : "0.00"} / unit
+                      {formatCurrency(priceMap.get(b.code))} / unit
                     </span>
                   </div>
                   
                   {/* Controls */}
                   <div className="flex flex-col items-end justify-between shrink-0">
                     <span className="text-sm font-bold text-primary">
-                      RM {((priceMap.get(b.code) || 0) * b.qty).toFixed(2)}
+                      {formatCurrency((priceMap.get(b.code) || 0) * b.qty)}
                     </span>
                     
                     <div className="flex items-center gap-2 mt-auto">
@@ -199,25 +199,25 @@ export function BasketTracker() {
             <div className="grid grid-cols-3 gap-3 border-t border-border pt-4">
               <div className="bg-white rounded-lg p-3 text-center border border-border">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold pb-1">Previous Month</p>
-                <p className="text-lg font-bold">RM {costs.jan.toFixed(2)}</p>
+                <p className="text-lg font-bold">{formatCurrency(costs.jan)}</p>
               </div>
               <div className="bg-primary/5 rounded-lg p-3 text-center border border-primary/20 relative shadow-sm">
                 <span className="absolute -top-2 left-1/2 -translate-x-1/2 bg-primary text-white text-[9px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
                   CURRENT Cart
                 </span>
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold pb-1 invisible">Today</p>
-                <p className="text-xl font-black text-primary">RM {costs.current.toFixed(2)}</p>
+                <p className="text-xl font-black text-primary">{formatCurrency(costs.current)}</p>
                 <p className={`text-[11px] font-bold mt-1 flex items-center justify-center gap-1 ${momChange > 0 ? "text-red-500" : "text-emerald-500"}`}>
                   {momChange > 0 ? <TrendingUp className="w-3 h-3" /> : momChange < 0 ? <TrendingDown className="w-3 h-3" /> : null}
-                  {momChange > 0 ? "+" : ""}{momChange.toFixed(1)}% vs Last Month
+                  {formatPercent(momChange, 1).replace("%", "")}% vs Last Month
                 </p>
               </div>
               <div className="bg-white rounded-lg p-3 text-center border border-border shadow-sm">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold pb-1 text-emerald-600">14-Day AI Forecast</p>
-                <p className="text-lg font-bold">RM {costs.fc.toFixed(2)}</p>
+                <p className="text-lg font-bold">{formatCurrency(costs.fc)}</p>
                 <p className={`text-[11px] font-bold mt-1 flex items-center justify-center gap-1 ${fcChange > 0 ? "text-red-500" : "text-emerald-500"}`}>
                   {fcChange > 0 ? <TrendingUp className="w-3 h-3" /> : fcChange < 0 ? <TrendingDown className="w-3 h-3" /> : null}
-                  {fcChange > 0 ? "+" : ""}{fcChange.toFixed(1)}% Est.
+                  {formatPercent(fcChange, 1).replace("%", "")}% Est.
                 </p>
               </div>
             </div>

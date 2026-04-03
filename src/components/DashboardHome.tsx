@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react";
 import {
-  TrendingDown,
   Minus,
   Search,
   
@@ -19,6 +18,7 @@ import { SkeletonCard } from "@/components/SkeletonCard";
 import { ItemPriceModal } from "@/components/ItemPriceModal";
 import { YearlyOverview } from "@/components/YearlyOverview";
 import { ITEM_GROUPS, type ItemLookup, type PriceAgg } from "@/lib/pricecatcher";
+import { formatCurrency, formatPercent, formatNumber } from "@/lib/formatters";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const TABS = ["Most popular", "Cheapest", "Expensive"] as const;
@@ -55,10 +55,6 @@ interface EnrichedItem {
 // ─── Helper ────────────────────────────────────────────────────────────────────
 function initials(name: string) {
   return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
-}
-
-function fmt(n: number) {
-  return n.toFixed(2);
 }
 
 // ─── Main Component ────────────────────────────────────────────────────────────
@@ -126,7 +122,6 @@ export function DashboardHome() {
     const janAvg = enriched.reduce((s, i) => s + (i.janPrice ?? i.price), 0) / enriched.length;
     const overallChangePct = ((avgPrice - janAvg) / janAvg) * 100;
     const upCount = enriched.filter((i) => (i.changePct ?? 0) > 0).length;
-    const downCount = enriched.filter((i) => (i.changePct ?? 0) < 0).length;
     const upPct = Math.round((upCount / enriched.length) * 100);
     const downPct = 100 - upPct;
 
@@ -189,12 +184,11 @@ export function DashboardHome() {
         <h1 className="text-3xl font-black tracking-tight text-gray-900 md:text-4xl">
           Today's grocery prices
         </h1>
-        <p className="mt-2 text-base text-gray-500">
+        <p className="mt-2 text-base text-gray-500 max-w-2xl mx-auto px-2">
           The Malaysian grocery market average today is{" "}
-          <strong className="text-gray-900">RM {fmt(stats?.avgPrice ?? 0)}</strong>, a{" "}
+          <strong className="text-gray-900">{formatCurrency(stats?.avgPrice ?? 0)}</strong>, a{" "}
           <strong className={changePositive ? "text-red-500" : "text-emerald-600"}>
-            {changePositive ? "+" : ""}
-            {fmt(stats?.overallChangePct ?? 0)}%
+            {formatPercent(stats?.overallChangePct ?? 0)}
           </strong>{" "}
           change from last month.
         </p>
@@ -211,10 +205,10 @@ export function DashboardHome() {
               <span className="text-[11px] font-bold text-gray-400 bg-gray-100 rounded px-2 py-0.5">1mo</span>
             </div>
             <p className="text-2xl font-black tracking-tight text-gray-900">
-              RM {fmt(stats?.avgPrice ?? 0)}
+              {formatCurrency(stats?.avgPrice ?? 0)}
             </p>
             <p className={`text-sm font-semibold mt-0.5 ${changePositive ? "text-red-500" : "text-emerald-600"}`}>
-              {changePositive ? "+" : ""}{fmt(stats?.overallChangePct ?? 0)}%
+              {formatPercent(stats?.overallChangePct ?? 0)}
             </p>
           </div>
 
@@ -268,10 +262,10 @@ export function DashboardHome() {
                   </span>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-bold font-mono text-gray-900">RM {fmt(item.price)}</p>
+                  <p className="text-sm font-bold font-mono text-gray-900">{formatCurrency(item.price)}</p>
                   {item.changePct !== null && (
                     <p className={`text-xs font-bold ${item.changePct > 0 ? "text-red-500" : "text-emerald-600"}`}>
-                      {item.changePct > 0 ? "+" : ""}{fmt(item.changePct)}%
+                      {formatPercent(item.changePct)}
                     </p>
                   )}
                 </div>
@@ -302,10 +296,10 @@ export function DashboardHome() {
                   </span>
                 </div>
                 <div className="text-right shrink-0">
-                  <p className="text-sm font-bold font-mono text-emerald-600">RM {fmt(item.price)}</p>
+                  <p className="text-sm font-bold font-mono text-emerald-600">{formatCurrency(item.price)}</p>
                   {item.changePct !== null && (
                     <p className={`text-xs font-bold ${item.changePct > 0 ? "text-red-500" : "text-emerald-600"}`}>
-                      {item.changePct > 0 ? "+" : ""}{fmt(item.changePct)}%
+                      {formatPercent(item.changePct)}
                     </p>
                   )}
                 </div>
@@ -344,6 +338,8 @@ export function DashboardHome() {
               placeholder="Search items..."
               value={search}
               onChange={(e) => handleSearchChange(e.target.value)}
+              maxLength={120}
+              aria-label="Search grocery items"
               className="w-full rounded-xl border border-gray-200 bg-gray-50 pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             />
             {search && (
@@ -362,7 +358,7 @@ export function DashboardHome() {
               <button
                 key={cat}
                 onClick={() => handleCategoryChange(cat)}
-                className={`shrink-0 rounded-full px-4 py-1.5 text-xs font-bold transition-all ${
+                className={`shrink-0 rounded-full px-4 py-2 min-h-11 text-xs font-bold transition-all ${
                   activeCategory === cat
                     ? "bg-primary text-white"
                     : "border border-gray-200 text-gray-500 hover:border-primary/40 hover:text-primary"
@@ -402,8 +398,8 @@ export function DashboardHome() {
         {/* Kraken-style pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-5 py-4 border-t border-gray-100">
-            <p className="text-sm text-gray-400">
-              Showing <strong className="text-gray-700">{globalRankOffset + 1}–{Math.min(globalRankOffset + PAGE_SIZE, allFiltered.length)}</strong> of <strong className="text-gray-700">{allFiltered.length.toLocaleString()}</strong> items
+            <p className="hidden sm:block text-sm text-gray-400">
+              Showing <strong className="text-gray-700">{globalRankOffset + 1}–{Math.min(globalRankOffset + PAGE_SIZE, allFiltered.length)}</strong> of <strong className="text-gray-700">{formatNumber(allFiltered.length)}</strong> items
             </p>
             <div className="flex items-center gap-1">
               <button
@@ -437,7 +433,7 @@ export function DashboardHome() {
                     <button
                       key={item}
                       onClick={() => setPage(item as number)}
-                      className={`rounded-lg w-9 h-9 text-sm font-bold transition-all ${
+                            className={`rounded-lg w-11 h-11 sm:w-9 sm:h-9 text-sm font-bold transition-all ${
                         page === item ? "bg-primary text-white" : "text-gray-500 hover:bg-gray-100 hover:text-gray-900"
                       }`}
                     >
@@ -508,10 +504,10 @@ function TableRow({
           </div>
         </div>
         <div className="text-right shrink-0">
-          <p className="text-sm font-bold font-mono text-gray-900">RM {fmt(item.price)}</p>
+          <p className="text-sm font-bold font-mono text-gray-900">{formatCurrency(item.price)}</p>
           {item.changePct !== null && (
             <p className={`text-xs font-bold ${up ? "text-red-500" : down ? "text-emerald-600" : "text-gray-400"}`}>
-              {up ? "+" : ""}{fmt(item.changePct)}%
+              {formatPercent(item.changePct)}
             </p>
           )}
         </div>
@@ -534,14 +530,14 @@ function TableRow({
         </div>
 
         {/* Price */}
-        <p className="text-sm font-bold font-mono text-gray-900 text-right">RM {fmt(item.price)}</p>
+        <p className="text-sm font-bold font-mono text-gray-900 text-right">{formatCurrency(item.price)}</p>
 
         {/* Change */}
         <div className="text-right">
           {item.changePct !== null ? (
             <span className={`inline-flex items-center justify-end gap-0.5 text-sm font-bold ${up ? "text-red-500" : down ? "text-emerald-600" : "text-gray-400"}`}>
               {up ? <ChevronUp className="h-3.5 w-3.5" /> : down ? <ChevronDown className="h-3.5 w-3.5" /> : <Minus className="h-3.5 w-3.5" />}
-              {up ? "+" : ""}{fmt(item.changePct)}%
+              {formatPercent(item.changePct)}
             </span>
           ) : (
             <span className="text-sm text-gray-300">—</span>
@@ -550,7 +546,7 @@ function TableRow({
 
         {/* 1-mo avg */}
         <p className="text-sm font-mono text-gray-500 text-right">
-          {item.janPrice ? `RM ${fmt(item.janPrice)}` : "—"}
+          {item.janPrice ? formatCurrency(item.janPrice) : "—"}
         </p>
 
         {/* Action */}

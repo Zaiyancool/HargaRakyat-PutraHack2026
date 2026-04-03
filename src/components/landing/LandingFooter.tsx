@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { ArrowRight, Github } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const footerLinks = {
@@ -10,14 +10,11 @@ const footerLinks = {
     { label: "Price Map", href: "/dashboard?s=map" },
   ],
   Tools: [
-    { label: "Store Finder", href: "/dashboard?s=stores" },
-    { label: "Basket Optimizer", href: "/dashboard?s=optimizer" },
     { label: "Price Timeline", href: "/dashboard?s=timeline" },
   ],
   Data: [
     { label: "data.gov.my", href: "https://data.gov.my", external: true },
     { label: "KPDN PriceCatcher", href: "https://data.gov.my", external: true },
-    { label: "PutraHack 2026", href: "#" },
   ],
 };
 
@@ -62,14 +59,7 @@ export function LandingFooter() {
             Malaysia's first AI-powered grocery price intelligence platform.
             Powered by KPDN PriceCatcher data via data.gov.my.
           </p>
-          <div className="mt-5 flex items-center gap-3">
-            <span className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-500">
-              PutraHack 2026
-            </span>
-            <span className="rounded-full border border-gray-200 px-3 py-1 text-xs font-semibold text-gray-500">
-              Food Security Track
-            </span>
-          </div>
+
         </div>
 
         {/* Links */}

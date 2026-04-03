@@ -10,7 +10,7 @@ import { STATES, ITEM_GROUPS, PREMISE_TYPES } from "@/lib/pricecatcher";
 import { STATE_COORDS, jitterCoords, getDistance } from "@/lib/geo";
 import "leaflet/dist/leaflet.css";
 
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as Record<string, Record<string, unknown>>)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
   iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
@@ -104,7 +104,7 @@ export function PriceMap() {
   const storeResults = useMemo(() => {
     if (!cheapest || !selectedItem || !premises) return [];
     const stores = cheapest[selectedItem] || [];
-    let results = stores
+    const results = stores
       .map((s) => {
         const premise = premiseMap.get(s.p);
         if (!premise) return null;

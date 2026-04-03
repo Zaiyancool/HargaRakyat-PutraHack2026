@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, Legend, Area, AreaChart,
 } from "recharts";
 import { useItemLookup, usePriceHistory } from "@/hooks/usePriceCatcher";
