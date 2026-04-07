@@ -27,6 +27,13 @@ interface Recipe {
   tips?: string;
 }
 
+interface IngredientAvailability {
+  name: string;
+  itemCode: number;
+  price: number | null; // null = not available at this store
+  available: boolean;
+}
+
 interface StoreRecommendation {
   premiseCode: number;
   name: string;
@@ -35,9 +42,10 @@ interface StoreRecommendation {
   district: string;
   type: string;
   distance?: number;
-  matchedItems: { name: string; price: number; itemCode: number }[];
+  ingredients: IngredientAvailability[];
   totalCost: number;
-  itemCount: number;
+  availableCount: number;
+  totalTracked: number;
 }
 
 const POPULAR_RECIPES = [
@@ -107,52 +115,64 @@ export default function RecipePage() {
     generateRecipe(query);
   };
 
-  // Build store recommendations from matched ingredients
+  // Build store recommendations — show ALL ingredient availability per store
   const storeRecommendations = useMemo((): StoreRecommendation[] => {
     if (!recipe || !cheapestStores || !premises) return [];
 
-    const matchedCodes = recipe.ingredients
-      .filter((i) => i.item_code != null)
-      .map((i) => i.item_code!);
+    const trackedIngredients = recipe.ingredients.filter((i) => i.item_code != null);
+    if (trackedIngredients.length === 0) return [];
 
-    if (matchedCodes.length === 0) return [];
-
-    // Build premise lookup
     const premiseMap = new Map(premises.map((p) => [p.c, p]));
 
-    // Find all premises that carry at least one matched item, with prices
-    const premiseScores = new Map<number, { items: { name: string; price: number; itemCode: number }[] }>();
-
-    for (const code of matchedCodes) {
+    // For each tracked ingredient, build a map: premiseCode -> price
+    const itemPriceByPremise = new Map<number, Map<number, number>>(); // itemCode -> (premiseCode -> price)
+    for (const ing of trackedIngredients) {
+      const code = ing.item_code!;
       const stores = cheapestStores[String(code)];
       if (!stores) continue;
-      const ingredientName = recipe.ingredients.find((i) => i.item_code === code)?.name || "";
+      const priceMap = new Map<number, number>();
+      for (const s of stores) {
+        priceMap.set(s.p, s.avg);
+      }
+      itemPriceByPremise.set(code, priceMap);
+    }
 
-      for (const store of stores.slice(0, 30)) {
-        if (!premiseScores.has(store.p)) {
-          premiseScores.set(store.p, { items: [] });
-        }
-        premiseScores.get(store.p)!.items.push({
-          name: ingredientName,
-          price: store.avg,
-          itemCode: code,
-        });
+    // Collect all premise codes that appear in any item's store list
+    const allPremiseCodes = new Set<number>();
+    for (const [, priceMap] of itemPriceByPremise) {
+      for (const pCode of priceMap.keys()) {
+        allPremiseCodes.add(pCode);
       }
     }
 
-    // Convert to array with premise info
     let results: StoreRecommendation[] = [];
-    for (const [pCode, data] of premiseScores) {
+    for (const pCode of allPremiseCodes) {
       const premise = premiseMap.get(pCode);
       if (!premise) continue;
-
-      // Filter by state if selected
       if (selectedState && premise.s !== selectedState) continue;
 
       const distance =
         userLocation && premise.lat && premise.lng
           ? getDistance(userLocation.lat, userLocation.lng, premise.lat, premise.lng)
           : undefined;
+
+      // Build full ingredient availability list
+      const ingredients: IngredientAvailability[] = trackedIngredients.map((ing) => {
+        const code = ing.item_code!;
+        const priceMap = itemPriceByPremise.get(code);
+        const price = priceMap?.get(pCode) ?? null;
+        return {
+          name: ing.name,
+          itemCode: code,
+          price,
+          available: price !== null,
+        };
+      });
+
+      const availableCount = ingredients.filter((i) => i.available).length;
+      if (availableCount === 0) continue; // skip stores with zero matches
+
+      const totalCost = ingredients.reduce((sum, i) => sum + (i.price ?? 0), 0);
 
       results.push({
         premiseCode: pCode,
@@ -162,21 +182,22 @@ export default function RecipePage() {
         district: premise.d,
         type: premise.t,
         distance,
-        matchedItems: data.items,
-        totalCost: data.items.reduce((sum, i) => sum + i.price, 0),
-        itemCount: data.items.length,
+        ingredients,
+        totalCost,
+        availableCount,
+        totalTracked: trackedIngredients.length,
       });
     }
 
-    // Sort: most items matched first, then cheapest, then closest
+    // Sort: most ingredients available → cheapest → nearest
     results.sort((a, b) => {
-      if (b.itemCount !== a.itemCount) return b.itemCount - a.itemCount;
+      if (b.availableCount !== a.availableCount) return b.availableCount - a.availableCount;
       if (a.totalCost !== b.totalCost) return a.totalCost - b.totalCost;
       if (a.distance != null && b.distance != null) return a.distance - b.distance;
       return 0;
     });
 
-    return results.slice(0, 10);
+    return results.slice(0, 15);
   }, [recipe, cheapestStores, premises, userLocation, selectedState]);
 
   const STATES = [
@@ -391,10 +412,10 @@ export default function RecipePage() {
                             )}
                           </div>
 
-                          <div className="flex items-center gap-3 text-xs text-gray-500 mb-2">
+                          <div className="flex items-center gap-3 text-xs text-gray-500 mb-3">
                             <span className="flex items-center gap-1">
                               <ShoppingCart className="h-3 w-3" />
-                              {store.itemCount}/{recipe.ingredients.filter((i) => i.item_code).length} items
+                              {store.availableCount}/{store.totalTracked} items available
                             </span>
                             {store.distance != null && (
                               <span className="flex items-center gap-1">
@@ -404,17 +425,25 @@ export default function RecipePage() {
                             )}
                           </div>
 
-                          <div className="space-y-1">
-                            {store.matchedItems.map((item, j) => (
-                              <div key={j} className="flex justify-between text-xs">
-                                <span className="text-gray-600 truncate mr-2">{item.name}</span>
-                                <span className="font-mono font-semibold text-gray-900 shrink-0">{formatCurrency(item.price)}</span>
+                          {/* Full ingredient availability list */}
+                          <div className="space-y-1.5">
+                            {store.ingredients.map((ing, j) => (
+                              <div key={j} className="flex items-center justify-between text-xs">
+                                <span className="flex items-center gap-1.5 truncate mr-2">
+                                  <span className={`h-1.5 w-1.5 rounded-full shrink-0 ${ing.available ? "bg-emerald-400" : "bg-gray-300"}`} />
+                                  <span className={ing.available ? "text-gray-700" : "text-gray-400 line-through"}>{ing.name}</span>
+                                </span>
+                                {ing.available ? (
+                                  <span className="font-mono font-semibold text-gray-900 shrink-0">{formatCurrency(ing.price!)}</span>
+                                ) : (
+                                  <span className="text-[10px] text-gray-300 shrink-0">Not available</span>
+                                )}
                               </div>
                             ))}
                           </div>
 
-                          <div className="mt-2 pt-2 border-t border-gray-100 flex justify-between">
-                            <span className="text-xs font-semibold text-gray-500">Est. Total</span>
+                          <div className="mt-3 pt-2 border-t border-gray-100 flex justify-between">
+                            <span className="text-xs font-semibold text-gray-500">Est. Total ({store.availableCount} items)</span>
                             <span className="text-sm font-black font-mono text-primary">{formatCurrency(store.totalCost)}</span>
                           </div>
 
