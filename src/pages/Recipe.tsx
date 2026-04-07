@@ -27,6 +27,13 @@ interface Recipe {
   tips?: string;
 }
 
+interface IngredientAvailability {
+  name: string;
+  itemCode: number;
+  price: number | null; // null = not available at this store
+  available: boolean;
+}
+
 interface StoreRecommendation {
   premiseCode: number;
   name: string;
@@ -35,9 +42,10 @@ interface StoreRecommendation {
   district: string;
   type: string;
   distance?: number;
-  matchedItems: { name: string; price: number; itemCode: number }[];
+  ingredients: IngredientAvailability[];
   totalCost: number;
-  itemCount: number;
+  availableCount: number;
+  totalTracked: number;
 }
 
 const POPULAR_RECIPES = [
