@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import NewsPage from "./pages/News";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
 import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -27,6 +28,7 @@ const App = () => (
               <Route path="/" element={<Landing />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/auth-callback" element={<AuthCallback />} />
               <Route path="/dashboard" element={<Index />} />
               <Route path="/news" element={<NewsPage />} />

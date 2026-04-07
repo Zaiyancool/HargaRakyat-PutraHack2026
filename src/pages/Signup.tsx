@@ -3,8 +3,7 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Mail, Lock, User, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User, AlertCircle, Loader2, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -17,7 +16,8 @@ const Signup = () => {
     confirmPassword: '',
     username: '',
   });
-  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [signupSuccess, setSignupSuccess] = useState(false);
@@ -53,11 +53,6 @@ const Signup = () => {
     const passwordError = validatePassword(formData.password);
     if (passwordError) {
       setError(passwordError);
-      return;
-    }
-
-    if (!agreedToTerms) {
-      setError('You must agree to the Terms of Service and Privacy Policy');
       return;
     }
 
@@ -198,13 +193,25 @@ const Signup = () => {
                 <Input
                   id="password"
                   name="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={handleChange}
-                  className="pl-10 h-10"
+                  className="pl-10 pr-10 h-10"
                   disabled={authLoading || loading}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  disabled={authLoading || loading}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
               </div>
               <p className="text-xs text-muted-foreground">
                 Min 6 characters, 1 uppercase letter, 1 number
@@ -221,35 +228,26 @@ const Signup = () => {
                 <Input
                   id="confirmPassword"
                   name="confirmPassword"
-                  type="password"
+                  type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="••••••••"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className="pl-10 h-10"
+                  className="pl-10 pr-10 h-10"
                   disabled={authLoading || loading}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  disabled={authLoading || loading}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
               </div>
-            </div>
-
-            {/* Terms Checkbox */}
-            <div className="flex items-start gap-3 pt-2">
-              <Checkbox
-                id="terms"
-                checked={agreedToTerms}
-                onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
-                disabled={authLoading || loading}
-                className="mt-1"
-              />
-              <label htmlFor="terms" className="text-sm text-muted-foreground cursor-pointer">
-                I agree to the{' '}
-                <Link to="/terms" className="text-primary hover:text-primary/80 underline">
-                  Terms of Service
-                </Link>{' '}
-                and{' '}
-                <Link to="/privacy" className="text-primary hover:text-primary/80 underline">
-                  Privacy Policy
-                </Link>
-              </label>
             </div>
 
             {/* Submit Button */}

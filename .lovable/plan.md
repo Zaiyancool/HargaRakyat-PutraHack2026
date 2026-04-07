@@ -81,3 +81,19 @@ YES, because:
 ✅ Only 2-3 hours (Adam handles it)
 ✅ Makes JSON approach credible instead of "we hardcoded data"
 ✅ This narrative differentiates you from competitors
+
+Phase 2: Favorites System (2-3 hours)
+
+Create Supabase favorites table
+Add heart button to price cards
+Create /favorites page
+Logged-in users can save items they care about
+
+Phase 1: Auth System       ✅ DONE (1/8)
+Phase 2: Favorites         ⏳ Next
+Phase 3: E-commerce        ⏳ After Phase 2
+Phase 4: Dark Mode         ⏳ Parallel with 3
+Phase 5: Logo/Branding     ⏳ Parallel with 3
+Phase 6: SEO               ⏳ Final polish
+Phase 7: Documentation     ⏳ 48h before submission
+Phase 8: Testing/Deploy    🎯 Final 4 hours
