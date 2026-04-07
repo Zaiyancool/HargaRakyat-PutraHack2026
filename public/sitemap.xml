@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Home / Landing Page -->
+  <url>
+    <loc>https://gitauk-hargarakyat.lovable.app/</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Main Dashboard -->
+  <url>
+    <loc>https://gitauk-hargarakyat.lovable.app/dashboard</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Dashboard - Price Map -->
+  <url>
+    <loc>https://gitauk-hargarakyat.lovable.app/dashboard?s=map</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Dashboard - Price Forecast -->
+  <url>
+    <loc>https://gitauk-hargarakyat.lovable.app/dashboard?s=forecast</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Dashboard - Price Explorer -->
+  <url>
+    <loc>https://gitauk-hargarakyat.lovable.app/dashboard?s=explorer</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- News Page -->
+  <url>
+    <loc>https://gitauk-hargarakyat.lovable.app/news</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Login Page -->
+  <url>
+    <loc>https://gitauk-hargarakyat.lovable.app/login</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Signup Page -->
+  <url>
+    <loc>https://gitauk-hargarakyat.lovable.app/signup</loc>
+    <lastmod>2026-04-07</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+</urlset>
