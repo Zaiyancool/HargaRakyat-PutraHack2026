@@ -156,7 +156,7 @@ export function ItemPriceModal({ item, onClose }: { item: ItemInfo; onClose: () 
                         return [formatCurrency(value), labels[name] ?? name];
                       }}
                     />
-                    <Legend formatter={(value) => ({ avg: "Average", min: "Min", max: "Max" }[value] ?? value)} />
+                    <Legend formatter={(value: string) => ({ avg: "Average", min: "Min", max: "Max" }[value as "avg" | "min" | "max"] ?? value)} />
                     <Area type="monotone" dataKey="avg" stroke="#1558E0" strokeWidth={2.5} fill="url(#modalGradient)" dot={{ r: 4, fill: "#1558E0" }} activeDot={{ r: 6 }} />
                     <Line type="monotone" dataKey="min" stroke="#10b981" strokeWidth={1.5} strokeDasharray="4 4" dot={{ r: 3 }} />
                     <Line type="monotone" dataKey="max" stroke="#ef4444" strokeWidth={1.5} strokeDasharray="4 4" dot={{ r: 3 }} />
