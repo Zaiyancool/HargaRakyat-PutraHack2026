@@ -115,52 +115,64 @@ export default function RecipePage() {
     generateRecipe(query);
   };
 
-  // Build store recommendations from matched ingredients
+  // Build store recommendations — show ALL ingredient availability per store
   const storeRecommendations = useMemo((): StoreRecommendation[] => {
     if (!recipe || !cheapestStores || !premises) return [];
 
-    const matchedCodes = recipe.ingredients
-      .filter((i) => i.item_code != null)
-      .map((i) => i.item_code!);
+    const trackedIngredients = recipe.ingredients.filter((i) => i.item_code != null);
+    if (trackedIngredients.length === 0) return [];
 
-    if (matchedCodes.length === 0) return [];
-
-    // Build premise lookup
     const premiseMap = new Map(premises.map((p) => [p.c, p]));
 
-    // Find all premises that carry at least one matched item, with prices
-    const premiseScores = new Map<number, { items: { name: string; price: number; itemCode: number }[] }>();
-
-    for (const code of matchedCodes) {
+    // For each tracked ingredient, build a map: premiseCode -> price
+    const itemPriceByPremise = new Map<number, Map<number, number>>(); // itemCode -> (premiseCode -> price)
+    for (const ing of trackedIngredients) {
+      const code = ing.item_code!;
       const stores = cheapestStores[String(code)];
       if (!stores) continue;
-      const ingredientName = recipe.ingredients.find((i) => i.item_code === code)?.name || "";
+      const priceMap = new Map<number, number>();
+      for (const s of stores) {
+        priceMap.set(s.p, s.avg);
+      }
+      itemPriceByPremise.set(code, priceMap);
+    }
 
-      for (const store of stores.slice(0, 30)) {
-        if (!premiseScores.has(store.p)) {
-          premiseScores.set(store.p, { items: [] });
-        }
-        premiseScores.get(store.p)!.items.push({
-          name: ingredientName,
-          price: store.avg,
-          itemCode: code,
-        });
+    // Collect all premise codes that appear in any item's store list
+    const allPremiseCodes = new Set<number>();
+    for (const [, priceMap] of itemPriceByPremise) {
+      for (const pCode of priceMap.keys()) {
+        allPremiseCodes.add(pCode);
       }
     }
 
-    // Convert to array with premise info
     let results: StoreRecommendation[] = [];
-    for (const [pCode, data] of premiseScores) {
+    for (const pCode of allPremiseCodes) {
       const premise = premiseMap.get(pCode);
       if (!premise) continue;
-
-      // Filter by state if selected
       if (selectedState && premise.s !== selectedState) continue;
 
       const distance =
         userLocation && premise.lat && premise.lng
           ? getDistance(userLocation.lat, userLocation.lng, premise.lat, premise.lng)
           : undefined;
+
+      // Build full ingredient availability list
+      const ingredients: IngredientAvailability[] = trackedIngredients.map((ing) => {
+        const code = ing.item_code!;
+        const priceMap = itemPriceByPremise.get(code);
+        const price = priceMap?.get(pCode) ?? null;
+        return {
+          name: ing.name,
+          itemCode: code,
+          price,
+          available: price !== null,
+        };
+      });
+
+      const availableCount = ingredients.filter((i) => i.available).length;
+      if (availableCount === 0) continue; // skip stores with zero matches
+
+      const totalCost = ingredients.reduce((sum, i) => sum + (i.price ?? 0), 0);
 
       results.push({
         premiseCode: pCode,
@@ -170,21 +182,22 @@ export default function RecipePage() {
         district: premise.d,
         type: premise.t,
         distance,
-        matchedItems: data.items,
-        totalCost: data.items.reduce((sum, i) => sum + i.price, 0),
-        itemCount: data.items.length,
+        ingredients,
+        totalCost,
+        availableCount,
+        totalTracked: trackedIngredients.length,
       });
     }
 
-    // Sort: most items matched first, then cheapest, then closest
+    // Sort: most ingredients available → cheapest → nearest
     results.sort((a, b) => {
-      if (b.itemCount !== a.itemCount) return b.itemCount - a.itemCount;
+      if (b.availableCount !== a.availableCount) return b.availableCount - a.availableCount;
       if (a.totalCost !== b.totalCost) return a.totalCost - b.totalCost;
       if (a.distance != null && b.distance != null) return a.distance - b.distance;
       return 0;
     });
 
-    return results.slice(0, 10);
+    return results.slice(0, 15);
   }, [recipe, cheapestStores, premises, userLocation, selectedState]);
 
   const STATES = [
