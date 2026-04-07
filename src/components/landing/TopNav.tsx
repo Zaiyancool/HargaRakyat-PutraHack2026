@@ -17,6 +17,7 @@ const navLinks = [
   { label: "Map", href: "/dashboard?s=map" },
   { label: "Forecast", href: "/dashboard?s=forecast" },
   { label: "Explorer", href: "/dashboard?s=explorer" },
+  { label: "Recipes", href: "/recipe" },
   { label: "News", href: "/news" },
 ];
 
