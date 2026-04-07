@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
 import NewsPage from "./pages/News";
+import RecipePage from "./pages/Recipe";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
@@ -32,6 +33,7 @@ const App = () => (
               <Route path="/auth-callback" element={<AuthCallback />} />
               <Route path="/dashboard" element={<Index />} />
               <Route path="/news" element={<NewsPage />} />
+              <Route path="/recipe" element={<RecipePage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -17,6 +17,7 @@ const navLinks = [
   { label: "Map", href: "/dashboard?s=map" },
   { label: "Forecast", href: "/dashboard?s=forecast" },
   { label: "Explorer", href: "/dashboard?s=explorer" },
+  { label: "Recipes", href: "/recipe" },
   { label: "News", href: "/news" },
 ];
 
@@ -28,8 +29,9 @@ export function TopNav() {
 
   const isActive = (href: string) => {
     if (href === "/dashboard" && location.pathname === "/dashboard" && !location.search) return true;
-    if (href !== "/dashboard" && location.pathname + location.search === href) return true;
+    if (href !== "/dashboard" && href !== "/news" && href !== "/recipe" && location.pathname + location.search === href) return true;
     if (href === "/news" && location.pathname === "/news") return true;
+    if (href === "/recipe" && location.pathname === "/recipe") return true;
     return false;
   };
 
