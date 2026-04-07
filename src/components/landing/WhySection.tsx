@@ -1,6 +1,7 @@
 import { TrendingUp, Brain, ShoppingCart, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const features = [
   {
@@ -39,6 +40,7 @@ const features = [
 ];
 
 export function WhySection() {
+  const { user } = useAuthContext();
   return (
     <section className="bg-[#F7F9FC] py-20 md:py-28">
       <div className="mx-auto max-w-7xl px-6">
@@ -77,29 +79,33 @@ export function WhySection() {
               <p className="mt-3 flex-1 text-[15px] leading-relaxed text-gray-500">
                 {f.description}
               </p>
-              <Link to={f.href} className="mt-8">
-                <Button
-                  variant="outline"
-                  className="w-full rounded-xl border-gray-200 text-[15px] font-semibold text-gray-700 hover:border-primary hover:text-primary"
-                >
-                  {f.cta} <ArrowRight className="ml-1 h-4 w-4" />
-                </Button>
-              </Link>
             </div>
           ))}
         </div>
 
         {/* CTA */}
         <div className="mt-16 flex flex-col items-center gap-4">
-          <Link to="/dashboard">
-            <Button
-              size="lg"
-              className="h-14 rounded-xl px-10 text-[17px] font-black shadow-md hover:shadow-lg"
-            >
-              Get started with HargaRakyat{" "}
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-          </Link>
+          {user ? (
+            <Link to="/dashboard">
+              <Button
+                size="lg"
+                className="h-14 rounded-xl px-10 text-[17px] font-black shadow-md hover:shadow-lg"
+              >
+                Go to Dashboard
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/signup">
+              <Button
+                size="lg"
+                className="h-14 rounded-xl px-10 text-[17px] font-black shadow-md hover:shadow-lg"
+              >
+                Get started with HargaRakyat
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+          )}
           <p className="text-sm text-gray-400">Free to use · Open data for everyone</p>
         </div>
       </div>
