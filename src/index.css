@@ -62,6 +62,53 @@
     --font-body: 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
   }
+
+  /* ── Dark Mode Color Overrides ──────────────────────────────── */
+  .dark {
+    /* Dark backgrounds: deep gray-900 instead of light blue-white */
+    --background: 217 32% 6%;        /* #0f1317 — very dark blue-gray */
+    --foreground: 214 55% 93%;       /* #e4eef7 — light gray-blue text */
+
+    /* Dark cards: charcoal gray with subtle blue tint */
+    --card: 217 30% 15%;             /* #1f2937 — dark gray */
+    --card-foreground: 214 55% 93%;  /* light text on dark cards */
+
+    --popover: 217 30% 15%;
+    --popover-foreground: 214 55% 93%;
+
+    /* Primary: slightly lighter blue for dark mode readability */
+    --primary: 217 91% 60%;          /* #3d72f1 — lighter blue for dark bg */
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary: darker cool-blue tint */
+    --secondary: 217 30% 25%;        /* #2d3b50 — dark blue-gray */
+    --secondary-foreground: 214 55% 93%;
+
+    /* Muted: light gray-blue for helper text on dark */
+    --muted: 217 20% 35%;
+    --muted-foreground: 214 40% 65%; /* lighter gray-blue */
+
+    /* Accent: lighter green for visibility on dark */
+    --accent: 160 68% 50%;           /* #2bb892 — lighter green */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 3 85% 65%;        /* slightly lighter red for dark */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 217 20% 25%;           /* #2d3844 — dark gray border */
+    --input: 217 30% 20%;            /* dark input backgrounds */
+    --ring: 217 91% 60%;
+
+    /* Sidebar adjustments for dark mode */
+    --sidebar-background: 217 32% 10%;   /* slightly lighter than main bg */
+    --sidebar-foreground: 214 55% 93%;   /* light text */
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 30% 30%;
+    --sidebar-accent-foreground: 214 55% 93%;
+    --sidebar-border: 217 20% 25%;
+    --sidebar-ring: 217 91% 60%;
+  }
 }
 
 @layer base {

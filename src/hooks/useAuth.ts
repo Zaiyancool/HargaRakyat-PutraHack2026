@@ -81,6 +81,7 @@ export const useAuth = () => {
         options: {
           data: {
             username: username || email.split('@')[0],
+            display_name: username || email.split('@')[0],
           },
         },
       });
