@@ -1,10 +1,12 @@
-import { useState, useMemo } from "react";
-import { Search, Filter, ArrowUpDown, ChevronDown, BarChart3 } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Search, Filter, ArrowUpDown, ChevronDown, BarChart3, Star } from "lucide-react";
 import { SkeletonTable } from "@/components/SkeletonCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useItemLookup, usePricesAgg, usePricesByState } from "@/hooks/usePriceCatcher";
+import { useFavouritesExplorer } from "@/hooks/useFavourites";
+import { useAuthContext } from "@/contexts/AuthContext";
 import { STATES, ITEM_GROUPS, type ItemLookup } from "@/lib/pricecatcher";
 
 export function PriceExplorer() {
@@ -12,6 +14,9 @@ export function PriceExplorer() {
   const [selectedState, setSelectedState] = useState<string>("all");
   const [selectedGroup, setSelectedGroup] = useState<string>("all");
   const [showCount, setShowCount] = useState(100);
+  
+  const { user } = useAuthContext();
+  const { favourites, toggleFavourite } = useFavouritesExplorer();
 
   const { data: items, isLoading: loadingItems } = useItemLookup();
   const { data: pricesAgg, isLoading: loadingPrices } = usePricesAgg();
@@ -107,30 +112,43 @@ export function PriceExplorer() {
           <>
             <div className="md:hidden space-y-2">
               {aggregated.slice(0, showCount).map((row) => (
-                <div key={row.item_code} className="glass-card rounded-xl p-3">
+                <div key={row.item_code} className="glass-card dark:bg-gray-800 dark:border-gray-700 rounded-xl p-3">
                   <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
+                    <div className="min-w-0 flex-1">
                       <p className="text-sm font-semibold text-foreground truncate">{row.item}</p>
                       <p className="text-xs text-muted-foreground truncate">{row.category} • {row.unit}</p>
                     </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-sm font-mono font-semibold text-primary">RM {row.avg.toFixed(2)}</p>
-                      <p className="text-xs text-muted-foreground">{row.n.toLocaleString()} records</p>
-                    </div>
+                    {user && (
+                      <button
+                        onClick={() => toggleFavourite(row.item_code)}
+                        className="shrink-0 p-2 rounded transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+                        title={favourites.has(row.item_code) ? "Remove from favourites" : "Add to favourites"}
+                      >
+                        {favourites.has(row.item_code) ? (
+                          <Star className="w-5 h-5 fill-yellow-400 text-yellow-400 dark:fill-yellow-500 dark:text-yellow-500" />
+                        ) : (
+                          <Star className="w-5 h-5 text-gray-300 dark:text-gray-600" />
+                        )}
+                      </button>
+                    )}
+                  </div>
+                  <div className="mt-2">
+                    <p className="text-sm font-mono font-semibold text-primary dark:text-blue-400">RM {row.avg.toFixed(2)}</p>
+                    <p className="text-xs text-muted-foreground">{row.n.toLocaleString()} records</p>
                   </div>
                   <div className="mt-2 flex items-center justify-between text-xs font-mono">
-                    <span className="text-chart-up">Min RM {row.min.toFixed(2)}</span>
-                    <span className="text-chart-down">Max RM {row.max.toFixed(2)}</span>
+                    <span className="text-chart-up dark:text-red-400">Min RM {row.min.toFixed(2)}</span>
+                    <span className="text-chart-down dark:text-green-400">Max RM {row.max.toFixed(2)}</span>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="glass-card rounded-xl overflow-hidden">
+            <div className="glass-card dark:bg-gray-800 dark:border-gray-700 rounded-xl overflow-hidden">
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-border/50">
+                    <tr className="border-b border-border/50 dark:border-gray-700">
                       <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Item</th>
                       <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Category</th>
                       <th className="text-left py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Unit</th>
@@ -140,18 +158,34 @@ export function PriceExplorer() {
                       <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Min</th>
                       <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Max</th>
                       <th className="text-right py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Records</th>
+                      {user && <th className="text-center py-3 px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Favourite</th>}
                     </tr>
                   </thead>
                   <tbody>
                     {aggregated.slice(0, showCount).map((row) => (
-                      <tr key={row.item_code} className="border-b border-border/30 hover:bg-secondary/50 transition-colors">
-                        <td className="py-3 px-4 font-medium text-sm">{row.item}</td>
-                        <td className="py-3 px-4 text-sm text-muted-foreground">{row.category}</td>
-                        <td className="py-3 px-4 text-sm text-muted-foreground">{row.unit}</td>
-                        <td className="py-3 px-4 text-sm text-right font-mono font-semibold text-primary">RM {row.avg.toFixed(2)}</td>
-                        <td className="py-3 px-4 text-sm text-right font-mono text-chart-up">RM {row.min.toFixed(2)}</td>
-                        <td className="py-3 px-4 text-sm text-right font-mono text-chart-down">RM {row.max.toFixed(2)}</td>
-                        <td className="py-3 px-4 text-sm text-right font-mono text-muted-foreground">{row.n.toLocaleString()}</td>
+                      <tr key={row.item_code} className="border-b border-border/30 dark:border-gray-700 hover:bg-secondary/50 dark:hover:bg-gray-700/50 transition-colors">
+                        <td className="py-3 px-4 font-medium text-sm dark:text-gray-100">{row.item}</td>
+                        <td className="py-3 px-4 text-sm text-muted-foreground dark:text-gray-400">{row.category}</td>
+                        <td className="py-3 px-4 text-sm text-muted-foreground dark:text-gray-400">{row.unit}</td>
+                        <td className="py-3 px-4 text-sm text-right font-mono font-semibold text-primary dark:text-blue-400">RM {row.avg.toFixed(2)}</td>
+                        <td className="py-3 px-4 text-sm text-right font-mono text-chart-up dark:text-red-400">RM {row.min.toFixed(2)}</td>
+                        <td className="py-3 px-4 text-sm text-right font-mono text-chart-down dark:text-green-400">RM {row.max.toFixed(2)}</td>
+                        <td className="py-3 px-4 text-sm text-right font-mono text-muted-foreground dark:text-gray-400">{row.n.toLocaleString()}</td>
+                        {user && (
+                          <td className="py-3 px-4 text-center">
+                            <button
+                              onClick={() => toggleFavourite(row.item_code)}
+                              className="inline-flex items-center justify-center p-2 rounded transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+                              title={favourites.has(row.item_code) ? "Remove from favourites" : "Add to favourites"}
+                            >
+                              {favourites.has(row.item_code) ? (
+                                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 dark:fill-yellow-500 dark:text-yellow-500" />
+                              ) : (
+                                <Star className="w-4 h-4 text-gray-300 dark:text-gray-600" />
+                              )}
+                            </button>
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>

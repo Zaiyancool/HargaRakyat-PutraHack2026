@@ -4,8 +4,10 @@ import {
   ResponsiveContainer, ReferenceLine,
 } from "recharts";
 import { useItemLookup, usePriceForecast, usePricesAgg, usePricesAggJan, usePriceHistory } from "@/hooks/usePriceCatcher";
+import { useFavouritesForecasts } from "@/hooks/useFavourites";
+import { useAuthContext } from "@/contexts/AuthContext";
 import {
-  Search, ChevronLeft, ChevronRight, X,
+  Search, ChevronLeft, ChevronRight, X, Star,
 } from "lucide-react";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { BestTimeToBuy } from "@/components/BestTimeToBuy";
@@ -54,6 +56,9 @@ function formatDate(dateStr: string): string {
 
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export function PriceForecast() {
+  const { user } = useAuthContext();
+  const { favourites, toggleFavourite } = useFavouritesForecasts();
+  
   const { data: items, isLoading: li } = useItemLookup();
   const { data: forecast, isLoading: lf } = usePriceForecast();
   const { data: pricesAgg, isLoading: lp } = usePricesAgg();
@@ -148,10 +153,10 @@ export function PriceForecast() {
     <div className="max-w-7xl mx-auto space-y-8">
       {/* Hero */}
       <div className="text-center pt-6 pb-2">
-        <h1 className="text-3xl font-black tracking-tight text-gray-900 md:text-4xl">
+        <h1 className="text-3xl font-black tracking-tight text-gray-900 dark:text-white md:text-4xl">
           Product Price Predictions
         </h1>
-        <p className="mt-2 text-base text-gray-500 max-w-xl mx-auto">
+        <p className="mt-2 text-base text-gray-500 dark:text-gray-400 max-w-xl mx-auto">
           ML-powered 14-day price forecasts based on 1 year of KPDN PriceCatcher data.
         </p>
       </div>
@@ -159,7 +164,7 @@ export function PriceForecast() {
       {/* Top 5 Cheapest Picks (Kraken "Top Gainers" style) */}
       {cheaperPicks.length > 0 && (
         <div>
-          <p className="text-sm font-semibold text-gray-500 mb-3 text-center">
+          <p className="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-3 text-center">
             Top {cheaperPicks.length} products predicted to get cheaper in the next 14 days
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
@@ -167,20 +172,20 @@ export function PriceForecast() {
               <button
                 key={item.code}
                 onClick={() => setSelectedItem(item)}
-                className="rounded-2xl border border-gray-100 bg-white p-4 text-left shadow-sm hover:shadow-md hover:border-primary/30 transition-all group"
+                className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 text-left shadow-sm hover:shadow-md hover:border-primary/30 transition-all group"
               >
                 <div className="flex items-center gap-2 mb-2">
-                  <div className="h-7 w-7 rounded-lg bg-emerald-50 flex items-center justify-center text-[9px] font-black text-emerald-600 shrink-0">
+                  <div className="h-7 w-7 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center text-[9px] font-black text-emerald-600 dark:text-emerald-400 shrink-0">
                     {initials(item.name)}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-bold text-primary truncate group-hover:underline">{item.name}</p>
-                    <p className="text-[10px] text-gray-400 uppercase">{item.unit}</p>
+                    <p className="text-sm font-bold text-primary dark:text-blue-400 truncate group-hover:underline">{item.name}</p>
+                    <p className="text-[10px] text-gray-400 dark:text-gray-500 uppercase">{item.unit}</p>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-400">14-day forecast</span>
-                  <span className="text-sm font-bold text-emerald-600">
+                  <span className="text-xs text-gray-400 dark:text-gray-500">14-day forecast</span>
+                  <span className="text-sm font-bold text-emerald-600 dark:text-green-400">
                     {fmt(item.predictedChange)}%
                   </span>
                 </div>
@@ -191,14 +196,14 @@ export function PriceForecast() {
       )}
 
       {/* Data Table Card */}
-      <div className="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+      <div className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden transition-colors duration-200">
         {/* Table header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-5 pt-5 pb-4 border-b border-gray-100">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-5 pt-5 pb-4 border-b border-gray-100 dark:border-gray-700">
           <div>
-            <span className="text-sm font-bold text-gray-900">
+            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
               All Forecasts
             </span>
-            <span className="text-sm text-gray-400 ml-2">
+            <span className="text-sm text-gray-400 dark:text-gray-500 ml-2">
               {allFiltered.length} items
             </span>
           </div>
@@ -211,10 +216,10 @@ export function PriceForecast() {
               onChange={(e) => { setSearch(e.target.value); setPage(0); }}
               maxLength={120}
               aria-label="Search forecasted products"
-              className="w-full rounded-xl border border-gray-200 bg-gray-50 pl-9 pr-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             />
             {search && (
-              <button onClick={() => { setSearch(""); setPage(0); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <button onClick={() => { setSearch(""); setPage(0); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400">
                 <X className="h-3.5 w-3.5" />
               </button>
             )}
@@ -222,19 +227,20 @@ export function PriceForecast() {
         </div>
 
         {/* Column headers (desktop) */}
-        <div className="hidden sm:grid grid-cols-[2.5rem_1fr_7rem_7rem_7rem_5rem] gap-x-4 px-5 py-3 text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100">
+        <div className="hidden sm:grid grid-cols-[2.5rem_1fr_7rem_7rem_7rem_3rem_5rem] gap-x-4 px-5 py-3 text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100 dark:border-gray-700 dark:bg-gray-800">
           <span>#</span>
           <span>Asset</span>
           <span className="text-right">Today's price</span>
           <span className="text-right">Past 1mo growth</span>
           <span className="text-right">Predicted</span>
+          {user && <span className="text-center">Favourite</span>}
           <span></span>
         </div>
 
         {/* Rows */}
-        <div className="divide-y divide-gray-50">
+        <div className="divide-y divide-gray-50 dark:divide-gray-700">
           {tableData.length === 0 && (
-            <div className="py-16 text-center text-gray-400 text-sm">No items found</div>
+            <div className="py-16 text-center text-gray-400 dark:text-gray-500 text-sm">No items found</div>
           )}
           {tableData.map((item, idx) => {
             const rank = globalOffset + idx + 1;
@@ -243,11 +249,11 @@ export function PriceForecast() {
               <button
                 key={item.code}
                 onClick={() => setSelectedItem(item)}
-                className="w-full px-4 sm:px-5 py-3 sm:py-4 text-left hover:bg-gray-50 transition-colors group"
+                className="w-full px-4 sm:px-5 py-3 sm:py-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group"
               >
                 {/* Mobile */}
                 <div className="flex sm:hidden items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <span className="text-xs text-gray-400 font-medium w-5 shrink-0 text-right">{rank}</span>
                     <div className="h-8 w-8 shrink-0 rounded-xl bg-primary/8 flex items-center justify-center text-[10px] font-black text-primary">
                       {initials(item.name)}
@@ -257,32 +263,68 @@ export function PriceForecast() {
                       <p className="text-xs text-gray-400">RM {fmt(item.todayPrice)}</p>
                     </div>
                   </div>
-                  <div className="text-right shrink-0">
-                    <p className="text-sm font-bold font-mono text-gray-900">RM {fmt(item.predictedPrice)}</p>
-                    <p className={`text-xs font-bold ${item.predictedChange < 0 ? "text-emerald-600" : item.predictedChange > 0 ? "text-red-500" : "text-gray-400"}`}>
-                      {item.predictedChange > 0 ? "+" : ""}{fmt(item.predictedChange)}%
-                    </p>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {user && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavourite(item.code);
+                        }}
+                        className="p-2 rounded transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+                        title={favourites.has(item.code) ? "Remove from favourites" : "Add to favourites"}
+                      >
+                        {favourites.has(item.code) ? (
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 dark:fill-yellow-500 dark:text-yellow-500" />
+                        ) : (
+                          <Star className="w-4 h-4 text-gray-300 dark:text-gray-600" />
+                        )}
+                      </button>
+                    )}
+                    <div className="text-right">
+                      <p className="text-sm font-bold font-mono text-gray-900">RM {fmt(item.predictedPrice)}</p>
+                      <p className={`text-xs font-bold ${item.predictedChange < 0 ? "text-emerald-600" : item.predictedChange > 0 ? "text-red-500" : "text-gray-400"}`}>
+                        {item.predictedChange > 0 ? "+" : ""}{fmt(item.predictedChange)}%
+                      </p>
+                    </div>
                   </div>
                 </div>
 
                 {/* Desktop */}
-                <div className="hidden sm:grid grid-cols-[2.5rem_1fr_7rem_7rem_7rem_5rem] gap-x-4 items-center">
+                <div className="hidden sm:grid grid-cols-[2.5rem_1fr_7rem_7rem_7rem_3rem_5rem] gap-x-4 items-center">
                   <span className="text-sm text-gray-400 font-medium">{rank}</span>
                   <div className="flex items-center gap-3 min-w-0">
                     <div className="h-9 w-9 shrink-0 rounded-xl bg-primary/8 flex items-center justify-center text-[11px] font-black text-primary">
                       {initials(item.name)}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-gray-900 truncate group-hover:text-primary transition-colors">{item.name}</p>
-                      <p className="text-xs text-gray-400 uppercase">{item.unit}</p>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-primary transition-colors">{item.name}</p>
+                      <p className="text-xs text-gray-400 dark:text-gray-500 uppercase">{item.unit}</p>
                     </div>
                   </div>
-                  <p className="text-sm font-bold font-mono text-gray-900 text-right">RM {fmt(item.todayPrice)}</p>
-                  <p className={`text-sm font-bold font-mono text-right ${growthUp ? "text-red-500" : "text-emerald-600"}`}>
+                  <p className="text-sm font-bold font-mono text-gray-900 dark:text-gray-100 text-right">RM {fmt(item.todayPrice)}</p>
+                  <p className={`text-sm font-bold font-mono text-right ${growthUp ? "text-red-500 dark:text-red-400" : "text-emerald-600 dark:text-green-400"}`}>
                     {growthUp ? "+" : ""}{fmt(item.growthPct)}%
                   </p>
-                  <p className="text-sm font-bold font-mono text-gray-900 text-right">RM {fmt(item.predictedPrice)}</p>
-                  <span className="ml-auto rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/20 transition-colors">
+                  <p className="text-sm font-bold font-mono text-gray-900 dark:text-gray-100 text-right">RM {fmt(item.predictedPrice)}</p>
+                  {user && (
+                    <div className="flex justify-center">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavourite(item.code);
+                        }}
+                        className="p-2 rounded transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
+                        title={favourites.has(item.code) ? "Remove from favourites" : "Add to favourites"}
+                      >
+                        {favourites.has(item.code) ? (
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 dark:fill-yellow-500 dark:text-yellow-500" />
+                        ) : (
+                          <Star className="w-4 h-4 text-gray-300 dark:text-gray-600" />
+                        )}
+                      </button>
+                    </div>
+                  )}
+                  <span className="ml-auto rounded-lg bg-primary/10 dark:bg-blue-900/30 px-3 py-1.5 text-xs font-bold text-primary dark:text-blue-400 hover:bg-primary/20 dark:hover:bg-blue-900/50 transition-colors">
                     View
                   </span>
                 </div>
@@ -293,15 +335,15 @@ export function PriceForecast() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-5 py-4 border-t border-gray-100">
-            <p className="hidden sm:block text-sm text-gray-400">
-              Showing <strong className="text-gray-700">{globalOffset + 1}–{Math.min(globalOffset + PAGE_SIZE, allFiltered.length)}</strong> of <strong className="text-gray-700">{allFiltered.length}</strong>
+          <div className="flex items-center justify-between px-5 py-4 border-t border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800">
+            <p className="hidden sm:block text-sm text-gray-400 dark:text-gray-500">
+              Showing <strong className="text-gray-700 dark:text-gray-300">{globalOffset + 1}–{Math.min(globalOffset + PAGE_SIZE, allFiltered.length)}</strong> of <strong className="text-gray-700 dark:text-gray-300">{allFiltered.length}</strong>
             </p>
             <div className="flex items-center gap-1">
-              <button onClick={() => setPage(0)} disabled={page === 0} className="flex items-center gap-0.5 rounded-lg px-3 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all" aria-label="First">
+              <button onClick={() => setPage(0)} disabled={page === 0} className="flex items-center gap-0.5 rounded-lg px-3 py-2 text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all" aria-label="First">
                 <ChevronLeft className="h-4 w-4" /><ChevronLeft className="h-4 w-4 -ml-2" />
               </button>
-              <button onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0} className="flex items-center rounded-lg px-3 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all" aria-label="Previous">
+              <button onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0} className="flex items-center rounded-lg px-3 py-2 text-sm font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-all" aria-label="Previous">
                 <ChevronLeft className="h-4 w-4" />
               </button>
               {Array.from({ length: totalPages }, (_, i) => i)
@@ -313,9 +355,9 @@ export function PriceForecast() {
                 }, [])
                 .map((item, i) =>
                   item === "..." ? (
-                    <span key={`e-${i}`} className="px-2 text-gray-400 text-sm">…</span>
+                    <span key={`e-${i}`} className="px-2 text-gray-400 dark:text-gray-600 text-sm">…</span>
                   ) : (
-                    <button key={item} onClick={() => setPage(item as number)} className={`rounded-lg w-11 h-11 sm:w-9 sm:h-9 text-sm font-bold transition-all ${page === item ? "bg-primary text-white" : "text-gray-500 hover:bg-gray-100"}`}>{(item as number) + 1}</button>
+                    <button key={item} onClick={() => setPage(item as number)} className={`rounded-lg w-11 h-11 sm:w-9 sm:h-9 text-sm font-bold transition-all ${page === item ? "bg-primary text-white dark:bg-blue-600" : "text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>{(item as number) + 1}</button>
                   )
                 )}
               <button onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))} disabled={page === totalPages - 1} className="flex items-center rounded-lg px-3 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-all" aria-label="Next">

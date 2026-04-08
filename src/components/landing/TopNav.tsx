@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, LogOut, ChevronDown } from "lucide-react";
+import { Menu, X, LogOut, ChevronDown, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { useAuthContext } from "@/contexts/AuthContext";
@@ -39,7 +39,7 @@ export function TopNav() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-100 bg-white/95 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b border-gray-100 dark:border-gray-700 bg-white/95 dark:bg-gray-900/95 backdrop-blur-xl transition-colors duration-200">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6 lg:px-12 sm:px-8">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">
@@ -97,7 +97,10 @@ export function TopNav() {
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link to="/dashboard">Dashboard</Link>
+                  <Link to="/dashboard?s=profile" className="flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    Profile
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut} className="text-red-600 cursor-pointer flex items-center gap-2">
@@ -177,12 +180,13 @@ export function TopNav() {
                       <p className="text-sm font-semibold text-gray-900">{user.email}</p>
                     </div>
                     <Link
-                      to="/dashboard"
+                      to="/dashboard?s=profile"
                       onClick={() => setOpen(false)}
                       className="block"
                     >
-                      <Button variant="outline" className="w-full rounded-xl border-gray-200 text-gray-900 hover:bg-gray-50">
-                        Dashboard
+                      <Button variant="outline" className="w-full rounded-xl border-gray-200 text-gray-900 hover:bg-gray-50 flex items-center justify-center gap-2">
+                        <User className="h-4 w-4" />
+                        Profile
                       </Button>
                     </Link>
                     <Button

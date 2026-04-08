@@ -7,7 +7,7 @@ import { PriceExplorer } from "@/components/PriceExplorer";
 import { PriceForecast } from "@/components/PriceForecast";
 import { GroceryOptimizer } from "@/components/GroceryOptimizer";
 import { PriceMap } from "@/components/PriceMap";
-
+import { ProfilePage } from "@/components/ProfilePage";
 import { AIChatAdvisor } from "@/components/AIChatAdvisor";
 
 export default function Index() {
@@ -21,6 +21,7 @@ export default function Index() {
 
   const renderSection = () => {
     switch (activeSection) {
+      case "profile":   return <ProfilePage />;
       case "explorer":  return <PriceExplorer />;
       case "forecast":  return <PriceForecast />;
       case "optimizer": return <GroceryOptimizer />;
@@ -31,7 +32,7 @@ export default function Index() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans antialiased">
+    <div className="min-h-screen bg-[#F8FAFC] dark:bg-gray-900 flex flex-col font-sans antialiased transition-colors duration-200">
       <TopNav />
       <PriceTicker />
       <main className="flex-1 w-full px-4 py-6 md:px-6 md:py-8">

@@ -97,3 +97,4 @@ Phase 5: Logo/Branding     ⏳ Parallel with 3
 Phase 6: SEO               ⏳ Final polish
 Phase 7: Documentation     ⏳ 48h before submission
 Phase 8: Testing/Deploy    🎯 Final 4 hours
+Phase 9: data pipeline script
