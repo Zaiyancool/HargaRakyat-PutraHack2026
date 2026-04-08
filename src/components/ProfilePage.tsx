@@ -1,10 +1,11 @@
 import { useEffect, useState, useMemo } from 'react';
 import { AlertCircle } from 'lucide-react';
-import { BarChart3, TrendingDown, ChevronUp, ChevronDown, Minus, StopCircle, Star, Search } from 'lucide-react';
+import { BarChart3, TrendingDown, ChevronUp, ChevronDown, Minus, StopCircle, Star, Search, ChevronLeft } from 'lucide-react';
 import { useAuthContext } from '@/contexts/AuthContext';
 import { useFavouritesAll } from '@/hooks/useFavourites';
 import { useItemLookup, usePriceForecast, usePricesAgg, usePricesAggJan, usePriceHistory } from '@/hooks/usePriceCatcher';
 import { ItemPriceModal } from './ItemPriceModal';
+import { BestTimeToBuy } from './BestTimeToBuy';
 import { ThemeToggle } from './ThemeToggle';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
@@ -78,6 +79,8 @@ function formatDate(dateStr: string): string {
 function initials(name: string) {
   return name.split(" ").slice(0, 2).map((w) => w[0]).join("").toUpperCase();
 }
+
+function fmt(n: number) { return n.toFixed(2); }
 
 const ExplorerTableRow = ({ 
   item, 
@@ -188,20 +191,20 @@ const ForecastTableRow = ({
   const changeDown = item.predictedChange < 0;
 
   return (
-    <div
+    <button
       onClick={onClick}
-      className="w-full px-4 py-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group flex flex-col sm:block border-b border-gray-100 dark:border-gray-700 last:border-0 cursor-pointer"
+      className="w-full px-4 sm:px-5 py-3 sm:py-4 text-left hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors group"
     >
       {/* Mobile */}
       <div className="flex sm:hidden items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0 flex-1">
           <span className="text-xs text-gray-400 font-medium w-5 shrink-0 text-right">{index + 1}</span>
-          <div className="h-8 w-8 shrink-0 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-[10px] font-black text-amber-600 dark:text-amber-400">
+          <div className="h-8 w-8 shrink-0 rounded-xl bg-primary/8 flex items-center justify-center text-[10px] font-black text-primary">
             {initials(item.name)}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">{item.name}</p>
-            <p className="text-xs text-gray-400">RM {item.todayPrice.toFixed(2)}</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-primary transition-colors">{item.name}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">RM {fmt(item.todayPrice)}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
@@ -213,9 +216,9 @@ const ForecastTableRow = ({
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 dark:fill-yellow-500 dark:text-yellow-500" />
           </button>
           <div className="text-right">
-            <p className="text-sm font-bold font-mono text-gray-900 dark:text-white">RM {item.predictedPrice.toFixed(2)}</p>
-            <p className={`text-xs font-bold ${changeDown ? "text-emerald-600" : changeUp ? "text-red-500" : "text-gray-400"}`}>
-              {changeUp ? "+" : ""}{item.predictedChange.toFixed(2)}%
+            <p className="text-sm font-bold font-mono text-gray-900 dark:text-white">RM {fmt(item.predictedPrice)}</p>
+            <p className={`text-xs font-bold ${changeDown ? "text-emerald-600 dark:text-green-400" : changeUp ? "text-red-500 dark:text-red-400" : "text-gray-400"}`}>
+              {changeUp ? "+" : ""}{fmt(item.predictedChange)}%
             </p>
           </div>
         </div>
@@ -223,21 +226,21 @@ const ForecastTableRow = ({
 
       {/* Desktop */}
       <div className="hidden sm:grid grid-cols-[2.5rem_1fr_7rem_7rem_7rem_3rem_5rem] gap-x-4 items-center">
-        <span className="text-sm text-gray-400 font-medium">{index + 1}</span>
+        <span className="text-sm text-gray-400 dark:text-gray-500 font-medium">{index + 1}</span>
         <div className="flex items-center gap-3 min-w-0">
-          <div className="h-9 w-9 shrink-0 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-[11px] font-black text-amber-600 dark:text-amber-400">
+          <div className="h-9 w-9 shrink-0 rounded-xl bg-primary/8 flex items-center justify-center text-[11px] font-black text-primary">
             {initials(item.name)}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">{item.name}</p>
-            <p className="text-xs text-gray-400 dark:text-gray-500 uppercase truncate">{item.unit}</p>
+            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate group-hover:text-primary transition-colors">{item.name}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 uppercase">{item.unit}</p>
           </div>
         </div>
-        <p className="text-sm font-bold font-mono text-gray-900 dark:text-white text-right">{formatCurrency(item.todayPrice)}</p>
+        <p className="text-sm font-bold font-mono text-gray-900 dark:text-gray-100 text-right">RM {fmt(item.todayPrice)}</p>
         <p className={`text-sm font-bold font-mono text-right ${growthUp ? "text-red-500 dark:text-red-400" : "text-emerald-600 dark:text-green-400"}`}>
-          {growthUp ? "+" : ""}{formatPercent(item.growthPct)}
+          {growthUp ? "+" : ""}{fmt(item.growthPct)}%
         </p>
-        <p className="text-sm font-bold font-mono text-gray-900 dark:text-white text-right">{formatCurrency(item.predictedPrice)}</p>
+        <p className="text-sm font-bold font-mono text-gray-900 dark:text-gray-100 text-right">RM {fmt(item.predictedPrice)}</p>
         <div className="flex justify-center">
           <button
             onClick={onRemove}
@@ -247,11 +250,11 @@ const ForecastTableRow = ({
             <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 dark:fill-yellow-500 dark:text-yellow-500" />
           </button>
         </div>
-        <div className="flex items-center justify-end gap-1.5">
-          <span className="rounded-lg bg-amber-100 dark:bg-amber-900/30 px-3 py-1.5 text-xs font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors">View</span>
-        </div>
+        <span className="rounded-lg bg-primary/10 dark:bg-blue-900/30 px-3 py-1.5 text-xs font-bold text-primary dark:text-blue-400 hover:bg-primary/20 dark:hover:bg-blue-900/50 transition-colors">
+          View
+        </span>
       </div>
-    </div>
+    </button>
   );
 };
 
@@ -262,10 +265,39 @@ const ForecastDetailModal = ({
   item: EnrichedForecastItem;
   onClose: () => void;
 }) => {
-  const { data: forecast } = usePriceForecast();
-  const { data: history } = usePriceHistory();
+  const fc = item.forecast;
+  const tomorrowPrice = fc.forecast[0]?.price ?? fc.last_price;
+  const day14Price = fc.forecast[fc.forecast.length - 1]?.price ?? fc.last_price;
 
+  // Build chart data: history + forecast line (combined)
   const chartData = useMemo(() => {
+    const hist = fc.history.map((p) => ({
+      date: p.date,
+      label: formatDate(p.date),
+      actual: p.price,
+      forecast: null as number | null,
+    }));
+    const lastHist = hist[hist.length - 1];
+    const fcLine = fc.forecast.map((p) => ({
+      date: p.date,
+      label: formatDate(p.date),
+      actual: null as number | null,
+      forecast: p.price,
+    }));
+    if (lastHist) {
+      fcLine.unshift({ date: lastHist.date, label: lastHist.label, actual: null, forecast: lastHist.actual });
+    }
+    return [...hist, ...fcLine];
+  }, [fc]);
+
+  const boundaryDate = useMemo(() => {
+    if (!fc.history.length) return "";
+    return formatDate(fc.history[fc.history.length - 1].date);
+  }, [fc]);
+
+  // Historical monthly averages
+  const { data: history } = usePriceHistory();
+  const monthlyPrices = useMemo(() => {
     if (!history) return [];
     const itemHistory = history[String(item.code)];
     if (!itemHistory) return [];
@@ -274,169 +306,114 @@ const ForecastDetailModal = ({
       .map((m) => ({
         month: MONTH_LABELS[m],
         avg: itemHistory[m].avg,
-        min: itemHistory[m].min,
-        max: itemHistory[m].max,
-        records: itemHistory[m].n,
       }));
   }, [history, item.code]);
 
-  const forecastData = useMemo(() => {
-    if (!item.forecast?.forecast) return [];
-    return item.forecast.forecast.map((point: ForecastPoint) => ({
-      day: point.date,
-      date: formatDate(point.date),
-      price: point.price,
-    }));
-  }, [item.forecast]);
+  // Past 6mo average, past 3mo average
+  const past6moAvg = monthlyPrices.length > 0
+    ? monthlyPrices.reduce((s, p) => s + p.avg, 0) / monthlyPrices.length
+    : null;
+  const past3moAvg = monthlyPrices.length >= 3
+    ? monthlyPrices.slice(-3).reduce((s, p) => s + p.avg, 0) / 3
+    : null;
 
-  const trendColor = item.trend === 'up' ? 'text-green-600 dark:text-green-400' : 
-                     item.trend === 'down' ? 'text-red-600 dark:text-red-400' : 
-                     'text-gray-600 dark:text-gray-400';
-  const trendBg = item.trend === 'up' ? 'bg-green-50 dark:bg-green-900/20' : 
-                  item.trend === 'down' ? 'bg-red-50 dark:bg-red-900/20' : 
-                  'bg-gray-50 dark:bg-gray-800';
+  const predChangeFromToday = ((day14Price - item.todayPrice) / item.todayPrice) * 100;
 
   return (
-    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-900 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-700 border-b border-amber-200 dark:border-gray-700 p-6 flex items-center justify-between">
+    <div className="fixed inset-0 bg-black/50 dark:bg-black/70 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white dark:bg-gray-900 rounded-lg max-w-4xl w-full my-8">
+        <div className="p-8 space-y-6">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-1.5 text-sm text-gray-400">
+            <button onClick={onClose} className="hover:text-primary transition-colors">Home</button>
+            <span>›</span>
+            <button onClick={onClose} className="hover:text-primary transition-colors">Profile</button>
+            <span>›</span>
+            <span className="text-gray-700 dark:text-gray-300 font-semibold truncate">{item.name}</span>
+            <span>›</span>
+            <span className="text-gray-500">Forecast</span>
+          </div>
+
+          {/* Title */}
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{item.name}</h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Forecast & Historical Analysis</p>
-          </div>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-          >
-            ✕
-          </button>
-        </div>
-
-        <div className="p-6 space-y-8">
-          {/* Key Metrics */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Today's Price</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatCurrency(item.todayPrice)}</p>
-            </div>
-            <div className={`${trendBg} p-4 rounded-lg border ${item.trend === 'up' ? 'border-green-200 dark:border-green-700' : item.trend === 'down' ? 'border-red-200 dark:border-red-700' : 'border-gray-200 dark:border-gray-700'}`}>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Predicted Price</p>
-              <p className={`text-2xl font-bold ${trendColor}`}>{formatCurrency(item.predictedPrice)}</p>
-            </div>
-            <div className={`${trendBg} p-4 rounded-lg border ${item.trend === 'up' ? 'border-green-200 dark:border-green-700' : item.trend === 'down' ? 'border-red-200 dark:border-red-700' : 'border-gray-200 dark:border-gray-700'}`}>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">14-Day Change</p>
-              <p className={`text-2xl font-bold ${trendColor}`}>{formatPercent(item.predictedChange / 100)}</p>
-            </div>
-            <div className="bg-purple-50 dark:bg-purple-900/20 p-4 rounded-lg border border-purple-200 dark:border-purple-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Period Growth</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">{formatPercent(item.growthPct / 100)}</p>
-            </div>
+            <h1 className="text-2xl font-black tracking-tight text-gray-900 dark:text-white md:text-3xl">
+              {item.name} price prediction
+            </h1>
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 max-w-lg">
+              What will <strong>{item.name}</strong> cost in the next 14 days?
+              Our ML model forecasts the price using 1 year of KPDN PriceCatcher data.
+            </p>
           </div>
 
-          {/* 14-Day Forecast Chart */}
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 bg-gray-50 dark:bg-gray-800">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">14-Day Price Forecast</h3>
-            {forecastData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={forecastData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis 
-                    dataKey="date" 
-                    stroke="#6b7280"
-                    style={{ fontSize: '12px' }}
-                  />
-                  <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
-                  <Tooltip 
-                    contentStyle={{ 
-                      backgroundColor: '#1f2937', 
-                      border: '1px solid #374151',
-                      borderRadius: '8px'
-                    }}
-                    formatter={(value: any) => `RM ${(value as number).toFixed(2)}`}
-                  />
-                  <ReferenceLine 
-                    y={item.todayPrice}
-                    stroke="#3b82f6"
-                    strokeDasharray="5 5"
-                    label={{ value: 'Today', position: 'right', fill: '#3b82f6', fontSize: 12 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="price"
-                    stroke="#f59e0b"
-                    dot={false}
-                    strokeWidth={3}
-                    isAnimationActive={false}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            ) : (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No forecast data available</p>
-            )}
-          </div>
+          {/* Prediction summary card with combined chart */}
+          <div className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-5 shadow-sm space-y-4">
+            <p className="text-sm text-gray-400">
+              Price in 14 days with ML-predicted growth
+            </p>
+            <div className="flex items-center gap-4">
+              <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-sm font-black text-primary">
+                {initials(item.name)}
+              </div>
+              <span className={`text-lg font-bold ${predChangeFromToday < 0 ? "text-emerald-600 dark:text-green-400" : predChangeFromToday > 0 ? "text-red-500 dark:text-red-400" : "text-gray-500"}`}>
+                {predChangeFromToday > 0 ? "+" : ""}{fmt(predChangeFromToday)}% predicted change
+              </span>
+            </div>
 
-          {/* Historical Chart */}
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg p-6 bg-gray-50 dark:bg-gray-800">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Historical Price Trend (1 Year)</h3>
-            {chartData.length > 0 ? (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="month" stroke="#6b7280" style={{ fontSize: '12px' }} />
-                  <YAxis stroke="#6b7280" style={{ fontSize: '12px' }} />
+            {/* Combined Chart */}
+            <div className="h-[280px] md:h-[360px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                  <XAxis dataKey="label" tick={{ fontSize: 11, fill: "#9ca3af" }} interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 11, fill: "#9ca3af" }} tickFormatter={(v) => `RM${v.toFixed(0)}`} domain={["auto", "auto"]} width={65} />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: '#1f2937',
-                      border: '1px solid #374151',
-                      borderRadius: '8px'
-                    }}
-                    formatter={(value: any) => `RM ${(value as number).toFixed(2)}`}
+                    contentStyle={{ backgroundColor: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", fontSize: "12px" }}
+                    formatter={(value: number, name: string) => [`RM ${value.toFixed(2)}`, name === "actual" ? "Actual" : "Forecast"]}
                   />
-                  <Line type="monotone" dataKey="avg" stroke="#3b82f6" strokeWidth={2} isAnimationActive={false} />
-                  <Line type="monotone" dataKey="min" stroke="#ef4444" strokeWidth={1} strokeDasharray="5 5" isAnimationActive={false} />
-                  <Line type="monotone" dataKey="max" stroke="#10b981" strokeWidth={1} strokeDasharray="5 5" isAnimationActive={false} />
+                  {boundaryDate && (
+                    <ReferenceLine x={boundaryDate} stroke="#1558E0" strokeDasharray="4 4"
+                      label={{ value: "Today", position: "top", fill: "#1558E0", fontSize: 12, fontWeight: 700 }} />
+                  )}
+                  <Line type="monotone" dataKey="actual" stroke="#1558E0" strokeWidth={2.5} dot={{ r: 3, fill: "#1558E0" }} connectNulls={false} />
+                  <Line type="monotone" dataKey="forecast" stroke="#7c3aed" strokeWidth={2.5} strokeDasharray="6 3" dot={{ r: 3, fill: "#7c3aed" }} connectNulls={false} />
                 </LineChart>
               </ResponsiveContainer>
-            ) : (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No historical data available</p>
-            )}
-          </div>
-
-          {/* Details */}
-          <div className="grid md:grid-cols-2 gap-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-            <div>
-              <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Category</p>
-              <p className="text-gray-900 dark:text-white">{item.category}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Unit</p>
-              <p className="text-gray-900 dark:text-white">{item.unit}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Group</p>
-              <p className="text-gray-900 dark:text-white">{item.group}</p>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Item Code</p>
-              <p className="text-gray-900 dark:text-white">{item.code}</p>
             </div>
           </div>
-        </div>
 
-        {/* Footer */}
-        <div className="border-t border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-800 flex justify-end gap-3">
+          {/* Price Stats Row */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <PriceStat label="Past 6mo avg" value={past6moAvg ? `RM ${fmt(past6moAvg)}` : "—"} />
+            <PriceStat label="Past 3mo avg" value={past3moAvg ? `RM ${fmt(past3moAvg)}` : "—"} />
+            <PriceStat label="Today's price" value={`RM ${fmt(item.todayPrice)}`} highlight />
+            <PriceStat label="Tomorrow*" value={`RM ${fmt(tomorrowPrice)}`} />
+            <PriceStat label="14 days later*" value={`RM ${fmt(day14Price)}`} accent />
+          </div>
+
+          {/* Best time to buy */}
+          <BestTimeToBuy forecast={fc} itemName={item.name} />
+
+          {/* Close button */}
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-white hover:bg-primary/90 shadow-sm transition-all"
           >
-            Close
+            <ChevronLeft className="h-4 w-4" /> Back to profiles
           </button>
         </div>
       </div>
     </div>
   );
 };
+
+function PriceStat({ label, value, highlight, accent }: { label: string; value: string; highlight?: boolean; accent?: boolean }) {
+  return (
+    <div className={`rounded-2xl p-4 text-center ${highlight ? "bg-primary/5 dark:bg-primary/20 border border-primary/20 dark:border-primary/30" : accent ? "bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-700" : "bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700"}`}>
+      <p className="text-[11px] text-gray-400 dark:text-gray-500 font-medium mb-1">{label}</p>
+      <p className={`text-lg font-black font-mono ${highlight ? "text-primary dark:text-blue-400" : accent ? "text-violet-600 dark:text-violet-400" : "text-gray-900 dark:text-gray-100"}`}>{value}</p>
+    </div>
+  );
+}
 
 export const ProfilePage = () => {
   const { user } = useAuthContext();
@@ -553,18 +530,21 @@ const [explorerItems, setExplorerItems] = useState<FavouriteItem[]>([]);
   }, [explorerItems, items, priceMap, janMap]);
 
   const enrichedForecastItems = useMemo(() => {
-    if (!forecastItems || !items || !forecastData) return [];
+    if (!forecastItems || !items || !forecastData || !pricesAgg || !pricesJan) return [];
     
     return forecastItems
       .map((favItem) => {
         const itemInfo = items.find((i) => i.c === favItem.item_id);
         const forecast = forecastData[String(favItem.item_id)];
-        if (!itemInfo || !forecast) return null;
+        const priceInfo = priceMap.get(favItem.item_id);
+        const janPrice = janMap.get(favItem.item_id) ?? null;
+        
+        if (!itemInfo || !forecast || !priceInfo) return null;
 
-        const latestData = forecast.forecast[forecast.forecast.length - 1];
-        const oldestData = forecast.forecast[0];
-        const predictedPrice = latestData?.price ?? favItem.avg_price;
-        const todayPrice = oldestData?.price ?? favItem.avg_price;
+        const todayPrice = priceInfo.avg;
+        const growthPct = janPrice && janPrice > 0 ? ((todayPrice - janPrice) / janPrice) * 100 : 0;
+        
+        const predictedPrice = forecast.forecast[forecast.forecast.length - 1]?.price ?? forecast.last_price;
         const predictedChange = ((predictedPrice - todayPrice) / todayPrice) * 100;
 
         return {
@@ -574,15 +554,15 @@ const [explorerItems, setExplorerItems] = useState<FavouriteItem[]>([]);
           group: itemInfo.g || 'N/A',
           category: favItem.category,
           todayPrice,
-          growthPct: ((favItem.avg_price - todayPrice) / todayPrice) * 100 || 0,
+          growthPct,
           predictedPrice,
           predictedChange,
           trend: predictedPrice > todayPrice ? 'up' : predictedPrice < todayPrice ? 'down' : 'stable',
           forecast,
-        };
+        } as EnrichedForecastItem;
       })
       .filter((item): item is EnrichedForecastItem => item !== null);
-  }, [forecastItems, items, forecastData]);
+  }, [forecastItems, items, forecastData, priceMap, janMap]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
@@ -677,9 +657,9 @@ const [explorerItems, setExplorerItems] = useState<FavouriteItem[]>([]);
         {/* Forecast Favourites */}
         <section>
           <div className="flex items-center gap-3 mb-6">
-            <TrendingDown className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+            <TrendingDown className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Price Forecast</h2>
-            <span className="ml-auto bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-300 px-3 py-1 rounded-full text-sm font-semibold">
+            <span className="ml-auto bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 px-3 py-1 rounded-full text-sm font-semibold">
               {enrichedForecastItems.length}
             </span>
           </div>
@@ -701,15 +681,15 @@ const [explorerItems, setExplorerItems] = useState<FavouriteItem[]>([]);
               <p className="text-gray-400 dark:text-gray-500 max-w-md mx-auto">Visit the Best Time to Buy section and track items to monitor their future price movements.</p>
             </div>
           ) : (
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden divide-y divide-gray-100 dark:divide-gray-700/50">
-              <div className="hidden sm:grid grid-cols-[2.5rem_1fr_7rem_7rem_7rem_3rem_5rem] gap-x-4 px-4 py-3 bg-gray-50/50 dark:bg-gray-800/50 border-b border-gray-100 dark:border-gray-700 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden divide-y divide-gray-50 dark:divide-gray-700">
+              <div className="hidden sm:grid grid-cols-[2.5rem_1fr_7rem_7rem_7rem_3rem_5rem] gap-x-4 px-5 py-3 text-xs font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100 dark:border-gray-700 dark:bg-gray-800">
                 <span>#</span>
-                <span>Item</span>
-                <span className="text-right">Now</span>
-                <span className="text-right">Growth</span>
-                <span className="text-right">After 14d</span>
-                <span className="text-center">Track</span>
-                <span className="text-right">Action</span>
+                <span>Asset</span>
+                <span className="text-right">Today's price</span>
+                <span className="text-right">Past 1mo growth</span>
+                <span className="text-right">Predicted</span>
+                {user && <span className="text-center">Favourite</span>}
+                <span></span>
               </div>
               {enrichedForecastItems.map((item, idx) => (
                 <ForecastTableRow
