@@ -1,9 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, ReferenceLine,
 } from "recharts";
-import { useItemLookup, usePriceForecast, usePricesAgg, usePricesAggJan, usePriceHistory } from "@/hooks/usePriceCatcher";
+import { useItemLookup, usePriceForecast, usePricesAgg, usePricesAggJan, usePriceHistory, usePricesByState, usePricesByStore, usePremises } from "@/hooks/usePriceCatcher";
 import { useFavouritesForecasts } from "@/hooks/useFavourites";
 import { useAuthContext } from "@/contexts/AuthContext";
 import {
@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import { SkeletonCard } from "@/components/SkeletonCard";
 import { BestTimeToBuy } from "@/components/BestTimeToBuy";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { STATES } from "@/lib/pricecatcher";
 import type { ItemForecast, ItemLookup } from "@/lib/pricecatcher";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
@@ -63,12 +65,29 @@ export function PriceForecast() {
   const { data: forecast, isLoading: lf } = usePriceForecast();
   const { data: pricesAgg, isLoading: lp } = usePricesAgg();
   const { data: pricesJan, isLoading: lj } = usePricesAggJan();
+  const { data: pricesByState, isLoading: lpbs } = usePricesByState();
+  const { data: pricesByStore, isLoading: lpbst } = usePricesByStore();
+  const { data: premises, isLoading: lprem } = usePremises();
 
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(0);
   const [selectedItem, setSelectedItem] = useState<EnrichedForecastItem | null>(null);
+  const [selectedState, setSelectedState] = useState<string>("all");
+  const [selectedStore, setSelectedStore] = useState<string>("all");
 
-  const isLoading = li || lf || lp || lj;
+  const isLoading = li || lf || lp || lj || lpbs || lpbst || lprem;
+
+  // Filter premises by selected state
+  const storesInState = useMemo(() => {
+    if (!premises) return [];
+    if (selectedState === "all") return premises;
+    return premises.filter((p) => p.s === selectedState).sort((a, b) => a.n.localeCompare(b.n));
+  }, [premises, selectedState]);
+
+  // Reset store selection when state changes
+  useEffect(() => {
+    setSelectedStore("all");
+  }, [selectedState]);
 
   // ── Build enriched list ──────────────────────────────────────────────────
   const enriched: EnrichedForecastItem[] = useMemo(() => {
@@ -80,8 +99,27 @@ export function PriceForecast() {
       .map((item: ItemLookup) => {
         const fc = forecast[String(item.c)];
         if (!fc || fc.forecast.length === 0) return null;
-        const todayPrice = priceMap.get(item.c) ?? fc.last_price;
-        const janPrice = janMap.get(item.c);
+        
+        let todayPrice = priceMap.get(item.c) ?? fc.last_price;
+        let janPrice = janMap.get(item.c);
+
+        // Apply store-specific baseline if selected
+        if (selectedStore !== "all" && pricesByStore) {
+          const storeData = pricesByStore[String(item.c)]?.[selectedStore];
+          if (!storeData) return null;
+          todayPrice = storeData.avg;
+          // For Jan price, fallback to global if not available per store
+          janPrice = janPrice ?? fc.last_price;
+        }
+        // Apply state-specific baseline if selected (and no store)
+        else if (selectedState !== "all" && pricesByState) {
+          const stateData = pricesByState[String(item.c)]?.[selectedState];
+          if (!stateData) return null;
+          todayPrice = stateData.avg;
+          // For Jan price, fallback to global if not available per state
+          janPrice = janPrice ?? fc.last_price;
+        }
+
         const growthPct = janPrice && janPrice > 0 ? ((todayPrice - janPrice) / janPrice) * 100 : 0;
         const predictedPrice = fc.forecast[fc.forecast.length - 1].price;
         const predictedChange = ((predictedPrice - todayPrice) / todayPrice) * 100;
@@ -101,7 +139,7 @@ export function PriceForecast() {
         } as EnrichedForecastItem;
       })
       .filter(Boolean) as EnrichedForecastItem[];
-  }, [items, forecast, pricesAgg, pricesJan]);
+  }, [items, forecast, pricesAgg, pricesJan, pricesByState, pricesByStore, selectedState, selectedStore]);
 
   // ── Top 5 predicted to go cheaper ────────────────────────────────────────
   const cheaperPicks = useMemo(() => {
@@ -198,30 +236,70 @@ export function PriceForecast() {
       {/* Data Table Card */}
       <div className="rounded-2xl border border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm overflow-hidden transition-colors duration-200">
         {/* Table header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-5 pt-5 pb-4 border-b border-gray-100 dark:border-gray-700">
-          <div>
-            <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
-              All Forecasts
-            </span>
-            <span className="text-sm text-gray-400 dark:text-gray-500 ml-2">
-              {allFiltered.length} items
-            </span>
+        <div className="flex flex-col gap-4 px-5 pt-5 pb-4 border-b border-gray-100 dark:border-gray-700">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <span className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                All Forecasts
+              </span>
+              <span className="text-sm text-gray-400 dark:text-gray-500 ml-2">
+                {allFiltered.length} items
+              </span>
+              {selectedStore !== "all" && premises && (
+                <span className="ml-4 text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                  📍 {premises.find((p) => String(p.c) === selectedStore)?.n}
+                </span>
+              )}
+              {selectedState !== "all" && selectedStore === "all" && (
+                <span className="ml-4 text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+                  📍 State: {selectedState}
+                </span>
+              )}
+            </div>
+            <div className="relative w-full sm:w-56">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+                maxLength={120}
+                aria-label="Search forecasted products"
+                className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              />
+              {search && (
+                <button onClick={() => { setSearch(""); setPage(0); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
           </div>
-          <div className="relative w-full sm:w-56">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(0); }}
-              maxLength={120}
-              aria-label="Search forecasted products"
-              className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700 pl-9 pr-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:border-primary focus:bg-white dark:focus:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-            />
-            {search && (
-              <button onClick={() => { setSearch(""); setPage(0); }} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400">
-                <X className="h-3.5 w-3.5" />
-              </button>
+
+          {/* Location Filters */}
+          <div className="flex flex-col sm:flex-row gap-3 w-full">
+            <Select value={selectedState} onValueChange={setSelectedState}>
+              <SelectTrigger className="w-full sm:w-[180px] h-10 text-sm" aria-label="Filter forecast by state">
+                <SelectValue placeholder="Filter by State" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All States</SelectItem>
+                {STATES.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
+              </SelectContent>
+            </Select>
+            {selectedState !== "all" && (
+              <Select value={selectedStore} onValueChange={setSelectedStore}>
+                <SelectTrigger className="w-full sm:w-[220px] h-10 text-sm" aria-label="Filter forecast by store">
+                  <SelectValue placeholder="Filter by Store" />
+                </SelectTrigger>
+                <SelectContent className="max-h-80">
+                  <SelectItem value="all">All Stores in {selectedState}</SelectItem>
+                  {storesInState.map((store) => (
+                    <SelectItem key={store.c} value={String(store.c)}>
+                      {store.n}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             )}
           </div>
         </div>

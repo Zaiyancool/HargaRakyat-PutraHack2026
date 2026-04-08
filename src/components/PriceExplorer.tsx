@@ -4,7 +4,7 @@ import { SkeletonTable } from "@/components/SkeletonCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useItemLookup, usePricesAgg, usePricesByState } from "@/hooks/usePriceCatcher";
+import { useItemLookup, usePricesAgg, usePricesByState, usePricesByStore, usePremises } from "@/hooks/usePriceCatcher";
 import { useFavouritesExplorer } from "@/hooks/useFavourites";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { STATES, ITEM_GROUPS, type ItemLookup } from "@/lib/pricecatcher";
@@ -12,6 +12,7 @@ import { STATES, ITEM_GROUPS, type ItemLookup } from "@/lib/pricecatcher";
 export function PriceExplorer() {
   const [search, setSearch] = useState("");
   const [selectedState, setSelectedState] = useState<string>("all");
+  const [selectedStore, setSelectedStore] = useState<string>("all");
   const [selectedGroup, setSelectedGroup] = useState<string>("all");
   const [showCount, setShowCount] = useState(100);
   
@@ -21,8 +22,22 @@ export function PriceExplorer() {
   const { data: items, isLoading: loadingItems } = useItemLookup();
   const { data: pricesAgg, isLoading: loadingPrices } = usePricesAgg();
   const { data: pricesByState, isLoading: loadingByState } = usePricesByState();
+  const { data: pricesByStore, isLoading: loadingByStore } = usePricesByStore();
+  const { data: premises, isLoading: loadingPremises } = usePremises();
 
-  const isLoading = loadingItems || loadingPrices || loadingByState;
+  const isLoading = loadingItems || loadingPrices || loadingByState || loadingByStore || loadingPremises;
+
+  // Filter premises by selected state
+  const storesInState = useMemo(() => {
+    if (!premises) return [];
+    if (selectedState === "all") return premises;
+    return premises.filter((p) => p.s === selectedState).sort((a, b) => a.n.localeCompare(b.n));
+  }, [premises, selectedState]);
+
+  // Reset store selection when state changes
+  useEffect(() => {
+    setSelectedStore("all");
+  }, [selectedState]);
 
   const itemMap = useMemo(() => {
     const map = new Map<number, ItemLookup>();
@@ -37,12 +52,22 @@ export function PriceExplorer() {
         const item = itemMap.get(p.c);
         if (!item) return null;
         if (selectedGroup !== "all" && item.g !== selectedGroup) return null;
+        
         let stats = { avg: p.avg, min: p.min, max: p.max, n: p.n };
-        if (selectedState !== "all" && pricesByState) {
+        
+        // Apply store filtering if selected
+        if (selectedStore !== "all" && pricesByStore) {
+          const storeData = pricesByStore[String(p.c)]?.[selectedStore];
+          if (!storeData) return null;
+          stats = storeData;
+        } 
+        // Apply state filtering if selected (and no store selected)
+        else if (selectedState !== "all" && pricesByState) {
           const stateData = pricesByState[String(p.c)]?.[selectedState];
           if (!stateData) return null;
           stats = stateData;
         }
+        
         return { item_code: p.c, item: item.n, unit: item.u, category: item.k, group: item.g, ...stats };
       })
       .filter((r): r is NonNullable<typeof r> => {
@@ -51,7 +76,7 @@ export function PriceExplorer() {
         return r.item.toLowerCase().includes(search.toLowerCase()) || r.category.toLowerCase().includes(search.toLowerCase());
       })
       .sort((a, b) => b.n - a.n);
-  }, [pricesAgg, pricesByState, items, selectedState, selectedGroup, search, itemMap]);
+  }, [pricesAgg, pricesByState, pricesByStore, items, selectedState, selectedStore, selectedGroup, search, itemMap]);
 
   return (
     <div>
@@ -89,6 +114,22 @@ export function PriceExplorer() {
                 {STATES.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
               </SelectContent>
             </Select>
+            {selectedState !== "all" && (
+              <Select value={selectedStore} onValueChange={setSelectedStore}>
+                <SelectTrigger className="w-full sm:w-[220px] bg-secondary border-border" aria-label="Filter by store">
+                  <Filter className="w-4 h-4 mr-2 text-muted-foreground" />
+                  <SelectValue placeholder="Store" />
+                </SelectTrigger>
+                <SelectContent className="max-h-80">
+                  <SelectItem value="all">All Stores in {selectedState}</SelectItem>
+                  {storesInState.map((store) => (
+                    <SelectItem key={store.c} value={String(store.c)}>
+                      {store.n}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
             <Select value={selectedGroup} onValueChange={setSelectedGroup}>
               <SelectTrigger className="w-full sm:w-[200px] bg-secondary border-border" aria-label="Filter by category">
                 <SelectValue placeholder="Category" />
@@ -103,6 +144,16 @@ export function PriceExplorer() {
 
         <div className="text-sm text-muted-foreground">
           Data period: <span className="text-foreground font-medium font-mono">Mar 2026</span>
+          {selectedStore !== "all" && premises && (
+            <span className="ml-4 text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+              📍 {premises.find((p) => String(p.c) === selectedStore)?.n}
+            </span>
+          )}
+          {selectedState !== "all" && selectedStore === "all" && (
+            <span className="ml-4 text-xs bg-primary/10 text-primary px-2 py-1 rounded">
+              📍 State: {selectedState}
+            </span>
+          )}
           {!isLoading && <span className="ml-4 font-mono">{aggregated.length} items found</span>}
         </div>
 

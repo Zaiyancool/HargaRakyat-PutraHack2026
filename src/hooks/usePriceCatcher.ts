@@ -5,6 +5,7 @@ import {
   fetchPricesAgg,
   fetchPricesAggJan,
   fetchPricesByState,
+  fetchPricesByStore,
   fetchPriceHistory,
   fetchCheapestStores,
   fetchPriceForecast,
@@ -13,6 +14,7 @@ import {
   type PremiseLookup,
   type PriceAgg,
   type PriceByState,
+  type PricesByStore,
   type PriceHistory,
   type CheapestStores,
   type PriceForecastData,
@@ -48,6 +50,14 @@ export function usePricesByState() {
   return useQuery<PriceByState>({
     queryKey: ["prices-by-state"],
     queryFn: fetchPricesByState,
+    staleTime: Infinity,
+  });
+}
+
+export function usePricesByStore() {
+  return useQuery<PricesByStore>({
+    queryKey: ["prices-by-store"],
+    queryFn: fetchPricesByStore,
     staleTime: Infinity,
   });
 }

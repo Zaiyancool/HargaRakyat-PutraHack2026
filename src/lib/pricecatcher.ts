@@ -34,6 +34,7 @@ export interface StateStats {
 
 export type PriceByState = Record<string, Record<string, StateStats>>;
 export type PriceHistory = Record<string, Record<string, StateStats>>;
+export type PricesByStore = Record<string, Record<string, StateStats>>;
 
 export interface ForecastPoint {
   date: string;
@@ -134,6 +135,7 @@ export const fetchPremises = () => fetchJSON<PremiseLookup[]>("/data/premises.js
 export const fetchPricesAgg = () => fetchJSON<PriceAgg[]>("/data/prices_agg.json");
 export const fetchPricesAggJan = () => fetchJSON<PriceAgg[]>("/data/prices_agg_jan.json");
 export const fetchPricesByState = () => fetchJSON<PriceByState>("/data/prices_by_state.json");
+export const fetchPricesByStore = () => fetchJSON<PricesByStore>("/data/prices_by_store.json");
 export const fetchPriceHistory = () => fetchJSON<PriceHistory>("/data/prices_history.json");
 export const fetchCheapestStores = () => fetchJSON<CheapestStores>("/data/cheapest_stores.json");
 export const fetchPriceForecast = () =>
