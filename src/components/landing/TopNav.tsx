@@ -29,9 +29,9 @@ export function TopNav() {
 
   const isActive = (href: string) => {
     if (href === "/dashboard" && location.pathname === "/dashboard" && !location.search) return true;
-if (href !== "/dashboard" && href !== "/news" && location.pathname + location.search === href) return true;
+    if (href === "/recipe" && location.pathname === "/recipe") return true;
+    if (href !== "/dashboard" && href !== "/news" && href !== "/recipe" && location.pathname + location.search === href) return true;
     if (href === "/news" && location.pathname === "/news") return true;
-
     return false;
   };
 
