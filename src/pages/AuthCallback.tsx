@@ -18,13 +18,24 @@ const AuthCallback = () => {
   useEffect(() => {
     const handleCallback = async () => {
       try {
+        // Log for debugging
+        console.log('AuthCallback: Processing OAuth callback...');
+        console.log('Current URL:', window.location.href);
+        console.log('Hash:', window.location.hash);
+
+        // Wait a moment for Supabase to process the hash token
+        await new Promise(resolve => setTimeout(resolve, 500));
+
         // Get the current session
         const {
           data: { session },
           error: sessionError,
         } = await supabase.auth.getSession();
 
+        console.log('Session check result:', { session: !!session, error: sessionError });
+
         if (sessionError) {
+          console.error('Session error:', sessionError);
           setError(sessionError.message);
           setLoading(false);
           
@@ -35,16 +46,19 @@ const AuthCallback = () => {
 
         if (session && session.user) {
           // User is authenticated, redirect to dashboard
+          console.log('User authenticated successfully:', session.user.email);
           setLoading(false);
           navigate('/dashboard', { replace: true });
         } else {
           // No session found
+          console.warn('No session found after OAuth callback');
           setError('Authentication failed. Please try again.');
           setLoading(false);
           setTimeout(() => navigate('/login'), 2000);
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'An error occurred';
+        console.error('AuthCallback error:', message, err);
         setError(message);
         setLoading(false);
         setTimeout(() => navigate('/login'), 2000);
