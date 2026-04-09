@@ -139,8 +139,8 @@ serve(async (req) => {
 
     const safeContext = safeText(context, MAX_CONTEXT_LENGTH);
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
     const systemPrompt = `You are HargaRakyat AI advisor — a Malaysian grocery price intelligence assistant.
 
@@ -163,21 +163,17 @@ Guidelines:
 - If you don't have specific data, say so honestly
 - Format prices with font emphasis where helpful`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...normalizedMessages,
-        ],
-        stream: true,
-      }),
-    });
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            { role: "user", parts: [{ text: `${systemPrompt}\n${normalizedMessages.map(m => m.content).join('\n')}` }] }
+          ]
+        })
+      }
+    );
 
     if (!response.ok) {
       if (response.status === 429) {

@@ -19,7 +19,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="theme-preference">
+  <ThemeProvider attribute="class" defaultTheme="light" enableSystem storageKey="theme-preference">
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />

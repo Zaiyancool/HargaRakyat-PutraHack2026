@@ -126,8 +126,8 @@ serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) {
       return new Response(
         JSON.stringify({ error: "AI not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -165,23 +165,17 @@ serve(async (req) => {
 
 Write in a professional but accessible tone. Use RM (Ringgit Malaysia) for currency. Be specific about items and percentages when possible. Do NOT use markdown headers — write flowing paragraphs.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
-        messages: [
-          { role: "system", content: systemPrompt },
-          {
-            role: "user",
-            content: `Here are the latest Malaysian food price news headlines:\n\n${headlineList}\n\nProvide a market intelligence brief based on these signals.`,
-          },
-        ],
-      }),
-    });
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            { role: "user", parts: [{ text: `${systemPrompt}\nHere are the latest Malaysian food price news headlines:\n\n${headlineList}\n\nProvide a market intelligence brief based on these signals.` }] }
+          ]
+        })
+      }
+    );
 
     if (!response.ok) {
       if (response.status === 429) {
@@ -205,7 +199,7 @@ Write in a professional but accessible tone. Use RM (Ringgit Malaysia) for curre
     }
 
     const data = await response.json();
-    const brief = data.choices?.[0]?.message?.content ?? "Unable to generate summary.";
+    const brief = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "Unable to generate summary.";
 
     return new Response(
       JSON.stringify({ brief, generated_at: new Date().toISOString() }),
