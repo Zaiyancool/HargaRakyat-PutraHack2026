@@ -34,6 +34,7 @@ const App = () => (
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/auth-callback" element={<AuthCallback />} />
                 <Route path="/dashboard" element={<Index />} />
+                <Route path="/recipe" element={<RecipePage />} />
                 <Route path="/news" element={<NewsPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
