@@ -12,6 +12,7 @@ import Signup from "./pages/Signup";
 import ForgotPassword from "./pages/ForgotPassword";
 import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
+import RecipePage from "./pages/Recipe";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 
@@ -33,6 +34,7 @@ const App = () => (
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/auth-callback" element={<AuthCallback />} />
                 <Route path="/dashboard" element={<Index />} />
+                <Route path="/recipe" element={<RecipePage />} />
                 <Route path="/news" element={<NewsPage />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
